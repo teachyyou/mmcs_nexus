@@ -1,7 +1,7 @@
 # MMCS NEXUS
 
 ## Brief Description
-This is the main repository for the development of MMCS NEXUS, a platform designed to automate project activities at the Institute of Mechanics, Mathematics, and Computer Science (MMCS). The earliest planned version of platform facilitates team organization, aiming to improve efficiency and collaboration among students and faculty.
+This is the main repository for the development of MMCS Nexus, a platform designed to automate project activities at the Institute of Mathematics, Mechanics, and Computer Science (MMCS). The earliest planned version of platform facilitates team organization, aiming to improve efficiency and collaboration among students and faculty.
 
 ## Project Overview and Development Status
 The project will be developed using Java and React. The main goal is to achieve extensive automation helping all MMCS project activities participants.
