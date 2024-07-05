@@ -20,7 +20,12 @@ public class SecurityConfig {
                     auth.anyRequest().authenticated();
                 })
                 .oauth2Login(httpSecurityOAuth2LoginConfigurer -> httpSecurityOAuth2LoginConfigurer.successHandler(this.successHandler()))
+                .exceptionHandling(exceptionHandling ->
+                        exceptionHandling
+                                .authenticationEntryPoint((request, response, authException) -> response.sendRedirect("http://localhost:3000/login"))
+                )
                 .formLogin(Customizer.withDefaults())
+
                 .build();
     }
 

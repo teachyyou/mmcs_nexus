@@ -1,18 +1,19 @@
 import React from 'react';
-import LoginButton from './components/login/LoginButton';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import LoginPage from './components/login/LoginPage';
+import HomePage from './components/home/HomePage';
 import './App.css';
 
 function App() {
-    const handleLogin = () => {
-        window.location.href = 'http://localhost:8080/login';
-    };
-
     return (
-        <div className="App">
-            <header className="App-header">
-                <LoginButton handleLogin={handleLogin} />
-            </header>
-        </div>
+        <Router>
+            <div className="App">
+                <Routes>
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/" element={<HomePage />} />
+                </Routes>
+            </div>
+        </Router>
     );
 }
 
