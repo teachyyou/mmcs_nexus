@@ -26,7 +26,7 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationSuccessHandler successHandler() {
-        return ((request, response, authentication) ->
+        return ((_, response, _) ->
                 response.sendRedirect("/secured"));
     }
 }

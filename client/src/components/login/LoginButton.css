@@ -1,0 +1,15 @@
+.login-button {
+    margin-top: 20px;
+    height: 100px !important;
+    width: 200px !important;
+    border-radius: 50px !important; /* Ensuring the glow is circular */
+    background-color: #3f51b5 !important; /* Primary color */
+    color: white !important; /* Text color */
+    transition: box-shadow, opacity 0.5s ease-in-out, transform 0.5s ease-in-out !important;
+}
+
+.login-button:hover {
+    box-shadow: 0 0 15px 5px rgba(173, 216, 230, 1); /* Light blue circular glow */
+    transform: translateY(-5px);  /* Slightly lift the button */
+    opacity: 0.95;
+}
