@@ -29,7 +29,6 @@ public class SecurityConfig {
                         .logoutUrl("/logout")
                         .logoutSuccessHandler((request, response, authentication) -> {
                             response.setStatus(HttpServletResponse.SC_OK);
-                            response.sendRedirect("http://localhost:3000/login");
                         })
                         .deleteCookies("JSESSIONID")
                         .invalidateHttpSession(true)
