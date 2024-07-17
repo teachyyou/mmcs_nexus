@@ -47,9 +47,9 @@ const HomePage = () => {
         <div className="App">
             <header className="App-header">
                 {isAuthenticated ? (
-                    <button onClick={handleLogout}>Logout</button>
+                    <LoginButton handleLogin={handleLogout} buttonText="Logout" />
                 ) : (
-                    <LoginButton handleLogin={handleLogin} />
+                    <LoginButton handleLogin={handleLogin} buttonText="Login" />
                 )}
             </header>
         </div>
