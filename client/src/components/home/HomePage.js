@@ -1,57 +1,16 @@
-import React, {useState, useEffect} from 'react';
-import { useNavigate } from 'react-router-dom';
-import LoginButton from '../login/LoginButton';
+import React from 'react';
+import NavigationBar from './NavigationBar';
+import {StyledEngineProvider} from "@mui/material";
 
-const HomePage = () => {
-    const navigate = useNavigate();
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-
-    useEffect(() => {
-        // Check if the user is authenticated
-        fetch('http://localhost:8080/api/auth/status', {
-            credentials: 'include'
-        })
-            .then(response => {
-                return response.json();
-            })
-            .then(data => {
-                setIsAuthenticated(data.isAuthenticated);
-            })
-            .catch(error => {
-                console.error('There was a problem with the fetch operation:', error);
-            });
-    }, []);
-
-    const handleLogin = () => {
-        navigate('/login');
-    };
-
-    const handleLogout = () => {
-        fetch('http://localhost:8080/logout', {
-            method: 'POST',
-            credentials: 'include'
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
-                setIsAuthenticated(false);
-                navigate('/');
-            })
-            .catch(error => {
-                console.error('There was a problem with the fetch operation:', error);
-            });
-    };
-
+const HomePage = ({ isAuthenticated, setIsAuthenticated }) => {
     return (
         <div className="App">
             <header className="App-header">
-                {isAuthenticated ? (
-                    <LoginButton handleLogin={handleLogout} buttonText="Logout" />
-                ) : (
-                    <LoginButton handleLogin={handleLogin} buttonText="Login" />
-                )}
+                <StyledEngineProvider injectFirst>
+                    <NavigationBar className='navigation-bar' isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />
+                </StyledEngineProvider>
             </header>
+
         </div>
     );
 };

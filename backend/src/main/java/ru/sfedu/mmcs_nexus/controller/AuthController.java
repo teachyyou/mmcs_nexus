@@ -12,7 +12,7 @@ import java.util.Map;
 public class AuthController {
 
     @ResponseBody
-    @GetMapping(value = "/api/auth/status", produces="application/json")
+    @GetMapping(value = "/api/v1/auth/status", produces="application/json")
     public Map<String, Boolean> getAuthStatus(Authentication authentication) {
         Map<String, Boolean> response = new HashMap<>();
         response.put("isAuthenticated", authentication != null && authentication.isAuthenticated());
