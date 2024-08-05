@@ -3,6 +3,7 @@ import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
 import LoginPage from './components/login/LoginPage';
 import HomePage from './components/home/HomePage';
 import './App.css';
+import CompleteProfilePage from "./components/login/CompleteProfilePage";
 
 
 function App() {
@@ -26,6 +27,7 @@ function App() {
             <Routes>
                 <Route path="/login" element={<LoginPage />} />
                 <Route path="/" element={<HomePage isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />} />
+                <Route path="/complete-profile" element={<CompleteProfilePage />} />
             </Routes>
         </Router>
     );

@@ -1,27 +1,36 @@
 package ru.sfedu.mmcs_nexus.config;
 
 import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import ru.sfedu.mmcs_nexus.user.UserService;
 
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+    @Autowired
+    private UserService userService;
+
+
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/api/v1/auth/status").permitAll();
+                    //auth.requestMatchers("/api/v1/auth/complete-profile").permitAll();
                     auth.requestMatchers("/").permitAll();
                     auth.anyRequest().authenticated();
                 })
-                .csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.ignoringRequestMatchers("/logout"))
+                .csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.ignoringRequestMatchers("/logout","/api/v1/auth/complete-profile"))
                 .cors(Customizer.withDefaults()) // Enable CORS
                 .logout(logout -> logout
                         .logoutUrl("/logout")
@@ -31,7 +40,8 @@ public class SecurityConfig {
                         .deleteCookies("JSESSIONID")
                         .invalidateHttpSession(true)
                 )
-                .oauth2Login(httpSecurityOAuth2LoginConfigurer -> httpSecurityOAuth2LoginConfigurer.successHandler(this.successHandler()))
+                .oauth2Login(httpSecurityOAuth2LoginConfigurer
+                        -> httpSecurityOAuth2LoginConfigurer.successHandler(this.successHandler()))
                 .exceptionHandling(exceptionHandling ->
                         exceptionHandling
                                 .authenticationEntryPoint((request, response, authException) -> response.sendRedirect(STR."\{ApplicationConfig.CLIENT_URL}/login"))
@@ -42,7 +52,18 @@ public class SecurityConfig {
 
     @Bean
     public AuthenticationSuccessHandler successHandler() {
-        return ((_, response, _) ->
-                response.sendRedirect("/secured"));
+        return ((request, response, authentication) -> {
+            DefaultOAuth2User oauthUser = (DefaultOAuth2User) authentication.getPrincipal();
+            String githubLogin = oauthUser.getAttribute("login");
+
+            if (userService.findByGithubLogin(githubLogin).isEmpty()) {
+                //todo fix this thing
+                //new SecurityContextLogoutHandler().logout(request, response, null);
+                response.sendRedirect(STR."\{ApplicationConfig.CLIENT_URL}/complete-profile?githubLogin=\{githubLogin}");
+            } else {
+                response.sendRedirect(STR."\{ApplicationConfig.CLIENT_URL}");
+            }
+        });
     }
+
 }
