@@ -30,7 +30,7 @@ public class SecurityConfig {
                     auth.requestMatchers("/").permitAll();
                     auth.anyRequest().authenticated();
                 })
-                .csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.ignoringRequestMatchers("/logout","/api/v1/auth/complete-profile"))
+                .csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.ignoringRequestMatchers("/logout","/api/v1/auth/complete-profile","/api/v1/auth/verify_status"))
                 .cors(Customizer.withDefaults()) // Enable CORS
                 .logout(logout -> logout
                         .logoutUrl("/logout")
@@ -57,11 +57,9 @@ public class SecurityConfig {
             String githubLogin = oauthUser.getAttribute("login");
 
             if (userService.findByGithubLogin(githubLogin).isEmpty()) {
-                //todo fix this thing
-                //new SecurityContextLogoutHandler().logout(request, response, null);
                 response.sendRedirect(STR."\{ApplicationConfig.CLIENT_URL}/complete-profile?githubLogin=\{githubLogin}");
             } else {
-                response.sendRedirect(STR."\{ApplicationConfig.CLIENT_URL}");
+                response.sendRedirect(ApplicationConfig.CLIENT_URL);
             }
         });
     }
