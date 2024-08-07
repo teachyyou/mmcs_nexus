@@ -17,9 +17,23 @@ function App() {
             .then(response => response.json())
             .then(data => {
                 setIsAuthenticated(data.isAuthenticated);
+                if (isAuthenticated) {
+                    fetch('http://localhost:8080/api/v1/auth/verify_status', {
+                        method: 'POST',
+                        credentials: 'include'
+                    })
+                        .then(response => response.json()) // Теперь мы ожидаем JSON
+                        .then(verified => {
+                            console.log(verified)
+                            setIsAuthenticated(verified); // Устанавливаем isAuthenticated в значение, возвращенное сервером
+                        })
+                        .catch(() => {
+                            setIsAuthenticated(false); // Если произошла ошибка, сбрасываем аутентификацию
+                        });
+                }
                 setIsLoading(false);
             })
-    }, []);
+    }, [isAuthenticated]);
 
 
     if (!isLoading) return (

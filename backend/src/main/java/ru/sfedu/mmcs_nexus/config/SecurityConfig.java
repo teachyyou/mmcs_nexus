@@ -26,7 +26,7 @@ public class SecurityConfig {
         return http
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/api/v1/auth/status").permitAll();
-                    //auth.requestMatchers("/api/v1/auth/complete-profile").permitAll();
+                    auth.requestMatchers("/api/v1/auth/complete-profile").permitAll();
                     auth.requestMatchers("/").permitAll();
                     auth.anyRequest().authenticated();
                 })

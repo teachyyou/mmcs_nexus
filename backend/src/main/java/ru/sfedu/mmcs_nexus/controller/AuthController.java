@@ -34,7 +34,7 @@ public class AuthController {
     }
 
     @PostMapping("api/v1/auth/verify_status")
-    public String verifyAuthStatus(Authentication authentication, HttpServletRequest request, HttpServletResponse response) {
+    public Boolean verifyAuthStatus(Authentication authentication, HttpServletRequest request, HttpServletResponse response) {
 
         if (authentication != null && authentication.isAuthenticated()) {
             DefaultOAuth2User oauthUser = (DefaultOAuth2User) authentication.getPrincipal();
@@ -48,11 +48,11 @@ public class AuthController {
                 cookie.setMaxAge(0); 
                 response.addCookie(cookie);
 
-                return "User not found, logged out";
+                return false;
             }
         }
 
-        return "User verified";
+        return true;
     }
 
     @ResponseBody
