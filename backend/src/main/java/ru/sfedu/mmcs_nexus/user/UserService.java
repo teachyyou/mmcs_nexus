@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class UserService {
@@ -23,7 +24,12 @@ public class UserService {
         userRepository.save(user);
     }
 
-    public List<User> findByGithubLogin(String githubLogin) {
-        return userRepository.findByLogin(githubLogin);
+    public Optional<User> findByGithubLogin(String githubLogin) {
+        return userRepository.findByLogin(githubLogin).stream().findFirst();
+    }
+
+    public boolean isNotFoundOrVerified(String githubLogin) {
+        Optional<User> optionalUser = findByGithubLogin(githubLogin);
+        return optionalUser.isEmpty() || optionalUser.get().getStatus() == User.UserStatus.NON_VERIFIED;
     }
 }

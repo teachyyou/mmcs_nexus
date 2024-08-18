@@ -10,6 +10,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import ru.sfedu.mmcs_nexus.user.User;
 import ru.sfedu.mmcs_nexus.user.UserService;
 
 @Configuration
@@ -56,7 +57,9 @@ public class SecurityConfig {
             DefaultOAuth2User oauthUser = (DefaultOAuth2User) authentication.getPrincipal();
             String githubLogin = oauthUser.getAttribute("login");
 
-            if (userService.findByGithubLogin(githubLogin).isEmpty()) {
+            if (userService.isNotFoundOrVerified(githubLogin)) {
+                User user = new User(githubLogin);
+                userService.saveUser(user);
                 response.sendRedirect(STR."\{ApplicationConfig.CLIENT_URL}/complete-profile?githubLogin=\{githubLogin}");
             } else {
                 response.sendRedirect(ApplicationConfig.CLIENT_URL);

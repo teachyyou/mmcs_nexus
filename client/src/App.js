@@ -9,8 +9,9 @@ import CompleteProfilePage from "./components/login/CompleteProfilePage";
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-
+    console.log("before use effect");
     useEffect(() => {
+        console.log("enter use effect, is authenticated =", isAuthenticated);
         fetch('http://localhost:8080/api/v1/auth/status', {
             credentials: 'include'
         })
@@ -22,13 +23,13 @@ function App() {
                         method: 'POST',
                         credentials: 'include'
                     })
-                        .then(response => response.json()) // Теперь мы ожидаем JSON
+                        .then(response => response.json())
                         .then(verified => {
                             console.log(verified)
-                            setIsAuthenticated(verified); // Устанавливаем isAuthenticated в значение, возвращенное сервером
+                            setIsAuthenticated(verified);
                         })
                         .catch(() => {
-                            setIsAuthenticated(false); // Если произошла ошибка, сбрасываем аутентификацию
+                            setIsAuthenticated(false);
                         });
                 }
                 setIsLoading(false);
