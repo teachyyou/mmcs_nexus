@@ -5,6 +5,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.web.bind.annotation.*;
@@ -34,7 +35,7 @@ public class AuthController {
     }
 
     @PostMapping("api/v1/auth/verify_status")
-    public String verifyAuthStatus(Authentication authentication, HttpServletRequest request, HttpServletResponse response) {
+    public Boolean verifyAuthStatus(Authentication authentication, HttpServletRequest request, HttpServletResponse response) {
 
         if (authentication != null && authentication.isAuthenticated()) {
             DefaultOAuth2User oauthUser = (DefaultOAuth2User) authentication.getPrincipal();
@@ -48,11 +49,11 @@ public class AuthController {
                 cookie.setMaxAge(0); 
                 response.addCookie(cookie);
 
-                return "User not found, logged out";
+                return false;
             }
         }
 
-        return "User verified";
+        return true;
     }
 
     @ResponseBody
@@ -70,8 +71,11 @@ public class AuthController {
 
     @PostMapping("api/v1/auth/complete-profile")
     public void completeProfile(@RequestParam String githubLogin, @RequestBody User user) {
-        user.setLogin(githubLogin);
-        userService.saveUser(user);
 
+        User existingUser = userService.findByGithubLogin(githubLogin)
+                .orElseThrow(() -> new UsernameNotFoundException(STR."User with GitHub login \{githubLogin} not found"));
+
+        existingUser.verifyExistingUser(user);
+        userService.saveUser(existingUser);
     }
 }
