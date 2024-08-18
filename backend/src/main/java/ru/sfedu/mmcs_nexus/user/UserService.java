@@ -24,6 +24,12 @@ public class UserService {
         userRepository.save(user);
     }
 
+    public void saveNewUser(String githubLogin) {
+        if (findByGithubLogin(githubLogin).isEmpty()) {
+            saveUser(new User(githubLogin));
+        }
+    }
+
     public Optional<User> findByGithubLogin(String githubLogin) {
         return userRepository.findByLogin(githubLogin).stream().findFirst();
     }

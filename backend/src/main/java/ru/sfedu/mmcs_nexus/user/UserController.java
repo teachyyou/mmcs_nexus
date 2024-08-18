@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 
+//TODO: remove this entire thing later
 @RestController
 @RequestMapping(path = "api/v1/student")
 public class UserController {
