@@ -1,24 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-const CompleteProfilePage = () => {
+const UpdateProfilePage = () => {
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [course, setCourse] = useState("");
     const [userGroup, setUserGroup] = useState("");
     const navigate = useNavigate();
-    const location = useLocation();
-    const [githubLogin, setGithubLogin] = useState("");
-
-    useEffect(() => {
-        const params = new URLSearchParams(location.search);
-        const githubLoginParam = params.get("githubLogin");
-        setGithubLogin(githubLoginParam);
-    }, [location]);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
-        const response = await fetch('http://localhost:8080/api/v1/auth/complete-profile?githubLogin=' + githubLogin, {
+
+        const response = await fetch('http://localhost:8080/api/v1/auth/update-profile', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -35,7 +28,7 @@ const CompleteProfilePage = () => {
         if (response.ok) {
             navigate('/');
         } else {
-            console.error('Profile completion failed.');
+            console.error('Profile updating failed.');
         }
     };
 
@@ -65,4 +58,4 @@ const CompleteProfilePage = () => {
     );
 };
 
-export default CompleteProfilePage;
+export default UpdateProfilePage;

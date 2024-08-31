@@ -1,51 +1,43 @@
 import React, {useEffect, useState} from 'react';
-import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
+import {BrowserRouter as Router, Route, Routes, Navigate} from 'react-router-dom';
 import LoginPage from './components/login/LoginPage';
 import HomePage from './components/home/HomePage';
 import './App.css';
-import CompleteProfilePage from "./components/login/CompleteProfilePage";
+import UpdateProfilePage from "./components/login/UpdateProfilePage";
+import ProtectedAuthenticationRoutes from './components/routes/ProtectedAuthenticationRoutes';
+import UpdateProfileInfoRoutes from "./components/routes/UpdateProfileInfoRoutes";
 
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-    console.log("before use effect");
+
     useEffect(() => {
-        console.log("enter use effect, is authenticated =", isAuthenticated);
         fetch('http://localhost:8080/api/v1/auth/status', {
             credentials: 'include'
         })
             .then(response => response.json())
             .then(data => {
                 setIsAuthenticated(data.isAuthenticated);
-                if (isAuthenticated) {
-                    fetch('http://localhost:8080/api/v1/auth/verify_status', {
-                        method: 'POST',
-                        credentials: 'include'
-                    })
-                        .then(response => response.json())
-                        .then(verified => {
-                            console.log(verified)
-                            setIsAuthenticated(verified);
-                        })
-                        .catch(() => {
-                            setIsAuthenticated(false);
-                        });
-                }
                 setIsLoading(false);
-            })
-    }, [isAuthenticated]);
-
+            });
+    }, []);
 
     if (!isLoading) return (
         <Router>
             <Routes>
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/" element={<HomePage isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />} />
-                <Route path="/complete-profile" element={<CompleteProfilePage />} />
+                <Route element={<ProtectedAuthenticationRoutes isAuthenticated={isAuthenticated}/>}>
+                    <Route path="/" element={<HomePage isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />} />
+                    <Route path="/login" element={<LoginPage />} />
+                </Route>
+                <Route element={<UpdateProfileInfoRoutes isAuthenticated={isAuthenticated}/>}>
+                    <Route path="/update-profile" element={<UpdateProfilePage />} />
+                </Route>
+
             </Routes>
         </Router>
     );
+
 }
 
 export default App;

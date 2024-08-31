@@ -10,7 +10,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import ru.sfedu.mmcs_nexus.user.User;
 import ru.sfedu.mmcs_nexus.user.UserService;
 
 @Configuration
@@ -20,18 +19,16 @@ public class SecurityConfig {
     @Autowired
     private UserService userService;
 
-
-
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/api/v1/auth/status").permitAll();
-                    auth.requestMatchers("/api/v1/auth/complete-profile").permitAll();
+                    auth.requestMatchers("/api/v1/auth/update-profile").permitAll();
                     auth.requestMatchers("/").permitAll();
                     auth.anyRequest().authenticated();
                 })
-                .csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.ignoringRequestMatchers("/logout","/api/v1/auth/complete-profile","/api/v1/auth/verify_status"))
+                .csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.ignoringRequestMatchers("/logout","/api/v1/auth/update-profile"))
                 .cors(Customizer.withDefaults()) // Enable CORS
                 .logout(logout -> logout
                         .logoutUrl("/logout")
@@ -58,9 +55,8 @@ public class SecurityConfig {
             String githubLogin = oauthUser.getAttribute("login");
 
             if (userService.isNotFoundOrVerified(githubLogin)) {
-                User user = new User(githubLogin);
-                userService.saveUser(user);
-                response.sendRedirect(STR."\{ApplicationConfig.CLIENT_URL}/complete-profile?githubLogin=\{githubLogin}");
+                userService.saveNewUser(githubLogin);
+                response.sendRedirect(STR."\{ApplicationConfig.CLIENT_URL}/update-profile");
             } else {
                 response.sendRedirect(ApplicationConfig.CLIENT_URL);
             }
