@@ -7,6 +7,8 @@ import java.util.List;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
+
+    //todo change to Optional<User>
     List<User> findByLogin(String login);
 
 }

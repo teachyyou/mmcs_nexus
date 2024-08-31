@@ -1,10 +1,13 @@
 package ru.sfedu.mmcs_nexus.user;
 
 import jakarta.persistence.*;
+import lombok.Data;
 
 @Entity
 @Table(name = "users")
+@Data
 public class User {
+
 
     public enum UserStatus {
         NON_VERIFIED,
@@ -32,33 +35,38 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserStatus status;
 
+    @Enumerated(EnumType.STRING)
+    private UserRole role;
+
     public User() {
-        this.status = UserStatus.NON_VERIFIED; // Default status
+        this.status = UserStatus.NON_VERIFIED;
     }
 
-    public User(Long id, String firstName, String lastName, String login, int userGroup, UserStatus status) {
+    public User(Long id, String firstName, String lastName, String login, int userGroup, UserStatus status, UserRole role) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.login = login;
         this.userGroup = userGroup;
         this.status = status;
+        this.role = role;
     }
 
-    public User(String firstName, String lastName, String login, int userGroup, UserStatus status) {
+    public User(String firstName, String lastName, String login, int userGroup, UserStatus status, UserRole role) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.login = login;
         this.userGroup = userGroup;
         this.status = status;
+        this.role = role;
     }
 
     public User(String login) {
         this.login = login;
         this.status = UserStatus.NON_VERIFIED;
+        this.role = UserRole.ROLE_ADMIN;
     }
 
-    // Getters and setters
     public Long getId() {
         return id;
     }
@@ -105,6 +113,14 @@ public class User {
 
     public void setStatus(UserStatus status) {
         this.status = status;
+    }
+
+    public UserRole getRole() {
+        return role;
+    }
+
+    public void setRole(UserRole role) {
+        this.role = role;
     }
 
     public void verifyExistingUser(User user) {

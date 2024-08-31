@@ -10,4 +10,9 @@ public class HomeController {
     public String home() {
         return "Hello, Home!";
     }
+
+    @GetMapping("/opa")
+    public String opa() {
+        return "Hello, opa!";
+    }
 }
