@@ -31,7 +31,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/api/v1/auth/**").permitAll();
                     //todo change later to admin
-                    auth.requestMatchers("/api/v1/admin/**").hasRole("USER");
+                    //auth.requestMatchers("/api/v1/admin/**").hasRole("USER");
+                    auth.requestMatchers("/api/v1/admin/**").permitAll();
                     auth.anyRequest().authenticated();
                 })
                 .csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.ignoringRequestMatchers("/logout","/api/v1/auth/update-profile"))

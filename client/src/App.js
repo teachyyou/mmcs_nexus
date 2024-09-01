@@ -8,7 +8,12 @@ import ProtectedAuthenticationRoutes from './components/routes/ProtectedAuthenti
 import OnlyAuthenticatedRoutes from "./components/routes/OnlyAuthenticatedRoutes";
 import UsersList from "./components/admin/UsersList";
 import AuthenticatedAndVerifiedRoutes from "./components/routes/AuthenticatedAndVerifiedRoutes";
+import UserList from "./components/admin/UserList";
+import {Admin, Resource} from "react-admin";
+import restProvider from 'ra-data-json-server';
 
+
+const dataProvider = restProvider('http://localhost:8080/api/v1/admin/users/list');
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -28,7 +33,6 @@ function App() {
     if (!isLoading) return (
         <Router>
             <Routes>
-
                 //can get there only when not-authenticated OR updated user data
                 <Route element={<ProtectedAuthenticationRoutes isAuthenticated={isAuthenticated}/>}>
                     <Route path="/" element={<HomePage isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />} />
@@ -43,8 +47,13 @@ function App() {
                 //can get here only when authenticated
                 <Route element={<OnlyAuthenticatedRoutes isAuthenticated={isAuthenticated}/>}>
                     <Route path="/update-profile" element={<UpdateProfilePage />} />
+                    <Route path = "admin/*" element={
+                        <Admin dataProvider={dataProvider}>
+                            testhere
+                            <Resource name="list" list={UserList} />
+                        </Admin>
+                    } />
                 </Route>
-
             </Routes>
         </Router>
     );
