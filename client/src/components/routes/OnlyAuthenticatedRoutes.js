@@ -1,7 +1,7 @@
 import { Outlet, Navigate } from "react-router-dom";
 
-const UpdateProfileInfoRoutes = ({ isAuthenticated }) => {
+const OnlyAuthenticatedRoutes = ({ isAuthenticated }) => {
     return isAuthenticated ? <Outlet /> : <Navigate to="/" />;
 };
 
-export default UpdateProfileInfoRoutes;
+export default OnlyAuthenticatedRoutes;

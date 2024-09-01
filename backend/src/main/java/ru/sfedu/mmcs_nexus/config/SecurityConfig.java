@@ -30,7 +30,8 @@ public class SecurityConfig {
         return http
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/api/v1/auth/**").permitAll();
-                    auth.requestMatchers("/api/v1/admin/**").hasRole("ADMIN");
+                    //todo change later to admin
+                    auth.requestMatchers("/api/v1/admin/**").hasRole("USER");
                     auth.anyRequest().authenticated();
                 })
                 .csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.ignoringRequestMatchers("/logout","/api/v1/auth/update-profile"))
@@ -61,7 +62,6 @@ public class SecurityConfig {
 
             if (userService.isNotFoundOrVerified(githubLogin)) {
                 userService.saveNewUser(githubLogin);
-                //response.sendRedirect(STR."\{ApplicationConfig.CLIENT_URL}/update-profile");
             }
             String roleName = userService.findByGithubLogin(githubLogin).get().getRole().name();
             DefaultOAuth2User newUser = new DefaultOAuth2User(List.of(new SimpleGrantedAuthority(roleName)),

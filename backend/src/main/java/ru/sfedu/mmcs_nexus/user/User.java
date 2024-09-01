@@ -128,6 +128,5 @@ public class User {
         setLastName(user.getLastName());
         setUserGroup(user.getUserGroup());
         setStatus(UserStatus.VERIFIED);
-        setRole(user.getRole());
     }
 }

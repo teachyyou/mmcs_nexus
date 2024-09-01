@@ -16,6 +16,43 @@ public class UserService {
     @Autowired
     public UserService(UserRepository userRepository) {
         this.userRepository = userRepository;
+
+        //todo for testing purposes
+        User user1 = new User("John", "Doe", "johndoe", 1, User.UserStatus.VERIFIED, UserRole.ROLE_USER);
+        User user2 = new User("Jane", "Smith", "janesmith", 2, User.UserStatus.NON_VERIFIED, UserRole.ROLE_ADMIN);
+        User user3 = new User("Alice", "Johnson", "alicej", 3, User.UserStatus.BLOCKED, UserRole.ROLE_USER);
+        User user4 = new User("Alice", "Johnson", "alicej1", 3, User.UserStatus.BLOCKED, UserRole.ROLE_USER);
+        User user5 = new User("Alice", "Johnson", "alicej2", 3, User.UserStatus.BLOCKED, UserRole.ROLE_USER);
+        User user6 = new User("Alice", "Johnson", "alicej3", 3, User.UserStatus.BLOCKED, UserRole.ROLE_USER);
+        User user7 = new User("Alice", "Johnson", "alicej4", 3, User.UserStatus.BLOCKED, UserRole.ROLE_USER);
+        User user8 = new User("Alice", "Johnson", "alicej5", 3, User.UserStatus.BLOCKED, UserRole.ROLE_USER);
+        User user9 = new User("Alice", "Johnson", "alicej6", 3, User.UserStatus.BLOCKED, UserRole.ROLE_USER);
+        User user10 = new User("Alice", "Johnson", "alicej7", 3, User.UserStatus.BLOCKED, UserRole.ROLE_USER);
+        User user11 = new User("Alice", "Johnson", "alicej8", 3, User.UserStatus.BLOCKED, UserRole.ROLE_USER);
+        User user12 = new User("Alice", "Johnson", "alicej9", 3, User.UserStatus.BLOCKED, UserRole.ROLE_USER);
+        User user13 = new User("Alice", "Johnson", "alicej10", 3, User.UserStatus.BLOCKED, UserRole.ROLE_USER);
+        User user14 = new User("Alice", "Johnson", "alicej11", 3, User.UserStatus.BLOCKED, UserRole.ROLE_USER);
+        User user15 = new User("Alice", "Johnson", "alicej12", 3, User.UserStatus.BLOCKED, UserRole.ROLE_USER);
+        User user16 = new User("Alice", "Johnson", "alicej3", 3, User.UserStatus.BLOCKED, UserRole.ROLE_USER);
+
+        // Сохраняем пользователей в базу данных
+        saveUser(user1);
+        saveUser(user2);
+        saveUser(user3);
+        saveUser(user4);
+        saveUser(user5);
+        saveUser(user6);
+        saveUser(user7);
+        saveUser(user8);
+        saveUser(user9);
+        saveUser(user10);
+        saveUser(user11);
+        saveUser(user12);
+        saveUser(user13);
+        saveUser(user14);
+        saveUser(user15);
+        saveUser(user16);
+
     }
 
     public List<User> getUsers() {
