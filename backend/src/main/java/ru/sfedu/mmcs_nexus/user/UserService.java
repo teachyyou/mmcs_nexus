@@ -1,6 +1,8 @@
 package ru.sfedu.mmcs_nexus.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -34,8 +36,15 @@ public class UserService {
         return userRepository.findByLogin(githubLogin).stream().findFirst();
     }
 
+    public Optional<User> findByGithubLogin(Authentication authentication) {
+        DefaultOAuth2User user = (DefaultOAuth2User) authentication.getPrincipal();
+        String githubLogin = user.getAttribute("login");
+        return userRepository.findByLogin(githubLogin).stream().findFirst();
+    }
+
     public boolean isNotFoundOrVerified(String githubLogin) {
         Optional<User> optionalUser = findByGithubLogin(githubLogin);
         return optionalUser.isEmpty() || optionalUser.get().getStatus() == User.UserStatus.NON_VERIFIED;
     }
+
 }

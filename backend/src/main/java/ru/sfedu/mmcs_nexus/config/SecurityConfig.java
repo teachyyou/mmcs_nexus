@@ -29,10 +29,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers("/api/v1/auth/status").permitAll();
-                    auth.requestMatchers("/api/v1/auth/update-profile").permitAll();
-                    auth.requestMatchers("/").permitAll();
-                    auth.requestMatchers("/opa").hasRole("ADMIN");
+                    auth.requestMatchers("/api/v1/auth/**").permitAll();
+                    auth.requestMatchers("/api/v1/admin/**").hasRole("ADMIN");
                     auth.anyRequest().authenticated();
                 })
                 .csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.ignoringRequestMatchers("/logout","/api/v1/auth/update-profile"))

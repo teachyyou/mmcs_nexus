@@ -64,7 +64,7 @@ public class User {
     public User(String login) {
         this.login = login;
         this.status = UserStatus.NON_VERIFIED;
-        this.role = UserRole.ROLE_ADMIN;
+        this.role = UserRole.ROLE_USER;
     }
 
     public Long getId() {
@@ -119,7 +119,7 @@ public class User {
         return role;
     }
 
-    public void setRole(UserRole role) {
+    public void setRole(UserRole role)  {
         this.role = role;
     }
 
@@ -128,5 +128,6 @@ public class User {
         setLastName(user.getLastName());
         setUserGroup(user.getUserGroup());
         setStatus(UserStatus.VERIFIED);
+        setRole(user.getRole());
     }
 }
