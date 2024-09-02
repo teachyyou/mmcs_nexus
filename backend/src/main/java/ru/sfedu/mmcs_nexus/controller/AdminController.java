@@ -1,6 +1,7 @@
 package ru.sfedu.mmcs_nexus.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -34,12 +35,12 @@ public class AdminController {
 
     @GetMapping(value = "/api/v1/admin/users/list", produces = "application/json")
     public ResponseEntity<List<User>> getUsersList(Authentication authentication) {
-//        User currentUser = userService.findByGithubLogin(authentication)
-//                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-//
-//        System.out.println("Запрос на получение списка пользователей от: " + currentUser.getLogin());
+        List<User> users = userService.getUsers();
 
-        return ResponseEntity.ok(userService.getUsers());
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("X-Total-Count", String.valueOf(users.size()));
+
+        return ResponseEntity.ok().headers(headers).body(users);
     }
 
 

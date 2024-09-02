@@ -13,7 +13,7 @@ import {Admin, Resource} from "react-admin";
 import restProvider from 'ra-data-json-server';
 
 
-const dataProvider = restProvider('http://localhost:8080/api/v1/admin/users/list');
+const dataProvider = restProvider('http://localhost:8080/api/v1/admin/users');
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -48,8 +48,7 @@ function App() {
                 <Route element={<OnlyAuthenticatedRoutes isAuthenticated={isAuthenticated}/>}>
                     <Route path="/update-profile" element={<UpdateProfilePage />} />
                     <Route path = "admin/*" element={
-                        <Admin dataProvider={dataProvider}>
-                            testhere
+                        <Admin dataProvider={dataProvider} basename="/admin">
                             <Resource name="list" list={UserList} />
                         </Admin>
                     } />
