@@ -60,7 +60,15 @@ public class UserService {
     }
 
     public void saveUser(User user) {
-        userRepository.save(user);
+        userRepository.saveAndFlush(user);
+    }
+
+    public void deleteUserById(Long id) {
+        userRepository.deleteById(id);
+    }
+
+    public boolean existsById(Long id) {
+        return userRepository.existsById(id);
     }
 
     public void saveNewUser(String githubLogin) {
@@ -71,6 +79,10 @@ public class UserService {
 
     public Optional<User> findByGithubLogin(String githubLogin) {
         return userRepository.findByLogin(githubLogin).stream().findFirst();
+    }
+
+    public Optional<User> findById(Long id) {
+        return userRepository.findById(id);
     }
 
     public Optional<User> findByGithubLogin(Authentication authentication) {
