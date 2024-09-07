@@ -12,9 +12,10 @@ import UserList from "./components/admin/userlist/UserList";
 import UserEdit from "./components/admin/userlist/UserEdit";
 import {Admin, Resource} from "react-admin";
 import restProvider from 'ra-data-json-server';
+import springBootRestProvider from "./components/admin/userlist/springBootRestProvider";
 
 
-const dataProvider = restProvider('http://localhost:8080/api/v1/admin/users');
+const dataProvider = springBootRestProvider('http://localhost:8080/api/v1/admin/users');
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);

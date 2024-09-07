@@ -14,6 +14,7 @@ public class WebConfig implements WebMvcConfigurer {
                 .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS")
                 .allowedHeaders("*")
                 .exposedHeaders("X-Total-Count")
+                .exposedHeaders("totalElements")
                 .allowCredentials(true);
 
     }
