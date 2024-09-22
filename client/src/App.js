@@ -6,13 +6,11 @@ import './App.css';
 import UpdateProfilePage from "./components/login/UpdateProfilePage";
 import ProtectedAuthenticationRoutes from './components/routes/ProtectedAuthenticationRoutes';
 import OnlyAuthenticatedRoutes from "./components/routes/OnlyAuthenticatedRoutes";
-import UsersList from "./components/admin/UsersList";
 import AuthenticatedAndVerifiedRoutes from "./components/routes/AuthenticatedAndVerifiedRoutes";
 import UserList from "./components/admin/userlist/UserList";
 import UserEdit from "./components/admin/userlist/UserEdit";
 import {Admin, Resource} from "react-admin";
-import restProvider from 'ra-data-json-server';
-import springBootRestProvider from "./components/admin/userlist/springBootRestProvider";
+import springBootRestProvider from "./components/admin/restProviders/springBootRestProvider";
 
 
 const dataProvider = springBootRestProvider('http://localhost:8080/api/v1/admin/users');
@@ -43,7 +41,7 @@ function App() {
 
                 {/*can get here only when authenticated and updated user data*/}
                 <Route element={<AuthenticatedAndVerifiedRoutes isAuthenticated={isAuthenticated}/>}>
-                    <Route path="/users" element={<UsersList />} />
+
                 </Route>
 
                 {/*can get here only when authenticated*/}

@@ -21,47 +21,27 @@ public class AdminController {
     public AdminController(UserService userService) {
         this.userService = userService;
     }
-
-//    @GetMapping(value = "/api/v1/admin/users/list", produces="application/json")
-//    public @ResponseBody List<User> getUsersList(Authentication authentication) {
-//        User currentUser = userService.findByGithubLogin(authentication)
-//                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-//        System.out.println("WOWOWO");
-//        return userService.getUsers();
-//        // Return a filtered list of users, excluding the current user
-//        return userService.getUsers().stream()
-//                .filter(user -> !user.equals(currentUser))
-//                .collect(Collectors.toList());
-//    }
-
     @GetMapping(value = "/api/v1/admin/users/list", produces = "application/json")
     public ResponseEntity<Map<String, Object>> getUsersList(
-            Authentication authentication,
-            @RequestParam(value = "_sort", required = false) String sortBy,
-            @RequestParam(value = "_order", required = false) String sortOrder,
-            @RequestParam(value = "_start", required = false) Integer start,
-            @RequestParam(value = "_end", required = false) Integer end,
-            @RequestParam(value = "filter", required = false) String filter) {
-        List<User> users = userService.getUsers();
+            @RequestParam(defaultValue = "id") String sort,
+            @RequestParam(defaultValue = "asc") String order,
+            Authentication authentication) {
 
-        //HttpHeaders headers = new HttpHeaders();
-        //headers.add("X-Total-Count", String.valueOf(users.size()));
-        //headers.add("totalElements", String.valueOf(users.size()));
+        List<User> users = userService.getUsers(sort, order);
 
         Map<String, Object> response = new HashMap<>();
         response.put("content", users);
         response.put("totalElements", users.size());
 
-
-        System.out.println("LOLOLO " + users.size());
         return ResponseEntity.ok().body(response);
     }
+
+
 
     @GetMapping(value = "/api/v1/admin/users/list/{id}", produces = "application/json")
     public ResponseEntity<User> getUserById(@PathVariable("id") Long id, Authentication authentication) {
         User user = userService.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-        System.out.println("GOGOGO ");
         return ResponseEntity.ok(user);
     }
 

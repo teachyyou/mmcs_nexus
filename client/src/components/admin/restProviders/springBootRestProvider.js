@@ -35,7 +35,8 @@ export default (apiUrl, httpClient = fetchUtils.fetchJson) => {
         switch (type) {
             case GET_LIST: {
                 const { page, perPage } = params.pagination;
-                url = `${apiUrl}/${resource}?page=${page}&pageSize=${perPage}`;
+                const { field, order } = params.sort;
+                url = `${apiUrl}/${resource}?page=${page}&pageSize=${perPage}&sort=${field}&order=${order}`;
                 break;
             }
             case GET_ONE:
@@ -46,13 +47,14 @@ export default (apiUrl, httpClient = fetchUtils.fetchJson) => {
                     filter: JSON.stringify({ id: params.ids })
                 };
                 let idStr = "";
-                const queryString = params.ids.map(id => idStr + `id=${id}`);
-                url = `${apiUrl}/${resource}?${idStr}}`;
+                const queryString = params.ids.map(id => `id=${id}`).join('&');
+                url = `${apiUrl}/${resource}?${queryString}`;
                 break;
             }
             case GET_MANY_REFERENCE: {
                 const { page, perPage } = params.pagination;
-                url = `${apiUrl}/${resource}?page=${page}&pageSize=${perPage}`;
+                const { field, order } = params.sort;
+                url = `${apiUrl}/${resource}?page=${page}&pageSize=${perPage}&sort=${field}&order=${order}`;
                 break;
             }
             case UPDATE:
