@@ -6,14 +6,14 @@ import './App.css';
 import UpdateProfilePage from "./components/login/UpdateProfilePage";
 import ProtectedAuthenticationRoutes from './components/routes/ProtectedAuthenticationRoutes';
 import OnlyAuthenticatedRoutes from "./components/routes/OnlyAuthenticatedRoutes";
-import UsersList from "./components/admin/UsersList";
 import AuthenticatedAndVerifiedRoutes from "./components/routes/AuthenticatedAndVerifiedRoutes";
-import UserList from "./components/admin/UserList";
+import UserList from "./components/admin/userlist/UserList";
+import UserEdit from "./components/admin/userlist/UserEdit";
 import {Admin, Resource} from "react-admin";
-import restProvider from 'ra-data-json-server';
+import springBootRestProvider from "./components/admin/restProviders/springBootRestProvider";
 
 
-const dataProvider = restProvider('http://localhost:8080/api/v1/admin/users');
+const dataProvider = springBootRestProvider('http://localhost:8080/api/v1/admin/users');
 
 function App() {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -33,23 +33,23 @@ function App() {
     if (!isLoading) return (
         <Router>
             <Routes>
-                //can get there only when not-authenticated OR updated user data
+                {/*can get there only when not-authenticated OR updated user data*/}
                 <Route element={<ProtectedAuthenticationRoutes isAuthenticated={isAuthenticated}/>}>
                     <Route path="/" element={<HomePage isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />} />
                     <Route path="/login" element={<LoginPage />} />
                 </Route>
 
-                //can get here only when authenticated and updated user data
+                {/*can get here only when authenticated and updated user data*/}
                 <Route element={<AuthenticatedAndVerifiedRoutes isAuthenticated={isAuthenticated}/>}>
-                    <Route path="/users" element={<UsersList />} />
+
                 </Route>
 
-                //can get here only when authenticated
+                {/*can get here only when authenticated*/}
                 <Route element={<OnlyAuthenticatedRoutes isAuthenticated={isAuthenticated}/>}>
                     <Route path="/update-profile" element={<UpdateProfilePage />} />
                     <Route path = "admin/*" element={
                         <Admin dataProvider={dataProvider} basename="/admin">
-                            <Resource name="list" list={UserList} />
+                            <Resource name="list" list={UserList} edit ={UserEdit}  />
                         </Admin>
                     } />
                 </Route>

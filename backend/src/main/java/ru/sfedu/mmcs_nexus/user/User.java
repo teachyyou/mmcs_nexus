@@ -129,4 +129,12 @@ public class User {
         setUserGroup(user.getUserGroup());
         setStatus(UserStatus.VERIFIED);
     }
+
+    public void editExistingUser(User user) {
+        setFirstName(user.getFirstName());
+        setLastName(user.getLastName());
+        setUserGroup(user.getUserGroup());
+        setStatus(user.getStatus());
+        setRole(user.getRole());
+    }
 }

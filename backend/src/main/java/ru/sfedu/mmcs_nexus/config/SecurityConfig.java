@@ -35,10 +35,10 @@ public class SecurityConfig {
                     auth.requestMatchers("/api/v1/admin/**").permitAll();
                     auth.anyRequest().authenticated();
                 })
-                .csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.ignoringRequestMatchers("/logout","/api/v1/auth/update-profile"))
+                .csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.ignoringRequestMatchers("/api/v1/auth/**", "api/v1/admin/**"))
                 .cors(Customizer.withDefaults()) // Enable CORS
                 .logout(logout -> logout
-                        .logoutUrl("/logout")
+                        .logoutUrl("/api/v1/auth/logout")
                         .logoutSuccessHandler((request, response, authentication) -> {
                             response.setStatus(HttpServletResponse.SC_OK);
                         })
@@ -49,7 +49,7 @@ public class SecurityConfig {
                         -> httpSecurityOAuth2LoginConfigurer.successHandler(this.successHandler()))
                 .exceptionHandling(exceptionHandling ->
                         exceptionHandling
-                                .authenticationEntryPoint((request, response, authException) -> response.sendRedirect(STR."\{ApplicationConfig.CLIENT_URL}/login"))
+                                .authenticationEntryPoint((request, response, authException) -> response.sendRedirect(STR."\{ApplicationConfig.CLIENT_URL}/tuda"))
                 )
                 .formLogin(Customizer.withDefaults())
                 .build();
