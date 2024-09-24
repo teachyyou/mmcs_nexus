@@ -2,6 +2,9 @@ package ru.sfedu.mmcs_nexus.user;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import ru.sfedu.mmcs_nexus.project.Project;
+
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -37,6 +40,9 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
+
+    @OneToMany(mappedBy = "jury")
+    Set<Project> projects;
 
     public User() {
         this.status = UserStatus.NON_VERIFIED;
