@@ -2,7 +2,7 @@ package ru.sfedu.mmcs_nexus.user;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import ru.sfedu.mmcs_nexus.project.Project;
+import ru.sfedu.mmcs_nexus.project.ProjectJury;
 
 import java.util.Set;
 
@@ -41,8 +41,8 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
-    @OneToMany(mappedBy = "jury")
-    Set<Project> projects;
+    @OneToMany(mappedBy = "juries")
+    Set<ProjectJury> projects;
 
     public User() {
         this.status = UserStatus.NON_VERIFIED;
@@ -127,6 +127,13 @@ public class User {
 
     public void setRole(UserRole role)  {
         this.role = role;
+    }
+
+    public void setProjects(Set<ProjectJury> projects)  {
+        this.projects=projects;
+    }
+    public Set<ProjectJury> getProjects()  {
+        return projects;
     }
 
     public void verifyExistingUser(User user) {

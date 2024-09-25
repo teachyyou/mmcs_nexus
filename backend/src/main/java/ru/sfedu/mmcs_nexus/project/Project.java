@@ -3,7 +3,6 @@ package ru.sfedu.mmcs_nexus.project;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import ru.sfedu.mmcs_nexus.user.User;
 
 import java.util.Set;
 
@@ -29,8 +28,8 @@ public class Project {
     private String type;
     private int year;
 
-    @OneToMany(mappedBy = "project")
-    private Set<User> relatedJuries;
+    @OneToMany(mappedBy = "projects")
+    private Set<ProjectJury> juries;
 
     public Project() {}
 
@@ -82,12 +81,12 @@ public class Project {
         this.year = year;
     }
 
-    public Set<User> getJurors() {
-        return relatedJuries;
+    public Set<ProjectJury> getJuries() {
+        return juries;
     }
 
-    public void setJurors(Set<User> relatedJuries) {
-        this.relatedJuries = relatedJuries;
+    public void setJuries(Set<ProjectJury> juries) {
+        this.juries = juries;
     }
 
 }
