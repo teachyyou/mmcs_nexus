@@ -1,10 +1,8 @@
-package ru.sfedu.mmcs_nexus.project;
+package ru.sfedu.mmcs_nexus.data.project;
 
 
 import jakarta.persistence.*;
 import lombok.Data;
-
-import java.util.Set;
 
 @Entity
 @Table(name = "projects")
@@ -27,9 +25,6 @@ public class Project {
     private String description;
     private String type;
     private int year;
-
-    @OneToMany(mappedBy = "projects")
-    private Set<ProjectJury> juries;
 
     public Project() {}
 
@@ -81,12 +76,6 @@ public class Project {
         this.year = year;
     }
 
-    public Set<ProjectJury> getJuries() {
-        return juries;
-    }
 
-    public void setJuries(Set<ProjectJury> juries) {
-        this.juries = juries;
-    }
 
 }

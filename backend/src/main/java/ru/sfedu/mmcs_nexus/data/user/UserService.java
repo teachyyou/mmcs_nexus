@@ -1,4 +1,4 @@
-package ru.sfedu.mmcs_nexus.user;
+package ru.sfedu.mmcs_nexus.data.user;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
@@ -64,7 +64,7 @@ public class UserService {
 
     public boolean isNotFoundOrVerified(String githubLogin) {
         Optional<User> optionalUser = findByGithubLogin(githubLogin);
-        return optionalUser.isEmpty() || optionalUser.get().getStatus() == User.UserStatus.NON_VERIFIED;
+        return optionalUser.isEmpty() || optionalUser.get().getStatus() ==UserStatus.NON_VERIFIED;
     }
 
 }

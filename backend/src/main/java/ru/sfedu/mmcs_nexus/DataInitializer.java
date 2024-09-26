@@ -3,10 +3,15 @@ package ru.sfedu.mmcs_nexus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
-import ru.sfedu.mmcs_nexus.project.*;
-import ru.sfedu.mmcs_nexus.user.User;
-import ru.sfedu.mmcs_nexus.user.UserRepository;
-import ru.sfedu.mmcs_nexus.user.UserRole;
+import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJury;
+import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJuryKey;
+import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJuryRepository;
+import ru.sfedu.mmcs_nexus.data.project.Project;
+import ru.sfedu.mmcs_nexus.data.project.ProjectRepository;
+import ru.sfedu.mmcs_nexus.data.user.User;
+import ru.sfedu.mmcs_nexus.data.user.UserRepository;
+import ru.sfedu.mmcs_nexus.data.user.UserRole;
+import ru.sfedu.mmcs_nexus.data.user.UserStatus;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
@@ -29,22 +34,22 @@ public class DataInitializer implements CommandLineRunner {
         // Проверяем, пусты ли таблицы, чтобы избежать дублирования
         if (userRepository.count() == 0 && projectRepository.count() == 0) {
             // Создаем пользователей
-            User user1 = new User("John", "Doe", "johndoe", 1, User.UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user2 = new User("Jane", "Smith", "janesmith", 2, User.UserStatus.NON_VERIFIED, UserRole.ROLE_ADMIN);
-            User user3 = new User("Alice", "Johnson", "alicej", 3, User.UserStatus.BLOCKED, UserRole.ROLE_USER);
-            User user4 = new User("Bob", "Brown", "bobbrown", 4, User.UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user5 = new User("Charlie", "Davis", "charlied", 5, User.UserStatus.NON_VERIFIED, UserRole.ROLE_USER);
-            User user6 = new User("Diana", "Evans", "dianaev", 6, User.UserStatus.VERIFIED, UserRole.ROLE_ADMIN);
-            User user7 = new User("Ethan", "Foster", "ethanf", 7, User.UserStatus.BLOCKED, UserRole.ROLE_USER);
-            User user8 = new User("Fiona", "Green", "fionag", 8, User.UserStatus.NON_VERIFIED, UserRole.ROLE_USER);
-            User user9 = new User("George", "Harris", "georgeh", 9, User.UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user10 = new User("Hannah", "Irvine", "hannahir", 10, User.UserStatus.BLOCKED, UserRole.ROLE_ADMIN);
-            User user11 = new User("Isaac", "James", "isaacj", 11, User.UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user12 = new User("Julia", "Kane", "juliak", 12, User.UserStatus.NON_VERIFIED, UserRole.ROLE_USER);
-            User user13 = new User("Kevin", "Lewis", "kevinl", 13, User.UserStatus.BLOCKED, UserRole.ROLE_USER);
-            User user14 = new User("Lily", "Moore", "lilym", 14, User.UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user15 = new User("Michael", "Nolan", "michaeln", 15, User.UserStatus.NON_VERIFIED, UserRole.ROLE_USER);
-            User user16 = new User("Nina", "Owens", "ninao", 16, User.UserStatus.BLOCKED, UserRole.ROLE_USER);
+            User user1 = new User("John", "Doe", "johndoe", 1, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user2 = new User("Jane", "Smith", "janesmith", 2, UserStatus.NON_VERIFIED, UserRole.ROLE_ADMIN);
+            User user3 = new User("Alice", "Johnson", "alicej", 3, UserStatus.BLOCKED, UserRole.ROLE_USER);
+            User user4 = new User("Bob", "Brown", "bobbrown", 4, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user5 = new User("Charlie", "Davis", "charlied", 5, UserStatus.NON_VERIFIED, UserRole.ROLE_USER);
+            User user6 = new User("Diana", "Evans", "dianaev", 6, UserStatus.VERIFIED, UserRole.ROLE_ADMIN);
+            User user7 = new User("Ethan", "Foster", "ethanf", 7, UserStatus.BLOCKED, UserRole.ROLE_USER);
+            User user8 = new User("Fiona", "Green", "fionag", 8, UserStatus.NON_VERIFIED, UserRole.ROLE_USER);
+            User user9 = new User("George", "Harris", "georgeh", 9, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user10 = new User("Hannah", "Irvine", "hannahir", 10, UserStatus.BLOCKED, UserRole.ROLE_ADMIN);
+            User user11 = new User("Isaac", "James", "isaacj", 11, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user12 = new User("Julia", "Kane", "juliak", 12, UserStatus.NON_VERIFIED, UserRole.ROLE_USER);
+            User user13 = new User("Kevin", "Lewis", "kevinl", 13, UserStatus.BLOCKED, UserRole.ROLE_USER);
+            User user14 = new User("Lily", "Moore", "lilym", 14, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user15 = new User("Michael", "Nolan", "michaeln", 15, UserStatus.NON_VERIFIED, UserRole.ROLE_USER);
+            User user16 = new User("Nina", "Owens", "ninao", 16, UserStatus.BLOCKED, UserRole.ROLE_USER);
 
             // Сохраняем пользователей в базу данных
             userRepository.save(user1);
@@ -106,12 +111,12 @@ public class DataInitializer implements CommandLineRunner {
             // Аналогично добавляем другие связи
             ProjectJuryKey key3 = new ProjectJuryKey();
             key3.setProjectId(project2.getId());
-            key3.setJuryId(user3.getId());
+            key3.setJuryId(user1.getId());
 
             ProjectJury projectJury3 = new ProjectJury();
             projectJury3.setId(key3);
             projectJury3.setProjects(project2);
-            projectJury3.setJuries(user3);
+            projectJury3.setJuries(user1);
             projectJury3.setRelationType(ProjectJury.RelationType.OBLIGED);
 
             projectJuryRepository.save(projectJury3);

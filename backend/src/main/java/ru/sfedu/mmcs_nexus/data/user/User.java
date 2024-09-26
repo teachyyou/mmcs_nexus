@@ -1,22 +1,12 @@
-package ru.sfedu.mmcs_nexus.user;
+package ru.sfedu.mmcs_nexus.data.user;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import ru.sfedu.mmcs_nexus.project.ProjectJury;
-
-import java.util.Set;
 
 @Entity
 @Table(name = "users")
 @Data
 public class User {
-
-
-    public enum UserStatus {
-        NON_VERIFIED,
-        VERIFIED,
-        BLOCKED
-    }
 
     @Id
     @SequenceGenerator(
@@ -41,8 +31,6 @@ public class User {
     @Enumerated(EnumType.STRING)
     private UserRole role;
 
-    @OneToMany(mappedBy = "juries")
-    Set<ProjectJury> projects;
 
     public User() {
         this.status = UserStatus.NON_VERIFIED;
@@ -127,13 +115,6 @@ public class User {
 
     public void setRole(UserRole role)  {
         this.role = role;
-    }
-
-    public void setProjects(Set<ProjectJury> projects)  {
-        this.projects=projects;
-    }
-    public Set<ProjectJury> getProjects()  {
-        return projects;
     }
 
     public void verifyExistingUser(User user) {

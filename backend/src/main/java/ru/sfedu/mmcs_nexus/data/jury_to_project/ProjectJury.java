@@ -1,7 +1,8 @@
-package ru.sfedu.mmcs_nexus.project;
+package ru.sfedu.mmcs_nexus.data.jury_to_project;
 
 import jakarta.persistence.*;
-import ru.sfedu.mmcs_nexus.user.User;
+import ru.sfedu.mmcs_nexus.data.project.Project;
+import ru.sfedu.mmcs_nexus.data.user.User;
 
 @Entity
 public class ProjectJury {

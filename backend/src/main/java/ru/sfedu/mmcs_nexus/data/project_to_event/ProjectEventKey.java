@@ -1,28 +1,27 @@
-package ru.sfedu.mmcs_nexus.project;
+package ru.sfedu.mmcs_nexus.data.project_to_event;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+
 import java.io.Serializable;
 
 @Embeddable
-public class ProjectJuryKey implements Serializable {
+public class ProjectEventKey implements Serializable {
 
     @Column(name = "project_id")
     private Long projectId;
 
-    @Column(name = "jury_id")
-    private Long juryId;
+    @Column(name = "event_id")
+    private Long eventId;
 
-    // Конструкторы
-    public ProjectJuryKey() {
+    public ProjectEventKey() {
     }
 
-    public ProjectJuryKey(Long projectId, Long juryId) {
+    public ProjectEventKey(Long projectId, Long eventId) {
         this.projectId = projectId;
-        this.juryId = juryId;
+        this.eventId = eventId;
     }
 
-    // Геттеры и сеттеры
 
     public Long getProjectId() {
         return projectId;
@@ -32,30 +31,29 @@ public class ProjectJuryKey implements Serializable {
         this.projectId = projectId;
     }
 
-    public Long getJuryId() {
-        return juryId;
+    public Long getEventId() {
+        return eventId;
     }
 
-    public void setJuryId(Long juryId) {
-        this.juryId = juryId;
+    public void setEventId(Long eventId) {
+        this.eventId = eventId;
     }
 
-    // Переопределение equals и hashCode (важно для составных ключей)
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ProjectJuryKey that = (ProjectJuryKey) o;
+        ProjectEventKey that = (ProjectEventKey) o;
 
         if (!projectId.equals(that.projectId)) return false;
-        return juryId.equals(that.juryId);
+        return eventId.equals(that.eventId);
     }
 
     @Override
     public int hashCode() {
         int result = projectId.hashCode();
-        result = 31 * result + juryId.hashCode();
+        result = 31 * result + eventId.hashCode();
         return result;
     }
 }
