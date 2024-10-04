@@ -76,6 +76,13 @@ public class Project {
         this.year = year;
     }
 
+    public void editExistingProject(Project project) {
+        setName(project.getName());
+        setDescription(project.getDescription());
+        setType(project.type);
+        setYear(project.year);
+    }
+
 
 
 }

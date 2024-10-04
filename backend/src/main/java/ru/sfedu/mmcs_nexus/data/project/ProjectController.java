@@ -2,7 +2,6 @@ package ru.sfedu.mmcs_nexus.data.project;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -18,9 +17,14 @@ public class ProjectController {
     }
 
     // Используем @RequestParam для получения имени из URL
+//    @GetMapping
+//    public List<Project> getProjects(@RequestParam("firstName") String firstName) {
+//        return projectService.findByFirstname(firstName);
+//    }
+
     @GetMapping
-    public List<Project> getProjects(@RequestParam("firstName") String firstName) {
-        return projectService.findByFirstname(firstName);
+    public List<Project> getProjects() {
+        return projectService.getProjects();
     }
 }
 

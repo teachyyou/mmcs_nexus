@@ -1,4 +1,4 @@
-package ru.sfedu.mmcs_nexus.controller;
+package ru.sfedu.mmcs_nexus.controller.admin;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -13,15 +13,15 @@ import java.util.List;
 import java.util.Map;
 
 @RestController
-public class AdminController {
+public class AdminUserController {
 
     private final UserService userService;
 
     @Autowired
-    public AdminController(UserService userService) {
+    public AdminUserController(UserService userService) {
         this.userService = userService;
     }
-    @GetMapping(value = "/api/v1/admin/users/list", produces = "application/json")
+    @GetMapping(value = "/api/v1/admin/users", produces = "application/json")
     public ResponseEntity<Map<String, Object>> getUsersList(
             @RequestParam(defaultValue = "id") String sort,
             @RequestParam(defaultValue = "asc") String order,
@@ -37,15 +37,14 @@ public class AdminController {
     }
 
 
-
-    @GetMapping(value = "/api/v1/admin/users/list/{id}", produces = "application/json")
+    @GetMapping(value = "/api/v1/admin/users/{id}", produces = "application/json")
     public ResponseEntity<User> getUserById(@PathVariable("id") Long id, Authentication authentication) {
         User user = userService.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         return ResponseEntity.ok(user);
     }
 
-    @PutMapping(value = "/api/v1/admin/users/list/{id}", produces = "application/json")
+    @PutMapping(value = "/api/v1/admin/users/{id}", produces = "application/json")
     public ResponseEntity<User> editUserById(@PathVariable("id") Long id, Authentication authentication, @RequestBody User user) {
 
         User existingUser = userService.findById(id)
@@ -57,7 +56,7 @@ public class AdminController {
         return ResponseEntity.ok(existingUser);
     }
 
-    @DeleteMapping(value = "/api/v1/admin/users/list/{id}")
+    @DeleteMapping(value = "/api/v1/admin/users/{id}")
     public ResponseEntity<Void> deleteUserById(@PathVariable("id") Long id) {
         if (!userService.existsById(id)) {
             return ResponseEntity.notFound().build();
