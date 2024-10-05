@@ -16,8 +16,8 @@ const EventEdit = (props) => {
                     validate={required()}
                 />
                 <SelectInput
-                    source="type"
-                    name="type"
+                    source="eventType"
+                    name="eventT    ype"
                     choices={[
                         { id: 'IDEA', name: 'Idea' },
                         { id: 'ZERO_VERSION', name: 'Zero Version' },
