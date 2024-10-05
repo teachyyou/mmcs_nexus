@@ -5,8 +5,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.web.bind.annotation.*;
-import ru.sfedu.mmcs_nexus.user.User;
-import ru.sfedu.mmcs_nexus.user.UserService;
+import ru.sfedu.mmcs_nexus.data.user.User;
+import ru.sfedu.mmcs_nexus.data.user.UserService;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -14,7 +14,7 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import ru.sfedu.mmcs_nexus.user.UserService;
+import ru.sfedu.mmcs_nexus.data.user.UserService;
 
 import java.util.List;
 
@@ -62,7 +62,7 @@ public class SecurityConfig {
             String githubLogin = oauthUser.getAttribute("login");
 
             if (userService.isNotFoundOrVerified(githubLogin)) {
-                userService.saveNewUser(githubLogin);
+                userService.saveUser(githubLogin);
             }
             String roleName = userService.findByGithubLogin(githubLogin).get().getRole().name();
             DefaultOAuth2User newUser = new DefaultOAuth2User(List.of(new SimpleGrantedAuthority(roleName)),

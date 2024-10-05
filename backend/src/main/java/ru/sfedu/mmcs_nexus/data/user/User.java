@@ -1,4 +1,4 @@
-package ru.sfedu.mmcs_nexus.user;
+package ru.sfedu.mmcs_nexus.data.user;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -7,13 +7,6 @@ import lombok.Data;
 @Table(name = "users")
 @Data
 public class User {
-
-
-    public enum UserStatus {
-        NON_VERIFIED,
-        VERIFIED,
-        BLOCKED
-    }
 
     @Id
     @SequenceGenerator(
@@ -37,6 +30,7 @@ public class User {
 
     @Enumerated(EnumType.STRING)
     private UserRole role;
+
 
     public User() {
         this.status = UserStatus.NON_VERIFIED;

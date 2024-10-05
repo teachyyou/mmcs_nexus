@@ -1,4 +1,4 @@
-package ru.sfedu.mmcs_nexus.user;
+package ru.sfedu.mmcs_nexus.data.user;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

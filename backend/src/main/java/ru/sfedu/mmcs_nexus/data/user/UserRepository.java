@@ -1,4 +1,4 @@
-package ru.sfedu.mmcs_nexus.user;
+package ru.sfedu.mmcs_nexus.data.user;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
@@ -10,5 +10,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     //todo change to Optional<User>
     List<User> findByLogin(String login);
+    User findByFirstName(String login);
 
 }
