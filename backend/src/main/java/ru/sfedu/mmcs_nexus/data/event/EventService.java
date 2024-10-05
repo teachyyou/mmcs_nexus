@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class EventService {
@@ -22,7 +23,7 @@ public class EventService {
         return eventRepository.findAll(Sort.by(direction, sort));
     }
 
-    public Optional<Event> findById(Long id) {
+    public Optional<Event> findById(UUID id) {
         return eventRepository.findById(id);
     }
 
@@ -30,11 +31,11 @@ public class EventService {
         eventRepository.saveAndFlush(event);
     }
 
-    public boolean existsById(Long id) {
+    public boolean existsById(UUID id) {
         return eventRepository.existsById(id);
     }
 
-    public void deleteEventById(Long id) {
+    public void deleteEventById(UUID id) {
         eventRepository.deleteById(id);
     }
 }

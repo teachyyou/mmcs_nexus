@@ -10,6 +10,7 @@ import ru.sfedu.mmcs_nexus.data.user.UserRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class ProjectService {
@@ -35,7 +36,7 @@ public class ProjectService {
         return projectJuryList.stream().map(ProjectJury::getProjects).toList();
     }
 
-    public Optional<Project> findById(Long id) {
+    public Optional<Project> findById(UUID id) {
         return projectRepository.findById(id);
     }
 
@@ -60,11 +61,11 @@ public class ProjectService {
         return projectRepository.findAll(Sort.by(direction, sort));
     }
 
-    public boolean existsById(Long id) {
+    public boolean existsById(UUID id) {
         return projectRepository.existsById(id);
     }
 
-    public void deleteProjectById(Long id) {
+    public void deleteProjectById(UUID id) {
         projectRepository.deleteById(id);
     }
 }

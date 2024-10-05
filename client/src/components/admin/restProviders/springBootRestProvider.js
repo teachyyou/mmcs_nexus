@@ -22,7 +22,7 @@ import {
  * CREATE       => POST http://my.api.url/posts
  * DELETE       => DELETE http://my.api.url/posts/123
  */
-export default (apiUrl, httpClient = fetchUtils.fetchJson) => {
+let sprintBootProvider = (apiUrl, httpClient = fetchUtils.fetchJson) => {
     /**
      * @param {String} type One of the constants appearing at the top if this file, e.g. 'UPDATE'
      * @param {String} resource Name of the resource to fetch, e.g. 'posts'
@@ -43,10 +43,10 @@ export default (apiUrl, httpClient = fetchUtils.fetchJson) => {
                 url = `${apiUrl}/${resource}/${params.id}`;
                 break;
             case GET_MANY: {
-                const query = {
-                    filter: JSON.stringify({ id: params.ids })
-                };
-                let idStr = "";
+                // const query = {
+                //     filter: JSON.stringify({ id: params.ids })
+                // };
+                // let idStr = "";
                 const queryString = params.ids.map(id => `id=${id}`).join('&');
                 url = `${apiUrl}/${resource}?${queryString}`;
                 break;
@@ -85,7 +85,7 @@ export default (apiUrl, httpClient = fetchUtils.fetchJson) => {
      * @returns {Object} Data response
      */
     const convertHTTPResponse = (response, type, resource, params) => {
-        const { headers, json } = response;
+        const {json} = response;
         switch (type) {
             case GET_LIST:
             case GET_MANY_REFERENCE:
@@ -144,3 +144,5 @@ export default (apiUrl, httpClient = fetchUtils.fetchJson) => {
         );
     };
 };
+
+export default sprintBootProvider;

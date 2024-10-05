@@ -11,6 +11,7 @@ import ru.sfedu.mmcs_nexus.data.event.EventService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 public class AdminEventController {
@@ -38,14 +39,14 @@ public class AdminEventController {
     }
 
     @GetMapping(value = "/api/v1/admin/events/{id}", produces = "application/json")
-    public ResponseEntity<Event> getEventById(@PathVariable("id") Long id, Authentication authentication) {
+    public ResponseEntity<Event> getEventById(@PathVariable("id") UUID id, Authentication authentication) {
         Event event = eventService.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(STR."Event with id \{id} not found"));
         return ResponseEntity.ok(event);
     }
 
     @PutMapping(value = "/api/v1/admin/events/{id}", produces = "application/json")
-    public ResponseEntity<Event> editEventById(@PathVariable("id") Long id, Authentication authentication, @RequestBody Event event) {
+    public ResponseEntity<Event> editEventById(@PathVariable("id") UUID id, Authentication authentication, @RequestBody Event event) {
 
         Event existingEvent = eventService.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(STR."Event with id \{id} not found"));
@@ -64,7 +65,7 @@ public class AdminEventController {
     }
 
     @DeleteMapping(value = "/api/v1/admin/events/{id}")
-    public ResponseEntity<Void> deleteEventById(@PathVariable("id") Long id) {
+    public ResponseEntity<Void> deleteEventById(@PathVariable("id") UUID id) {
         if (!eventService.existsById(id)) {
             return ResponseEntity.notFound().build();
         }

@@ -6,12 +6,6 @@ const EventEdit = (props) => {
         <Edit title="Edit Project" {...props}>
             <SimpleForm>
                 <TextInput
-                    source="id"
-                    name="id"
-                    inputProps={{ readOnly: true }}
-                    style={{ backgroundColor: '#f0f0f0' }}
-                />
-                <TextInput
                     source="name"
                     name="name"
                     validate={required()}
@@ -22,8 +16,8 @@ const EventEdit = (props) => {
                     validate={required()}
                 />
                 <SelectInput
-                    source="type"
-                    name="type"
+                    source="eventType"
+                    name="eventT    ype"
                     choices={[
                         { id: 'IDEA', name: 'Idea' },
                         { id: 'ZERO_VERSION', name: 'Zero Version' },

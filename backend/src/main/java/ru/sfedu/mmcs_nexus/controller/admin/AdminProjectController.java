@@ -12,6 +12,7 @@ import ru.sfedu.mmcs_nexus.data.project.ProjectService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 public class AdminProjectController {
@@ -40,14 +41,14 @@ public class AdminProjectController {
     }
 
     @GetMapping(value = "/api/v1/admin/projects/{id}", produces = "application/json")
-    public ResponseEntity<Project> getProjectById(@PathVariable("id") Long id, Authentication authentication) {
+    public ResponseEntity<Project> getProjectById(@PathVariable("id") UUID id, Authentication authentication) {
         Project project = projectService.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(STR."Project with id \{id} not found"));
         return ResponseEntity.ok(project);
     }
 
     @PutMapping(value = "/api/v1/admin/projects/{id}", produces = "application/json")
-    public ResponseEntity<Project> editProjectById(@PathVariable("id") Long id, Authentication authentication, @RequestBody Project project) {
+    public ResponseEntity<Project> editProjectById(@PathVariable("id") UUID id, Authentication authentication, @RequestBody Project project) {
 
         Project existingProject = projectService.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(STR."Project with id \{id} not found"));
@@ -71,7 +72,7 @@ public class AdminProjectController {
     }
 
     @DeleteMapping(value = "/api/v1/admin/projects/{id}")
-    public ResponseEntity<Void> deleteProjectById(@PathVariable("id") Long id) {
+    public ResponseEntity<Void> deleteProjectById(@PathVariable("id") UUID id) {
         if (!projectService.existsById(id)) {
             return ResponseEntity.notFound().build();
         }

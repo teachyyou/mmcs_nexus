@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserService {
@@ -41,11 +42,11 @@ public class UserService {
         }
     }
 
-    public void deleteUserById(Long id) {
+    public void deleteUserById(UUID id) {
         userRepository.deleteById(id);
     }
 
-    public boolean existsById(Long id) {
+    public boolean existsById(UUID id) {
         return userRepository.existsById(id);
     }
 
@@ -53,7 +54,7 @@ public class UserService {
         return userRepository.findByLogin(githubLogin).stream().findFirst();
     }
 
-    public Optional<User> findById(Long id) {
+    public Optional<User> findById(UUID id) {
         return userRepository.findById(id);
     }
 

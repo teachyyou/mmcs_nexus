@@ -3,22 +3,18 @@ package ru.sfedu.mmcs_nexus.data.user;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "users")
 @Data
 public class User {
 
     @Id
-    @SequenceGenerator(
-            name = "user_sequence",
-            sequenceName = "user_sequence",
-            allocationSize = 1
-    )
     @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "user_sequence"
+            strategy = GenerationType.UUID
     )
-    private Long id;
+    private UUID id;
 
     private String firstName;
     private String lastName;
@@ -36,7 +32,7 @@ public class User {
         this.status = UserStatus.NON_VERIFIED;
     }
 
-    public User(Long id, String firstName, String lastName, String login, int userGroup, UserStatus status, UserRole role) {
+    public User(UUID id, String firstName, String lastName, String login, int userGroup, UserStatus status, UserRole role) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
@@ -61,11 +57,11 @@ public class User {
         this.role = UserRole.ROLE_USER;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
