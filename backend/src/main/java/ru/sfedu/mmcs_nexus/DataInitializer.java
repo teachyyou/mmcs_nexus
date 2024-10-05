@@ -3,6 +3,9 @@ package ru.sfedu.mmcs_nexus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
+import ru.sfedu.mmcs_nexus.data.event.Event;
+import ru.sfedu.mmcs_nexus.data.event.EventRepository;
+import ru.sfedu.mmcs_nexus.data.event.EventType;
 import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJury;
 import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJuryKey;
 import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJuryRepository;
@@ -20,13 +23,17 @@ public class DataInitializer implements CommandLineRunner {
     private final ProjectRepository projectRepository;
     private final ProjectJuryRepository projectJuryRepository;
 
+    private final EventRepository eventRepository;
+
     @Autowired
     public DataInitializer(UserRepository userRepository,
                            ProjectRepository projectRepository,
-                           ProjectJuryRepository projectJuryRepository) {
+                           ProjectJuryRepository projectJuryRepository,
+                            EventRepository eventRepository) {
         this.userRepository = userRepository;
         this.projectRepository = projectRepository;
         this.projectJuryRepository = projectJuryRepository;
+        this.eventRepository = eventRepository;
     }
 
     @Override
@@ -120,6 +127,9 @@ public class DataInitializer implements CommandLineRunner {
             projectJury3.setRelationType(ProjectJury.RelationType.OBLIGED);
 
             projectJuryRepository.save(projectJury3);
+
+            Event event = new Event("lalala", EventType.IDEA, 2015);
+            eventRepository.save(event);
 
             // Добавьте остальные связи по аналогии
         }

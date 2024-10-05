@@ -19,8 +19,19 @@ public class Event {
     )
     private Long id;
     private String name;
+
+    @Enumerated(EnumType.STRING)
     private EventType eventType;
     private int year;
+
+    public Event() {
+
+    }
+    public Event(String name, EventType type, int year) {
+        this.name = name;
+        this.eventType = type;
+        this.year = year;
+    }
 
     public Long getId() {
         return id;
@@ -52,5 +63,11 @@ public class Event {
 
     public void setYear(int year) {
         this.year = year;
+    }
+
+    public void editExistingEvent(Event event) {
+        setName(event.getName());
+        setEventType(event.getEventType());
+        setYear(event.getYear());
     }
 }

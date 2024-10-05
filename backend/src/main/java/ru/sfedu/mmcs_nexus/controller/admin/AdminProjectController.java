@@ -70,14 +70,14 @@ public class AdminProjectController {
         return ResponseEntity.ok(project);
     }
 
-//    @DeleteMapping(value = "/api/v1/admin/users/{id}")
-//    public ResponseEntity<Void> deleteUserById(@PathVariable("id") Long id) {
-//        if (!userService.existsById(id)) {
-//            return ResponseEntity.notFound().build();
-//        }
-//
-//        userService.deleteUserById(id);
-//
-//        return ResponseEntity.noContent().build();
-//    }
+    @DeleteMapping(value = "/api/v1/admin/projects/{id}")
+    public ResponseEntity<Void> deleteProjectById(@PathVariable("id") Long id) {
+        if (!projectService.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        projectService.deleteProjectById(id);
+
+        return ResponseEntity.noContent().build();
+    }
 }

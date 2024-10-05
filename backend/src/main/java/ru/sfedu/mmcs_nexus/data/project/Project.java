@@ -79,8 +79,8 @@ public class Project {
     public void editExistingProject(Project project) {
         setName(project.getName());
         setDescription(project.getDescription());
-        setType(project.type);
-        setYear(project.year);
+        setType(project.getType());
+        setYear(project.getYear());
     }
 
 

@@ -59,4 +59,12 @@ public class ProjectService {
         Sort.Direction direction = order.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
         return projectRepository.findAll(Sort.by(direction, sort));
     }
+
+    public boolean existsById(Long id) {
+        return projectRepository.existsById(id);
+    }
+
+    public void deleteProjectById(Long id) {
+        projectRepository.deleteById(id);
+    }
 }
