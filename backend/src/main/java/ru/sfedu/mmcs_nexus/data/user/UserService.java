@@ -34,18 +34,19 @@ public class UserService {
         userRepository.saveAndFlush(user);
     }
 
+    //for creating non-verified user with just github login
+    public void saveUser(String githubLogin) {
+        if (findByGithubLogin(githubLogin).isEmpty()) {
+            saveUser(new User(githubLogin));
+        }
+    }
+
     public void deleteUserById(Long id) {
         userRepository.deleteById(id);
     }
 
     public boolean existsById(Long id) {
         return userRepository.existsById(id);
-    }
-
-    public void saveNewUser(String githubLogin) {
-        if (findByGithubLogin(githubLogin).isEmpty()) {
-            saveUser(new User(githubLogin));
-        }
     }
 
     public Optional<User> findByGithubLogin(String githubLogin) {
