@@ -17,7 +17,7 @@ const EventEdit = (props) => {
                 />
                 <SelectInput
                     source="eventType"
-                    name="eventT    ype"
+                    name="eventType"
                     choices={[
                         { id: 'IDEA', name: 'Idea' },
                         { id: 'ZERO_VERSION', name: 'Zero Version' },
