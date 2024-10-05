@@ -6,12 +6,6 @@ const EventEdit = (props) => {
         <Edit title="Edit Project" {...props}>
             <SimpleForm>
                 <TextInput
-                    source="id"
-                    name="id"
-                    inputProps={{ readOnly: true }}
-                    style={{ backgroundColor: '#f0f0f0' }}
-                />
-                <TextInput
                     source="name"
                     name="name"
                     validate={required()}

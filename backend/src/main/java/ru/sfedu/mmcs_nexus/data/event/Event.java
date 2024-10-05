@@ -3,21 +3,17 @@ package ru.sfedu.mmcs_nexus.data.event;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "events")
 @Data
 public class Event {
     @Id
-    @SequenceGenerator(
-            name = "event_sequence",
-            sequenceName = "event_sequence",
-            allocationSize = 1
-    )
     @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "event_sequence"
+            strategy = GenerationType.UUID
     )
-    private Long id;
+    private UUID id;
     private String name;
 
     @Enumerated(EnumType.STRING)
@@ -33,11 +29,11 @@ public class Event {
         this.year = year;
     }
 
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 

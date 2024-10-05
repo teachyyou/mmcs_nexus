@@ -11,6 +11,7 @@ import ru.sfedu.mmcs_nexus.data.user.UserService;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 public class AdminUserController {
@@ -38,14 +39,14 @@ public class AdminUserController {
 
 
     @GetMapping(value = "/api/v1/admin/users/{id}", produces = "application/json")
-    public ResponseEntity<User> getUserById(@PathVariable("id") Long id, Authentication authentication) {
+    public ResponseEntity<User> getUserById(@PathVariable("id") UUID id, Authentication authentication) {
         User user = userService.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         return ResponseEntity.ok(user);
     }
 
     @PutMapping(value = "/api/v1/admin/users/{id}", produces = "application/json")
-    public ResponseEntity<User> editUserById(@PathVariable("id") Long id, Authentication authentication, @RequestBody User user) {
+    public ResponseEntity<User> editUserById(@PathVariable("id") UUID id, Authentication authentication, @RequestBody User user) {
 
         User existingUser = userService.findById(id)
                 .orElseThrow(() -> new UsernameNotFoundException(STR."User with id \{id} not found"));
@@ -57,7 +58,7 @@ public class AdminUserController {
     }
 
     @DeleteMapping(value = "/api/v1/admin/users/{id}")
-    public ResponseEntity<Void> deleteUserById(@PathVariable("id") Long id) {
+    public ResponseEntity<Void> deleteUserById(@PathVariable("id") UUID id) {
         if (!userService.existsById(id)) {
             return ResponseEntity.notFound().build();
         }

@@ -5,7 +5,6 @@ const ProjectList = (props) => {
     return (
         <List {...props}>
             <Datagrid>
-                <TextField source="id" />
                 <TextField source="name" label="Name" />
                 <TextField source="description" label="Description" />
                 <TextField source="type" label="Type" />

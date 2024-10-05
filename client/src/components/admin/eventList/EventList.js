@@ -5,7 +5,6 @@ const EventList = (props) => {
     return (
         <List {...props}>
             <Datagrid>
-                <TextField source="id" />
                 <TextField source="name" label="Name" />
                 <TextField source="eventType" label="Type" />
                 <TextField source="year" label="Year" />
