@@ -61,6 +61,11 @@ public class ProjectService {
         return projectRepository.findAll(Sort.by(direction, sort));
     }
 
+    public List<Project> getProjects(String sort, String order, String year) {
+        Sort.Direction direction = order.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+        return projectRepository.findByYear(Integer.parseInt(year), Sort.by(direction, sort));
+    }
+
     public boolean existsById(UUID id) {
         return projectRepository.existsById(id);
     }

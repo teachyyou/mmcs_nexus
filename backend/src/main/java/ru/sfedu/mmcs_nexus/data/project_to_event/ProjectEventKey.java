@@ -7,7 +7,7 @@ import java.io.Serializable;
 import java.util.UUID;
 
 @Embeddable
-public class ProjectEventKey implements Serializable {
+public class    ProjectEventKey implements Serializable {
 
     @Column(name = "project_id")
     private UUID projectId;

@@ -6,8 +6,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import ru.sfedu.mmcs_nexus.data.event.Event;
 import ru.sfedu.mmcs_nexus.data.project.Project;
 import ru.sfedu.mmcs_nexus.data.project.ProjectService;
+import ru.sfedu.mmcs_nexus.data.project_to_event.ProjectEventService;
 
 import java.util.HashMap;
 import java.util.List;
@@ -19,9 +21,12 @@ public class AdminProjectController {
 
     private final ProjectService projectService;
 
+    private final ProjectEventService projectEventService;
+
     @Autowired
-    public AdminProjectController(ProjectService projectService) {
+    public AdminProjectController(ProjectService projectService, ProjectEventService projectEventService) {
         this.projectService = projectService;
+        this.projectEventService = projectEventService;
     }
 
 
@@ -29,9 +34,10 @@ public class AdminProjectController {
     public ResponseEntity<Map<String, Object>> getProjectsList(
             @RequestParam(defaultValue = "id") String sort,
             @RequestParam(defaultValue = "asc") String order,
+            @RequestParam(defaultValue = "2024") String year,
             Authentication authentication) {
 
-        List<Project> projects = projectService.getProjects(sort, order);
+        List<Project> projects = projectService.getProjects(sort, order, year);
 
         Map<String, Object> response = new HashMap<>();
         response.put("content", projects);
@@ -45,6 +51,18 @@ public class AdminProjectController {
         Project project = projectService.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(STR."Project with id \{id} not found"));
         return ResponseEntity.ok(project);
+    }
+
+    @GetMapping(value = "/api/v1/admin/projects/{id}/events", produces = "application/json")
+    public ResponseEntity<Map<String, Object>> getProjectEventsById(@PathVariable("id") UUID id, Authentication authentication) {
+
+        List<Event> events = projectEventService.findByProjectId(id);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("content", events);
+        response.put("totalElements", events.size());
+
+        return ResponseEntity.ok().body(response);
     }
 
     @PutMapping(value = "/api/v1/admin/projects/{id}", produces = "application/json")

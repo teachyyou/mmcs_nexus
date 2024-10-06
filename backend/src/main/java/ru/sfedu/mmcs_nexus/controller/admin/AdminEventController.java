@@ -7,6 +7,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import ru.sfedu.mmcs_nexus.data.event.Event;
 import ru.sfedu.mmcs_nexus.data.event.EventService;
+import ru.sfedu.mmcs_nexus.data.project.Project;
+import ru.sfedu.mmcs_nexus.data.project_to_event.ProjectEventService;
 
 import java.util.HashMap;
 import java.util.List;
@@ -17,10 +19,12 @@ import java.util.UUID;
 public class AdminEventController {
 
     private final EventService eventService;
+    private final ProjectEventService projectEventService;
 
     @Autowired
-    public AdminEventController(EventService eventService) {
+    public AdminEventController(EventService eventService, ProjectEventService projectEventService) {
         this.eventService = eventService;
+        this.projectEventService = projectEventService;
     }
 
     @GetMapping(value = "/api/v1/admin/events", produces = "application/json")
@@ -43,6 +47,18 @@ public class AdminEventController {
         Event event = eventService.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(STR."Event with id \{id} not found"));
         return ResponseEntity.ok(event);
+    }
+
+    @GetMapping(value = "/api/v1/admin/events/{id}/projects", produces = "application/json")
+    public ResponseEntity<Map<String, Object>> getEventProjectsById(@PathVariable("id") UUID id, Authentication authentication) {
+
+        List<Project> projects = projectEventService.findByEventId(id);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("content", projects);
+        response.put("totalElements", projects.size());
+
+        return ResponseEntity.ok().body(response);
     }
 
     @PutMapping(value = "/api/v1/admin/events/{id}", produces = "application/json")

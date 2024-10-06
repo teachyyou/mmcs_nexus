@@ -17,6 +17,7 @@ import ProjectCreate from "./components/admin/projectlist/ProjectCreate";
 import EventList from "./components/admin/eventList/EventList";
 import EventEdit from "./components/admin/eventList/EventEdit";
 import EventCreate from "./components/admin/eventList/EventCreate";
+import ProjectManagment from "./components/admin/ProjectManagment";
 
 
 const dataProvider = springBootRestProvider('http://localhost:8080/api/v1/admin');
@@ -58,6 +59,7 @@ function App() {
                             <Resource name="users" list={UserList} edit ={UserEdit}  />
                             <Resource name="projects" list={ProjectList} edit ={ProjectEdit} create={ProjectCreate} />
                             <Resource name="events" list={EventList} edit ={EventEdit} create={EventCreate} />
+                            <Resource name="pjm" list={ProjectManagment} edit ={ProjectManagment} create={ProjectManagment}/>
                         </Admin>
                     } />
                 </Route>

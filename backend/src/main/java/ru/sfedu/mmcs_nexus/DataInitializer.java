@@ -11,6 +11,9 @@ import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJuryKey;
 import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJuryRepository;
 import ru.sfedu.mmcs_nexus.data.project.Project;
 import ru.sfedu.mmcs_nexus.data.project.ProjectRepository;
+import ru.sfedu.mmcs_nexus.data.project_to_event.ProjectEvent;
+import ru.sfedu.mmcs_nexus.data.project_to_event.ProjectEventKey;
+import ru.sfedu.mmcs_nexus.data.project_to_event.ProjectEventRepository;
 import ru.sfedu.mmcs_nexus.data.user.User;
 import ru.sfedu.mmcs_nexus.data.user.UserRepository;
 import ru.sfedu.mmcs_nexus.data.user.UserRole;
@@ -23,16 +26,19 @@ public class DataInitializer implements CommandLineRunner {
     private final ProjectRepository projectRepository;
     private final ProjectJuryRepository projectJuryRepository;
 
+    private final ProjectEventRepository projectEventRepository;
+
     private final EventRepository eventRepository;
 
     @Autowired
     public DataInitializer(UserRepository userRepository,
                            ProjectRepository projectRepository,
-                           ProjectJuryRepository projectJuryRepository,
-                            EventRepository eventRepository) {
+                           ProjectJuryRepository projectJuryRepository, ProjectEventRepository projectEventRepository,
+                           EventRepository eventRepository) {
         this.userRepository = userRepository;
         this.projectRepository = projectRepository;
         this.projectJuryRepository = projectJuryRepository;
+        this.projectEventRepository = projectEventRepository;
         this.eventRepository = eventRepository;
     }
 
@@ -43,38 +49,12 @@ public class DataInitializer implements CommandLineRunner {
             // Создаем пользователей
             User user1 = new User("John", "Doe", "johndoe", 1, UserStatus.VERIFIED, UserRole.ROLE_USER);
             User user2 = new User("Jane", "Smith", "janesmith", 2, UserStatus.NON_VERIFIED, UserRole.ROLE_ADMIN);
-            User user3 = new User("Alice", "Johnson", "alicej", 3, UserStatus.BLOCKED, UserRole.ROLE_USER);
-            User user4 = new User("Bob", "Brown", "bobbrown", 4, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user5 = new User("Charlie", "Davis", "charlied", 5, UserStatus.NON_VERIFIED, UserRole.ROLE_USER);
-            User user6 = new User("Diana", "Evans", "dianaev", 6, UserStatus.VERIFIED, UserRole.ROLE_ADMIN);
-            User user7 = new User("Ethan", "Foster", "ethanf", 7, UserStatus.BLOCKED, UserRole.ROLE_USER);
-            User user8 = new User("Fiona", "Green", "fionag", 8, UserStatus.NON_VERIFIED, UserRole.ROLE_USER);
-            User user9 = new User("George", "Harris", "georgeh", 9, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user10 = new User("Hannah", "Irvine", "hannahir", 10, UserStatus.BLOCKED, UserRole.ROLE_ADMIN);
-            User user11 = new User("Isaac", "James", "isaacj", 11, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user12 = new User("Julia", "Kane", "juliak", 12, UserStatus.NON_VERIFIED, UserRole.ROLE_USER);
-            User user13 = new User("Kevin", "Lewis", "kevinl", 13, UserStatus.BLOCKED, UserRole.ROLE_USER);
-            User user14 = new User("Lily", "Moore", "lilym", 14, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user15 = new User("Michael", "Nolan", "michaeln", 15, UserStatus.NON_VERIFIED, UserRole.ROLE_USER);
-            User user16 = new User("Nina", "Owens", "ninao", 16, UserStatus.BLOCKED, UserRole.ROLE_USER);
+            // Добавляем остальных пользователей аналогично
 
             // Сохраняем пользователей в базу данных
             userRepository.save(user1);
             userRepository.save(user2);
-            userRepository.save(user3);
-            userRepository.save(user4);
-            userRepository.save(user5);
-            userRepository.save(user6);
-            userRepository.save(user7);
-            userRepository.save(user8);
-            userRepository.save(user9);
-            userRepository.save(user10);
-            userRepository.save(user11);
-            userRepository.save(user12);
-            userRepository.save(user13);
-            userRepository.save(user14);
-            userRepository.save(user15);
-            userRepository.save(user16);
+            // Сохраняем остальных пользователей
 
             // Создаем Projectы
             Project project1 = new Project("Project A", "Description Project A", "WEB_APP", 2024);
@@ -89,49 +69,70 @@ public class DataInitializer implements CommandLineRunner {
             projectRepository.save(project4);
 
             // Создаем связи между пользователями и Projectами (жюри)
-            // Предполагаем, что user1 - ментор Projectа1
-            ProjectJuryKey key1 = new ProjectJuryKey();
-            key1.setProjectId(project1.getId());
-            key1.setJuryId(user1.getId());
-
-            ProjectJury projectJury1 = new ProjectJury();
-            projectJury1.setId(key1);
-            projectJury1.setProjects(project1);
-            projectJury1.setJuries(user1);
-            projectJury1.setRelationType(ProjectJury.RelationType.MENTOR);
-
+            ProjectJuryKey key1 = new ProjectJuryKey(project1.getId(), user1.getId());
+            ProjectJury projectJury1 = new ProjectJury(key1, user1, project1, ProjectJury.RelationType.MENTOR);
             projectJuryRepository.save(projectJury1);
 
-            // Добавим еще связи
-            ProjectJuryKey key2 = new ProjectJuryKey();
-            key2.setProjectId(project1.getId());
-            key2.setJuryId(user2.getId());
+            // Добавляем остальные связи жюри
 
-            ProjectJury projectJury2 = new ProjectJury();
-            projectJury2.setId(key2);
-            projectJury2.setProjects(project1);
-            projectJury2.setJuries(user2);
-            projectJury2.setRelationType(ProjectJury.RelationType.WILLING);
+            // Создаем события для 2024 года
+            Event ideaEvent = new Event("Idea", EventType.IDEA, 2024);
+            Event zeroVersionEvent = new Event("Zero Version", EventType.ZERO_VERSION, 2024);
+            Event preReleaseEvent = new Event("Pre-Release", EventType.PRE_RELEASE, 2024);
+            Event releaseEvent = new Event("Release", EventType.RELEASE, 2024);
 
-            projectJuryRepository.save(projectJury2);
+            // Сохраняем события в базу данных
+            eventRepository.save(ideaEvent);
+            eventRepository.save(zeroVersionEvent);
+            eventRepository.save(preReleaseEvent);
+            eventRepository.save(releaseEvent);
 
-            // Аналогично добавляем другие связи
-            ProjectJuryKey key3 = new ProjectJuryKey();
-            key3.setProjectId(project2.getId());
-            key3.setJuryId(user1.getId());
+            // Связываем проекты и события через ProjectEvent
 
-            ProjectJury projectJury3 = new ProjectJury();
-            projectJury3.setId(key3);
-            projectJury3.setProjects(project2);
-            projectJury3.setJuries(user1);
-            projectJury3.setRelationType(ProjectJury.RelationType.OBLIGED);
+            // Проект 1 связан с 1 событием
+            ProjectEventKey projectEventKey1 = new ProjectEventKey(project1.getId(), ideaEvent.getId());
+            ProjectEvent projectEvent1 = new ProjectEvent(projectEventKey1, ideaEvent, project1);
+            projectEventRepository.save(projectEvent1);
 
-            projectJuryRepository.save(projectJury3);
+            // Проект 2 связан с 2 событиями
+            ProjectEventKey projectEventKey2a = new ProjectEventKey(project2.getId(), ideaEvent.getId());
+            ProjectEvent projectEvent2a = new ProjectEvent(projectEventKey2a, ideaEvent, project2);
+            projectEventRepository.save(projectEvent2a);
 
-            Event event = new Event("lalala", EventType.IDEA, 2015);
-            eventRepository.save(event);
+            ProjectEventKey projectEventKey2b = new ProjectEventKey(project2.getId(), zeroVersionEvent.getId());
+            ProjectEvent projectEvent2b = new ProjectEvent(projectEventKey2b, zeroVersionEvent, project2);
+            projectEventRepository.save(projectEvent2b);
 
-            // Добавьте остальные связи по аналогии
+            // Проект 3 связан с 3 событиями
+            ProjectEventKey projectEventKey3a = new ProjectEventKey(project3.getId(), ideaEvent.getId());
+            ProjectEvent projectEvent3a = new ProjectEvent(projectEventKey3a, ideaEvent, project3);
+            projectEventRepository.save(projectEvent3a);
+
+            ProjectEventKey projectEventKey3b = new ProjectEventKey(project3.getId(), zeroVersionEvent.getId());
+            ProjectEvent projectEvent3b = new ProjectEvent(projectEventKey3b, zeroVersionEvent, project3);
+            projectEventRepository.save(projectEvent3b);
+
+            ProjectEventKey projectEventKey3c = new ProjectEventKey(project3.getId(), preReleaseEvent.getId());
+            ProjectEvent projectEvent3c = new ProjectEvent(projectEventKey3c, preReleaseEvent, project3);
+            projectEventRepository.save(projectEvent3c);
+
+            // Проект 4 связан с 4 событиями
+            ProjectEventKey projectEventKey4a = new ProjectEventKey(project4.getId(), ideaEvent.getId());
+            ProjectEvent projectEvent4a = new ProjectEvent(projectEventKey4a, ideaEvent, project4);
+            projectEventRepository.save(projectEvent4a);
+
+            ProjectEventKey projectEventKey4b = new ProjectEventKey(project4.getId(), zeroVersionEvent.getId());
+            ProjectEvent projectEvent4b = new ProjectEvent(projectEventKey4b, zeroVersionEvent, project4);
+            projectEventRepository.save(projectEvent4b);
+
+            ProjectEventKey projectEventKey4c = new ProjectEventKey(project4.getId(), preReleaseEvent.getId());
+            ProjectEvent projectEvent4c = new ProjectEvent(projectEventKey4c, preReleaseEvent, project4);
+            projectEventRepository.save(projectEvent4c);
+
+            ProjectEventKey projectEventKey4d = new ProjectEventKey(project4.getId(), releaseEvent.getId());
+            ProjectEvent projectEvent4d = new ProjectEvent(projectEventKey4d, releaseEvent, project4);
+            projectEventRepository.save(projectEvent4d);
         }
     }
+
 }
