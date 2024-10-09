@@ -6,9 +6,9 @@ import org.springframework.stereotype.Component;
 import ru.sfedu.mmcs_nexus.data.event.Event;
 import ru.sfedu.mmcs_nexus.data.event.EventRepository;
 import ru.sfedu.mmcs_nexus.data.event.EventType;
-import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJury;
-import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJuryKey;
-import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJuryRepository;
+import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJuryEvent;
+import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJuryEventKey;
+import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJuryEventRepository;
 import ru.sfedu.mmcs_nexus.data.project.Project;
 import ru.sfedu.mmcs_nexus.data.project.ProjectRepository;
 import ru.sfedu.mmcs_nexus.data.project_to_event.ProjectEvent;
@@ -24,7 +24,7 @@ public class DataInitializer implements CommandLineRunner {
 
     private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
-    private final ProjectJuryRepository projectJuryRepository;
+    private final ProjectJuryEventRepository projectJuryEventRepository;
 
     private final ProjectEventRepository projectEventRepository;
 
@@ -33,11 +33,11 @@ public class DataInitializer implements CommandLineRunner {
     @Autowired
     public DataInitializer(UserRepository userRepository,
                            ProjectRepository projectRepository,
-                           ProjectJuryRepository projectJuryRepository, ProjectEventRepository projectEventRepository,
+                           ProjectJuryEventRepository projectJuryEventRepository, ProjectEventRepository projectEventRepository,
                            EventRepository eventRepository) {
         this.userRepository = userRepository;
         this.projectRepository = projectRepository;
-        this.projectJuryRepository = projectJuryRepository;
+        this.projectJuryEventRepository = projectJuryEventRepository;
         this.projectEventRepository = projectEventRepository;
         this.eventRepository = eventRepository;
     }
@@ -68,10 +68,7 @@ public class DataInitializer implements CommandLineRunner {
             projectRepository.save(project3);
             projectRepository.save(project4);
 
-            // Создаем связи между пользователями и Projectами (жюри)
-            ProjectJuryKey key1 = new ProjectJuryKey(project1.getId(), user1.getId());
-            ProjectJury projectJury1 = new ProjectJury(key1, user1, project1, ProjectJury.RelationType.MENTOR);
-            projectJuryRepository.save(projectJury1);
+
 
             // Добавляем остальные связи жюри
 
@@ -86,6 +83,11 @@ public class DataInitializer implements CommandLineRunner {
             eventRepository.save(zeroVersionEvent);
             eventRepository.save(preReleaseEvent);
             eventRepository.save(releaseEvent);
+
+            // Создаем связи между пользователями и Projectами (жюри)
+            ProjectJuryEventKey key1 = new ProjectJuryEventKey(project1.getId(), user1.getId(), ideaEvent.getId());
+            ProjectJuryEvent projectJuryEvent1 = new ProjectJuryEvent(key1, user1, project1, ideaEvent, ProjectJuryEvent.RelationType.MENTOR);
+            projectJuryEventRepository.save(projectJuryEvent1);
 
             // Связываем проекты и события через ProjectEvent
 

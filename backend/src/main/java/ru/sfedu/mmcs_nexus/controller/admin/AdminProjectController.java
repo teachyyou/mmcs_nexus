@@ -6,15 +6,14 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import ru.sfedu.mmcs_nexus.data.dto.UserDTO;
 import ru.sfedu.mmcs_nexus.data.event.Event;
+import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJuryEventService;
 import ru.sfedu.mmcs_nexus.data.project.Project;
 import ru.sfedu.mmcs_nexus.data.project.ProjectService;
 import ru.sfedu.mmcs_nexus.data.project_to_event.ProjectEventService;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 public class AdminProjectController {
@@ -23,13 +22,17 @@ public class AdminProjectController {
 
     private final ProjectEventService projectEventService;
 
+    private final ProjectJuryEventService projectJuryEventService;
+
     @Autowired
-    public AdminProjectController(ProjectService projectService, ProjectEventService projectEventService) {
+    public AdminProjectController(ProjectService projectService, ProjectEventService projectEventService, ProjectJuryEventService projectJuryEventService) {
         this.projectService = projectService;
         this.projectEventService = projectEventService;
+        this.projectJuryEventService = projectJuryEventService;
     }
 
 
+    //Получить список всех проектов с сортировкой за указанный год, по дефолту - 2024
     @GetMapping(value = "/api/v1/admin/projects", produces = "application/json")
     public ResponseEntity<Map<String, Object>> getProjectsList(
             @RequestParam(defaultValue = "id") String sort,
@@ -46,6 +49,7 @@ public class AdminProjectController {
         return ResponseEntity.ok().body(response);
     }
 
+    //Получить инфу по проекту по id
     @GetMapping(value = "/api/v1/admin/projects/{id}", produces = "application/json")
     public ResponseEntity<Project> getProjectById(@PathVariable("id") UUID id, Authentication authentication) {
         Project project = projectService.findById(id)
@@ -53,6 +57,7 @@ public class AdminProjectController {
         return ResponseEntity.ok(project);
     }
 
+    //Получить список всех событий для данного проекта по id
     @GetMapping(value = "/api/v1/admin/projects/{id}/events", produces = "application/json")
     public ResponseEntity<Map<String, Object>> getProjectEventsById(@PathVariable("id") UUID id, Authentication authentication) {
 
@@ -63,6 +68,23 @@ public class AdminProjectController {
         response.put("totalElements", events.size());
 
         return ResponseEntity.ok().body(response);
+    }
+
+    //Получить список всех жюри у данных проекта и события по id
+    @GetMapping(value = "api/v1/admin/projects/{project_id}/juries/{event_id}", produces = "application/json")
+    public ResponseEntity<?> getProjectEventJuriesById(
+            @PathVariable("project_id") UUID projectId,
+            @PathVariable("event_id") UUID eventId,
+            Authentication authentication) {
+
+        try {
+            Map<String, List<UserDTO>> response = projectJuryEventService.getJuriesByProjectAndEvent(projectId, eventId);
+            return ResponseEntity.ok().body(response);
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonMap("error", e.getMessage()));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("error", "An unexpected error occurred"));
+        }
     }
 
     @PutMapping(value = "/api/v1/admin/projects/{id}", produces = "application/json")

@@ -3,8 +3,8 @@ package ru.sfedu.mmcs_nexus.data.project;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJury;
-import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJuryRepository;
+import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJuryEvent;
+import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJuryEventRepository;
 import ru.sfedu.mmcs_nexus.data.user.User;
 import ru.sfedu.mmcs_nexus.data.user.UserRepository;
 
@@ -17,23 +17,23 @@ public class ProjectService {
 
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
-    private final ProjectJuryRepository projectJuryRepository;
+    private final ProjectJuryEventRepository projectJuryEventRepository;
 
     @Autowired
     public ProjectService(ProjectRepository projectRepository,
                           UserRepository userRepository,
-                          ProjectJuryRepository projectJuryRepository)
+                          ProjectJuryEventRepository projectJuryEventRepository)
     {
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
-        this.projectJuryRepository = projectJuryRepository;
+        this.projectJuryEventRepository = projectJuryEventRepository;
     }
 
     public List<Project> findByFirstname(String firstname) {
         User user = userRepository.findByFirstName(firstname);
-        List<ProjectJury> projectJuryList = projectJuryRepository.findByJuries(user);
+        List<ProjectJuryEvent> projectJuryEventList = projectJuryEventRepository.findByJury(user);
 
-        return projectJuryList.stream().map(ProjectJury::getProjects).toList();
+        return projectJuryEventList.stream().map(ProjectJuryEvent::getProject).toList();
     }
 
     public Optional<Project> findById(UUID id) {
