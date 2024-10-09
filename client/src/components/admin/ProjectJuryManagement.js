@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Autocomplete, TextField, Button, Checkbox, FormControlLabel } from '@mui/material';
 
-const ProjectManagement = () => {
+const ProjectJuryManagement = () => {
     const [projects, setProjects] = useState([]);  // Список проектов текущего года
     const [selectedProject, setSelectedProject] = useState(null); // Выбранный проект
     const [events, setEvents] = useState([]);  // Список эвентов
@@ -149,4 +149,4 @@ const ProjectManagement = () => {
     );
 };
 
-export default ProjectManagement;
+export default ProjectJuryManagement;

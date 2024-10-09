@@ -40,6 +40,14 @@ public class ProjectService {
         return projectRepository.findById(id);
     }
 
+    public List<Project> findByIds(List<UUID> ids) {
+        return projectRepository.findAllById(ids);
+    }
+
+    public List<Project> findByYear(int year) {
+        return projectRepository.findByYear(year);
+    }
+
     public Optional<Project> findByName(String name) {
         return projectRepository.findByName(name).stream().findFirst();
     }

@@ -11,6 +11,8 @@ import java.util.UUID;
 public interface ProjectRepository extends JpaRepository<Project, UUID> {
     List<Project> findByName(String name);
     List<Project> findByYear(Integer year, Sort sort);
+    List<Project> findByYear(Integer year);
+
 
     boolean existsByName(String name);
 }

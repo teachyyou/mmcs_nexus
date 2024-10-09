@@ -1,6 +1,7 @@
 package ru.sfedu.mmcs_nexus.data.project_to_event;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -18,5 +19,10 @@ public interface ProjectEventRepository extends JpaRepository<ProjectEvent, Proj
 
     @Query("SELECT pe.events FROM ProjectEvent pe WHERE pe.projects.id = :projectId")
     List<Event> findByProjectId(@Param("projectId") UUID projectId);
+
+    @Modifying
+    @Query("DELETE FROM ProjectEvent pe WHERE pe.events.id = :eventId")
+    void deleteByEventId(@Param("eventId") UUID eventId);
+
 
 }

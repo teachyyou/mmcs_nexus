@@ -5,9 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import ru.sfedu.mmcs_nexus.data.dto.EventProjectsRequest;
 import ru.sfedu.mmcs_nexus.data.event.Event;
 import ru.sfedu.mmcs_nexus.data.event.EventService;
 import ru.sfedu.mmcs_nexus.data.project.Project;
+import ru.sfedu.mmcs_nexus.data.project.ProjectService;
 import ru.sfedu.mmcs_nexus.data.project_to_event.ProjectEventService;
 
 import java.util.HashMap;
@@ -21,10 +23,13 @@ public class AdminEventController {
     private final EventService eventService;
     private final ProjectEventService projectEventService;
 
+    private final ProjectService projectService;
+
     @Autowired
-    public AdminEventController(EventService eventService, ProjectEventService projectEventService) {
+    public AdminEventController(EventService eventService, ProjectEventService projectEventService, ProjectService projectService) {
         this.eventService = eventService;
         this.projectEventService = projectEventService;
+        this.projectService = projectService;
     }
 
     @GetMapping(value = "/api/v1/admin/events", produces = "application/json")
@@ -60,6 +65,33 @@ public class AdminEventController {
 
         return ResponseEntity.ok().body(response);
     }
+
+    @PostMapping(value = "/api/v1/admin/events/{id}/projects", consumes = "application/json", produces = "application/json")
+    public ResponseEntity<?> saveEventProjects(@PathVariable("id") UUID eventId,
+                                               @RequestBody EventProjectsRequest request,
+                                               Authentication authentication) {
+
+        // Validate the event exists
+        Event event = eventService.findById(eventId)
+                .orElseThrow(() -> new EntityNotFoundException("Event with id " + eventId + " not found"));
+
+        List<Project> projects;
+        if (request.isLinkAllProjects()) {
+            // Fetch all projects for the same year as the event
+            projects = projectService.findByYear(event.getYear());
+            // Link all projects to the event
+        } else {
+            // Fetch specified projects by IDs
+            projects = projectService.findByIds(request.getProjectIds());
+            // Link specified projects to the event
+        }
+        projectEventService.setProjectsForEvent(event, projects);
+
+        // Return a success response
+        return ResponseEntity.ok().build();
+    }
+
+
 
     @PutMapping(value = "/api/v1/admin/events/{id}", produces = "application/json")
     public ResponseEntity<Event> editEventById(@PathVariable("id") UUID id, Authentication authentication, @RequestBody Event event) {
