@@ -3,7 +3,7 @@ package ru.sfedu.mmcs_nexus.data.dto;
 import java.util.List;
 import java.util.UUID;
 
-public class    ProjectEventJuryAssignmentRequest {
+public class ProjectEventJuryAssignmentRequest {
 
     private UUID projectId;
     private UUID eventId;
@@ -11,8 +11,6 @@ public class    ProjectEventJuryAssignmentRequest {
     private List<UUID> obligedJuries;
     private List<UUID> mentors;
     private boolean applyToAllEvents;
-
-    // Getters and Setters
 
     public UUID getProjectId() {
         return projectId;

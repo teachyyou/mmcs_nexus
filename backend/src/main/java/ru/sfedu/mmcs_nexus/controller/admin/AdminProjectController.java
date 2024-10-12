@@ -6,12 +6,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import ru.sfedu.mmcs_nexus.data.dto.ProjectEventJuryAssignmentRequest;
 import ru.sfedu.mmcs_nexus.data.dto.UserDTO;
 import ru.sfedu.mmcs_nexus.data.event.Event;
+import ru.sfedu.mmcs_nexus.data.event.EventService;
+import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJuryEvent;
 import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJuryEventService;
 import ru.sfedu.mmcs_nexus.data.project.Project;
 import ru.sfedu.mmcs_nexus.data.project.ProjectService;
 import ru.sfedu.mmcs_nexus.data.project_to_event.ProjectEventService;
+import ru.sfedu.mmcs_nexus.data.user.UserService;
 
 import java.util.*;
 
@@ -24,11 +28,17 @@ public class AdminProjectController {
 
     private final ProjectJuryEventService projectJuryEventService;
 
+    private final EventService eventService;
+
+    private final UserService userService;
+
     @Autowired
-    public AdminProjectController(ProjectService projectService, ProjectEventService projectEventService, ProjectJuryEventService projectJuryEventService) {
+    public AdminProjectController(ProjectService projectService, ProjectEventService projectEventService, ProjectJuryEventService projectJuryEventService, EventService eventService, UserService userService) {
         this.projectService = projectService;
         this.projectEventService = projectEventService;
         this.projectJuryEventService = projectJuryEventService;
+        this.eventService = eventService;
+        this.userService = userService;
     }
 
 
@@ -85,6 +95,33 @@ public class AdminProjectController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("error", "An unexpected error occurred"));
         }
+    }
+
+    @PostMapping(value = "api/v1/admin/projects/{id}/juries", consumes = "application/json", produces = "application/json")
+    public ResponseEntity<?> saveProjectEventJuries(@PathVariable("id") UUID id, Authentication authentication, @RequestBody ProjectEventJuryAssignmentRequest request) {
+
+        Project project = projectService.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(STR."Project with id \{id} not found"));
+
+        if (request.isApplyToAllEvents()) {
+            List<Event> events = projectEventService.findByProjectId(id);
+            projectJuryEventService.clearProjectEventsJuries(project);
+            for (Event event : events) {
+                projectJuryEventService.saveJuriesToProjectEvent(project, event, request.getMentors(), ProjectJuryEvent.RelationType.MENTOR);
+                projectJuryEventService.saveJuriesToProjectEvent(project, event, request.getObligedJuries(), ProjectJuryEvent.RelationType.OBLIGED);
+                projectJuryEventService.saveJuriesToProjectEvent(project, event, request.getWillingJuries(), ProjectJuryEvent.RelationType.WILLING);
+            }
+
+        } else {
+            Event event = eventService.findById(request.getEventId()).orElseThrow(() -> new EntityNotFoundException(STR."Event with id \{id} not found"));
+            projectJuryEventService.clearProjectEventJuries(project, event);
+
+            projectJuryEventService.saveJuriesToProjectEvent(project, event, request.getMentors(), ProjectJuryEvent.RelationType.MENTOR);
+            projectJuryEventService.saveJuriesToProjectEvent(project, event, request.getObligedJuries(), ProjectJuryEvent.RelationType.OBLIGED);
+            projectJuryEventService.saveJuriesToProjectEvent(project, event, request.getWillingJuries(), ProjectJuryEvent.RelationType.WILLING);
+        }
+
+        return null;
     }
 
     @PutMapping(value = "/api/v1/admin/projects/{id}", produces = "application/json")

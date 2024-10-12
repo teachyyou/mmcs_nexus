@@ -114,7 +114,7 @@ const ProjectJuryManagement = () => {
             applyToAllEvents: applyToAllEvents,
         };
 
-        fetch('/api/saveProjectJuries', {
+        fetch(`http://localhost:8080/api/v1/admin/projects/${selectedProject}/juries`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(data),

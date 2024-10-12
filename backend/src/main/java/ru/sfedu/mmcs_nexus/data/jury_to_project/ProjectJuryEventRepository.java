@@ -1,6 +1,9 @@
 package ru.sfedu.mmcs_nexus.data.jury_to_project;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import ru.sfedu.mmcs_nexus.data.user.User;
 
@@ -13,4 +16,8 @@ public interface ProjectJuryEventRepository extends JpaRepository<ProjectJuryEve
     List<ProjectJuryEvent> findByJury(User user);
 
     List<ProjectJuryEvent> findByProjectIdAndEventId(UUID projectId, UUID eventId);
+
+    @Modifying
+    @Query("DELETE FROM ProjectJuryEvent pe WHERE pe.event.id = :eventId AND pe.project.id = :projectId")
+    void deleteByProjectAndEvent(@Param("projectId") UUID projectId, @Param("eventId") UUID eventId);
 }
