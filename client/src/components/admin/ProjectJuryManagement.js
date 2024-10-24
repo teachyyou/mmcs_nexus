@@ -48,24 +48,38 @@ const ProjectJuryManagement = () => {
             fetch(`http://localhost:8080/api/v1/admin/projects/${selectedProject}/events`)
                 .then((response) => response.json())
                 .then((data) => {
-                    setEvents(Array.isArray(data.content) ? data.content : []);
+                    const newEvents = Array.isArray(data.content) ? data.content : [];
+                    setEvents(newEvents);
+
+                    // Проверяем, есть ли выбранное событие в новом списке событий
+                    const eventExists = newEvents.some((event) => event.id === selectedEvent);
+
+                    if (!eventExists) {
+                        setSelectedEvent(null);
+                        // Очищаем жюри, так как событие изменилось
+                        setWillingJuries([]);
+                        setObligedJuries([]);
+                        setMentors([]);
+                    }
                 })
                 .catch((error) => console.error('Error fetching events:', error));
         } else {
             setEvents([]);
+            setSelectedEvent(null);
+            // Очищаем жюри, так как событий нет
+            setWillingJuries([]);
+            setObligedJuries([]);
+            setMentors([]);
         }
-        // Сбрасываем выбранное событие и жюри при изменении проекта
-        setSelectedEvent(null);
-        setWillingJuries([]);
-        setObligedJuries([]);
-        setMentors([]);
     }, [selectedProject, applyToAllEvents]);
 
     // Получаем назначенных жюри для выбранного проекта и события
     useEffect(() => {
-        if (selectedProject && selectedEvent && !applyToAllEvents) {
+        if (selectedProject && (selectedEvent || applyToAllEvents)) {
             fetch(
-                `http://localhost:8080/api/v1/admin/projects/${selectedProject}/juries/${selectedEvent}`
+                `http://localhost:8080/api/v1/admin/projects/${selectedProject}/juries${
+                    applyToAllEvents ? '' : `/${selectedEvent}`
+                }`
             )
                 .then((response) => response.json())
                 .then((data) => {
@@ -75,12 +89,8 @@ const ProjectJuryManagement = () => {
                     setMentors(data.mentors || []);
                 })
                 .catch((error) => console.error('Error fetching assigned juries:', error));
-        } else {
-            // Если выбрана галочка "Apply to all events", очищаем поля
-            setWillingJuries([]);
-            setObligedJuries([]);
-            setMentors([]);
         }
+        // Не очищаем состояния жюри здесь
     }, [selectedProject, selectedEvent, applyToAllEvents]);
 
     // Обработчики изменения выбранных жюри
@@ -177,8 +187,10 @@ const ProjectJuryManagement = () => {
                 onChange={(event, newValue) => {
                     setSelectedProject(newValue?.id || null);
                     setApplyToAllEvents(false); // Сбрасываем галочку
-                    setSelectedEvent(null); // Сбрасываем выбранное событие
-                    setWillingJuries([]); // Очищаем жюри
+                    // Мы больше не сбрасываем selectedEvent здесь
+                    // setSelectedEvent(null);
+                    // Очищаем жюри
+                    setWillingJuries([]);
                     setObligedJuries([]);
                     setMentors([]);
                 }}
@@ -193,10 +205,10 @@ const ProjectJuryManagement = () => {
                             checked={applyToAllEvents}
                             onChange={(e) => {
                                 setApplyToAllEvents(e.target.checked);
-                                setSelectedEvent(null); // Сбрасываем выбранное событие
-                                setWillingJuries([]); // Очищаем жюри
-                                setObligedJuries([]);
-                                setMentors([]);
+                                // Сбрасываем выбранное событие только если галочка включена
+                                if (e.target.checked) {
+                                    setSelectedEvent(null);
+                                }
                             }}
                         />
                     }
@@ -208,6 +220,7 @@ const ProjectJuryManagement = () => {
             {!applyToAllEvents && selectedProject && (
                 <Autocomplete
                     options={events}
+                    value={events.find((event) => event.id === selectedEvent) || null}
                     getOptionLabel={(option) => option.name}
                     onChange={(event, newValue) => {
                         setSelectedEvent(newValue?.id || null);
