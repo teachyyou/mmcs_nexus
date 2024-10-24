@@ -14,6 +14,11 @@ import springBootRestProvider from "./components/admin/restProviders/springBootR
 import ProjectList from "./components/admin/projectlist/ProjectList";
 import ProjectEdit from "./components/admin/projectlist/ProjectEdit";
 import ProjectCreate from "./components/admin/projectlist/ProjectCreate";
+import EventList from "./components/admin/eventList/EventList";
+import EventEdit from "./components/admin/eventList/EventEdit";
+import EventCreate from "./components/admin/eventList/EventCreate";
+import ProjectJuryManagement from "./components/admin/ProjectJuryManagement";
+import ProjectEventManagement from "./components/admin/ProjectEventManagement";
 
 
 const dataProvider = springBootRestProvider('http://localhost:8080/api/v1/admin');
@@ -54,6 +59,9 @@ function App() {
                         <Admin dataProvider={dataProvider} basename="/admin">
                             <Resource name="users" list={UserList} edit ={UserEdit}  />
                             <Resource name="projects" list={ProjectList} edit ={ProjectEdit} create={ProjectCreate} />
+                            <Resource name="events" list={EventList} edit ={EventEdit} create={EventCreate} />
+                            <Resource name="project_jury" list={ProjectJuryManagement} edit ={ProjectJuryManagement} create={ProjectJuryManagement}/>
+                            <Resource name="project_event" list={ProjectEventManagement} edit ={ProjectEventManagement} create={ProjectEventManagement}/>
                         </Admin>
                     } />
                 </Route>

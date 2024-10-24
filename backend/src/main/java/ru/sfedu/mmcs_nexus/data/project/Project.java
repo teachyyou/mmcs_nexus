@@ -4,22 +4,18 @@ package ru.sfedu.mmcs_nexus.data.project;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "projects")
 @Data
 public class Project {
 
     @Id
-    @SequenceGenerator(
-            name = "project_sequence",
-            sequenceName = "project_sequence",
-            allocationSize = 1
-    )
     @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "project_sequence"
+            strategy = GenerationType.UUID
     )
-    private Long id;
+    private UUID id;
 
     private String name;
     private String description;
@@ -36,11 +32,11 @@ public class Project {
     }
 
     // Getters and Setters
-    public Long getId() {
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -79,8 +75,8 @@ public class Project {
     public void editExistingProject(Project project) {
         setName(project.getName());
         setDescription(project.getDescription());
-        setType(project.type);
-        setYear(project.year);
+        setType(project.getType());
+        setYear(project.getYear());
     }
 
 

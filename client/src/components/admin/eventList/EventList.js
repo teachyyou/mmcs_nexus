@@ -1,17 +1,16 @@
 import React from 'react';
 import { List, Datagrid, TextField } from 'react-admin';
 
-const ProjectList = (props) => {
+const EventList = (props) => {
     return (
         <List {...props}>
             <Datagrid>
                 <TextField source="name" label="Name" />
-                <TextField source="description" label="Description" />
-                <TextField source="type" label="Type" />
+                <TextField source="eventType" label="Type" />
                 <TextField source="year" label="Year" />
             </Datagrid>
         </List>
     );
 }
 
-export default ProjectList;
+export default EventList;

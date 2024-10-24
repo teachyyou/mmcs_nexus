@@ -2,41 +2,47 @@ package ru.sfedu.mmcs_nexus.data.jury_to_project;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+
 import java.io.Serializable;
+import java.util.UUID;
 
 @Embeddable
-public class ProjectJuryKey implements Serializable {
+public class ProjectJuryEventKey implements Serializable {
 
     @Column(name = "project_id")
-    private Long projectId;
+    private UUID projectId;
 
     @Column(name = "jury_id")
-    private Long juryId;
+    private UUID juryId;
+
+    @Column(name = "event_id")
+    private UUID eventId;
 
     // Конструкторы
-    public ProjectJuryKey() {
+    public ProjectJuryEventKey() {
     }
 
-    public ProjectJuryKey(Long projectId, Long juryId) {
+    public ProjectJuryEventKey(UUID projectId, UUID juryId, UUID eventId) {
         this.projectId = projectId;
         this.juryId = juryId;
+        this.eventId = eventId;
     }
 
     // Геттеры и сеттеры
 
-    public Long getProjectId() {
+    public UUID getProjectId() {
         return projectId;
     }
 
-    public void setProjectId(Long projectId) {
+    public void setProjectId(UUID projectId) {
         this.projectId = projectId;
     }
 
-    public Long getJuryId() {
+    public UUID getJuryId() {
         return juryId;
     }
 
-    public void setJuryId(Long juryId) {
+    public void setJuryId(UUID juryId) {
         this.juryId = juryId;
     }
 
@@ -45,9 +51,9 @@ public class ProjectJuryKey implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
 
-        ProjectJuryKey that = (ProjectJuryKey) o;
+        ProjectJuryEventKey that = (ProjectJuryEventKey) o;
 
-        if (!projectId.equals(that.projectId)) return false;
+        if (!projectId.equals(that.projectId) || !eventId.equals(that.eventId)) return false;
         return juryId.equals(that.juryId);
     }
 
@@ -55,6 +61,15 @@ public class ProjectJuryKey implements Serializable {
     public int hashCode() {
         int result = projectId.hashCode();
         result = 31 * result + juryId.hashCode();
+        result = 17 * result + eventId.hashCode();
         return result;
+    }
+
+    public UUID getEventId() {
+        return eventId;
+    }
+
+    public void setEventId(UUID eventId) {
+        this.eventId = eventId;
     }
 }

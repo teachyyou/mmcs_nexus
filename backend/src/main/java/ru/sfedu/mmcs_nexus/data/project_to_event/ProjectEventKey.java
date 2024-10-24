@@ -4,38 +4,39 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 
 import java.io.Serializable;
+import java.util.UUID;
 
 @Embeddable
-public class ProjectEventKey implements Serializable {
+public class    ProjectEventKey implements Serializable {
 
     @Column(name = "project_id")
-    private Long projectId;
+    private UUID projectId;
 
     @Column(name = "event_id")
-    private Long eventId;
+    private UUID eventId;
 
     public ProjectEventKey() {
     }
 
-    public ProjectEventKey(Long projectId, Long eventId) {
+    public ProjectEventKey(UUID projectId, UUID eventId) {
         this.projectId = projectId;
         this.eventId = eventId;
     }
 
 
-    public Long getProjectId() {
+    public UUID getProjectId() {
         return projectId;
     }
 
-    public void setProjectId(Long projectId) {
+    public void setProjectId(UUID projectId) {
         this.projectId = projectId;
     }
 
-    public Long getEventId() {
+    public UUID getEventId() {
         return eventId;
     }
 
-    public void setEventId(Long eventId) {
+    public void setEventId(UUID eventId) {
         this.eventId = eventId;
     }
 

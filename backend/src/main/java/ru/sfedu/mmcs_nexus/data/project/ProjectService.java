@@ -3,40 +3,49 @@ package ru.sfedu.mmcs_nexus.data.project;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJury;
-import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJuryRepository;
+import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJuryEvent;
+import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJuryEventRepository;
 import ru.sfedu.mmcs_nexus.data.user.User;
 import ru.sfedu.mmcs_nexus.data.user.UserRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class ProjectService {
 
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
-    private final ProjectJuryRepository projectJuryRepository;
+    private final ProjectJuryEventRepository projectJuryEventRepository;
 
     @Autowired
     public ProjectService(ProjectRepository projectRepository,
                           UserRepository userRepository,
-                          ProjectJuryRepository projectJuryRepository)
+                          ProjectJuryEventRepository projectJuryEventRepository)
     {
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
-        this.projectJuryRepository = projectJuryRepository;
+        this.projectJuryEventRepository = projectJuryEventRepository;
     }
 
     public List<Project> findByFirstname(String firstname) {
         User user = userRepository.findByFirstName(firstname);
-        List<ProjectJury> projectJuryList = projectJuryRepository.findByJuries(user);
+        List<ProjectJuryEvent> projectJuryEventList = projectJuryEventRepository.findByJury(user);
 
-        return projectJuryList.stream().map(ProjectJury::getProjects).toList();
+        return projectJuryEventList.stream().map(ProjectJuryEvent::getProject).toList();
     }
 
-    public Optional<Project> findById(Long id) {
+    public Optional<Project> findById(UUID id) {
         return projectRepository.findById(id);
+    }
+
+    public List<Project> findByIds(List<UUID> ids) {
+        return projectRepository.findAllById(ids);
+    }
+
+    public List<Project> findByYear(int year) {
+        return projectRepository.findByYear(year);
     }
 
     public Optional<Project> findByName(String name) {
@@ -58,5 +67,18 @@ public class ProjectService {
     public List<Project> getProjects(String sort, String order) {
         Sort.Direction direction = order.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
         return projectRepository.findAll(Sort.by(direction, sort));
+    }
+
+    public List<Project> getProjects(String sort, String order, String year) {
+        Sort.Direction direction = order.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+        return projectRepository.findByYear(Integer.parseInt(year), Sort.by(direction, sort));
+    }
+
+    public boolean existsById(UUID id) {
+        return projectRepository.existsById(id);
+    }
+
+    public void deleteProjectById(UUID id) {
+        projectRepository.deleteById(id);
     }
 }

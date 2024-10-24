@@ -3,30 +3,37 @@ package ru.sfedu.mmcs_nexus.data.event;
 import jakarta.persistence.*;
 import lombok.Data;
 
+import java.util.UUID;
+
 @Entity
 @Table(name = "events")
 @Data
 public class Event {
     @Id
-    @SequenceGenerator(
-            name = "event_sequence",
-            sequenceName = "event_sequence",
-            allocationSize = 1
-    )
     @GeneratedValue(
-            strategy = GenerationType.SEQUENCE,
-            generator = "event_sequence"
+            strategy = GenerationType.UUID
     )
-    private Long id;
+    private UUID id;
     private String name;
+
+    @Enumerated(EnumType.STRING)
     private EventType eventType;
     private int year;
 
-    public Long getId() {
+    public Event() {
+
+    }
+    public Event(String name, EventType type, int year) {
+        this.name = name;
+        this.eventType = type;
+        this.year = year;
+    }
+
+    public UUID getId() {
         return id;
     }
 
-    public void setId(Long id) {
+    public void setId(UUID id) {
         this.id = id;
     }
 
@@ -52,5 +59,11 @@ public class Event {
 
     public void setYear(int year) {
         this.year = year;
+    }
+
+    public void editExistingEvent(Event event) {
+        setName(event.getName());
+        setEventType(event.getEventType());
+        setYear(event.getYear());
     }
 }

@@ -5,7 +5,7 @@ import {StyledEngineProvider} from "@mui/material";
 const HomePage = ({ isAuthenticated, setIsAuthenticated }) => {
 
     const [isLoading, setIsLoading] = useState(true);
-    const [login, setLogin] = useState("default_user");
+    //const [login, setLogin] = useState("default_user");
     const [name, setName] = useState("Unknown User");
     const [avatar_url, setAvatarUrl] = useState("default_url");
 
@@ -18,7 +18,7 @@ const HomePage = ({ isAuthenticated, setIsAuthenticated }) => {
                     response => response.json())
                 .then(data => {
                     setName(data.name);
-                    setLogin(data.login);
+                    //setLogin(data.login);
                     setAvatarUrl(data.avatar_url);
                     setIsLoading(false);
                 })

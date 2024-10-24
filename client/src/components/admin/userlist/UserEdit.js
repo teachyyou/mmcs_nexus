@@ -12,12 +12,6 @@ const UserEdit = (props) => {
                     style={{ backgroundColor: '#f0f0f0' }}
                 />
                 <TextInput
-                    source="id"
-                    name="id"
-                    inputProps={{ readOnly: true }}
-                    style={{ backgroundColor: '#f0f0f0' }}
-                />
-                <TextInput
                     source="firstName"
                     name="firstName"
                 />
