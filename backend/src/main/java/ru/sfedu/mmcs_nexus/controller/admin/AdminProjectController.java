@@ -30,16 +30,12 @@ public class AdminProjectController {
 
     private final EventService eventService;
 
-    private final UserService userService;
-
     @Autowired
     public AdminProjectController(ProjectService projectService, ProjectEventService projectEventService, ProjectJuryEventService projectJuryEventService, EventService eventService, UserService userService) {
         this.projectService = projectService;
         this.projectEventService = projectEventService;
         this.projectJuryEventService = projectJuryEventService;
-        this.eventService = eventService;
-        this.userService = userService;
-    }
+        this.eventService = eventService;}
 
 
     //Получить список всех проектов с сортировкой за указанный год, по дефолту - 2024
