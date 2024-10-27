@@ -34,6 +34,10 @@ public class GradeService {
         this.gradeRepository = gradeRepository;
     }
 
+    public void save(Grade grade) {
+        gradeRepository.save(grade);
+    }
+
     public Optional<Grade> findById(GradeKey id) {
         return gradeRepository.findById(id);
     }

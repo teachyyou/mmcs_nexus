@@ -8,6 +8,7 @@ import org.springframework.stereotype.Repository;
 import ru.sfedu.mmcs_nexus.data.user.User;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -16,6 +17,8 @@ public interface ProjectJuryEventRepository extends JpaRepository<ProjectJuryEve
     List<ProjectJuryEvent> findByJury(User user);
 
     List<ProjectJuryEvent> findByProjectIdAndEventId(UUID projectId, UUID eventId);
+
+    Optional<ProjectJuryEvent> findByProjectIdAndEventIdAndJuryId(UUID projectId, UUID eventId, UUID juryId);
 
     @Modifying
     @Query("DELETE FROM ProjectJuryEvent pe WHERE pe.event.id = :eventId AND pe.project.id = :projectId")

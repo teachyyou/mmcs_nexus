@@ -1,10 +1,14 @@
 package ru.sfedu.mmcs_nexus.data.grade;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.Data;
+import org.springframework.security.core.Authentication;
 import ru.sfedu.mmcs_nexus.data.event.Event;
 import ru.sfedu.mmcs_nexus.data.project.Project;
 import ru.sfedu.mmcs_nexus.data.user.User;
+
+import java.util.UUID;
 
 @Entity
 @Table(name = "grades")
@@ -31,9 +35,22 @@ public class Grade {
 
     private String comment;
 
-    private int presPoints;
+    private Integer presPoints;
 
-    private int buildPoints;
+    private Integer buildPoints;
+
+    public Grade() {
+
+    }
+    public Grade(Grade grade) {
+        this.project = grade.getProject();
+        this.event = grade.getEvent();
+        this.jury = grade.getJury();
+        this.id = grade.getId();
+        this.comment = grade.getComment();
+        this.presPoints = grade.getPresPoints();
+        this.buildPoints = grade.getBuildPoints();
+    }
 
     public Event getEvent() {
         return event;
@@ -67,7 +84,7 @@ public class Grade {
         this.comment = comment;
     }
 
-    public int getPresPoints() {
+    public Integer getPresPoints() {
         return presPoints;
     }
 
@@ -75,7 +92,7 @@ public class Grade {
         this.presPoints = presPoints;
     }
 
-    public int getBuildPoints() {
+    public Integer getBuildPoints() {
         return buildPoints;
     }
 
