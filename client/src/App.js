@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from 'react';
-import {BrowserRouter as Router, Route, Routes} from 'react-router-dom';
+import React, { useEffect, useState } from 'react';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import LoginPage from './components/login/LoginPage';
 import HomePage from './components/home/HomePage';
 import './App.css';
@@ -9,7 +9,7 @@ import OnlyAuthenticatedRoutes from "./components/routes/OnlyAuthenticatedRoutes
 import AuthenticatedAndVerifiedRoutes from "./components/routes/AuthenticatedAndVerifiedRoutes";
 import UserList from "./components/admin/userlist/UserList";
 import UserEdit from "./components/admin/userlist/UserEdit";
-import {Admin, Resource} from "react-admin";
+import { Admin, Resource } from "react-admin";
 import springBootRestProvider from "./components/admin/restProviders/springBootRestProvider";
 import ProjectList from "./components/admin/projectlist/ProjectList";
 import ProjectEdit from "./components/admin/projectlist/ProjectEdit";
@@ -19,7 +19,7 @@ import EventEdit from "./components/admin/eventList/EventEdit";
 import EventCreate from "./components/admin/eventList/EventCreate";
 import ProjectJuryManagement from "./components/admin/ProjectJuryManagement";
 import ProjectEventManagement from "./components/admin/ProjectEventManagement";
-
+import GradeTable from "./components/grades/GradeTable"; // Подключаем GradeTable
 
 const dataProvider = springBootRestProvider('http://localhost:8080/api/v1/admin');
 
@@ -49,7 +49,8 @@ function App() {
 
                 {/*can get here only when authenticated and updated user data*/}
                 <Route element={<AuthenticatedAndVerifiedRoutes isAuthenticated={isAuthenticated}/>}>
-
+                    {/*Добавляем маршрут для таблицы оценок*/}
+                    <Route path="/grades" element={<GradeTable />} />
                 </Route>
 
                 {/*can get here only when authenticated*/}
@@ -57,11 +58,11 @@ function App() {
                     <Route path="/update-profile" element={<UpdateProfilePage />} />
                     <Route path = "admin/*" element={
                         <Admin dataProvider={dataProvider} basename="/admin">
-                            <Resource name="users" list={UserList} edit ={UserEdit}  />
-                            <Resource name="projects" list={ProjectList} edit ={ProjectEdit} create={ProjectCreate} />
-                            <Resource name="events" list={EventList} edit ={EventEdit} create={EventCreate} />
-                            <Resource name="project_jury" list={ProjectJuryManagement} edit ={ProjectJuryManagement} create={ProjectJuryManagement}/>
-                            <Resource name="project_event" list={ProjectEventManagement} edit ={ProjectEventManagement} create={ProjectEventManagement}/>
+                            <Resource name="users" list={UserList} edit={UserEdit} />
+                            <Resource name="projects" list={ProjectList} edit={ProjectEdit} create={ProjectCreate} />
+                            <Resource name="events" list={EventList} edit={EventEdit} create={EventCreate} />
+                            <Resource name="project_jury" list={ProjectJuryManagement} edit={ProjectJuryManagement} create={ProjectJuryManagement}/>
+                            <Resource name="project_event" list={ProjectEventManagement} edit={ProjectEventManagement} create={ProjectEventManagement}/>
                         </Admin>
                     } />
                 </Route>
