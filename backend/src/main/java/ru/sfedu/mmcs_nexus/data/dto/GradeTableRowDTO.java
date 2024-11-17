@@ -9,6 +9,7 @@ public class GradeTableRowDTO {
 
     private String projectDisplayName;
 
+    //maps jury to its grade in table
     private Map<UUID,GradeDTO> tableRow;
 
     public GradeTableRowDTO(UUID projectId, String projectDisplayName, Map<UUID,GradeDTO> tableRow) {

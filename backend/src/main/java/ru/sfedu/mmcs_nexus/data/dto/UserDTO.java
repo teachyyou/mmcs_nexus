@@ -13,7 +13,6 @@ public class UserDTO {
     private int userGroup;
     private UserRole role;
 
-    // Constructors
     public UserDTO() {}
 
     public UserDTO(UUID id, String firstName, String lastName, String login, int userGroup, UserRole role) {
@@ -34,7 +33,6 @@ public class UserDTO {
         this.role = user.getRole();
     }
 
-    // Getters and Setters
     public UUID getId() {
         return id;
     }

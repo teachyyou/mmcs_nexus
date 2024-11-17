@@ -1,10 +1,13 @@
 package ru.sfedu.mmcs_nexus.data.dto;
 
 import ru.sfedu.mmcs_nexus.data.event.Event;
-import ru.sfedu.mmcs_nexus.data.grade.Grade;
 import ru.sfedu.mmcs_nexus.data.project.Project;
+import ru.sfedu.mmcs_nexus.data.user.User;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class GradeTableDTO {
 
@@ -18,8 +21,71 @@ public class GradeTableDTO {
 
     private List<UserDTO> juries;
 
-    private List<Grade> grades;
+    //table rows for every project in the table
+    private Map<UUID,GradeTableRowDTO> rows;
+
+    public GradeTableDTO() {
+
+    }
 
 
+    public int getJuriesCount() {
+        return juriesCount;
+    }
 
+    public void setJuriesCount(int juriesCount) {
+        this.juriesCount = juriesCount;
+    }
+
+    public int getProjectsCount() {
+        return projectsCount;
+    }
+
+    public void setProjectsCount(int projectsCount) {
+        this.projectsCount = projectsCount;
+    }
+
+    public Event getEvent() {
+        return event;
+    }
+
+    public void setEvent(Event event) {
+        this.event = event;
+    }
+
+    public List<Project> getProjects() {
+        return projects;
+    }
+
+    public void setProjects(List<Project> projects) {
+        this.projects = projects;
+    }
+
+    public List<UserDTO> getJuries() {
+        return juries;
+    }
+
+    public void setJuries(List<UserDTO> juries) {
+        this.juries = juries;
+    }
+
+    public Map<UUID, GradeTableRowDTO> getRows() {
+        return rows;
+    }
+
+    public void setRows(Map<UUID, GradeTableRowDTO> rows) {
+        this.rows = rows;
+    }
+
+    public void addGradeRow(Project project, GradeTableRowDTO row) {
+        this.rows.put(project.getId(), row);
+    }
+
+    public void addGrade(Project project, User jury, GradeDTO gradeDTO) {
+        if (this.rows.containsKey(project.getId())) {
+            rows.get(project.getId()).getTableRow().put(jury.getId(), gradeDTO);
+        } else {
+            this.rows.put(project.getId(),new GradeTableRowDTO(project.getId(), project.getName(), new HashMap<UUID ,GradeDTO>()));
+        }
+    }
 }
