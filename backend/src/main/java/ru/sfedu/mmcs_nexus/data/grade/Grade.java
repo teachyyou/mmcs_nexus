@@ -1,14 +1,10 @@
 package ru.sfedu.mmcs_nexus.data.grade;
 
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.Data;
-import org.springframework.security.core.Authentication;
 import ru.sfedu.mmcs_nexus.data.event.Event;
 import ru.sfedu.mmcs_nexus.data.project.Project;
 import ru.sfedu.mmcs_nexus.data.user.User;
-
-import java.util.UUID;
 
 @Entity
 @Table(name = "grades")

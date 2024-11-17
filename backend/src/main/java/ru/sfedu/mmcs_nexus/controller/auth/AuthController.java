@@ -1,4 +1,4 @@
-package ru.sfedu.mmcs_nexus.controller;
+package ru.sfedu.mmcs_nexus.controller.auth;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;

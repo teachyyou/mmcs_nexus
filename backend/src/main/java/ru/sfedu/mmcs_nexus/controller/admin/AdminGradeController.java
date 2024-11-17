@@ -1,13 +1,12 @@
 package ru.sfedu.mmcs_nexus.controller.admin;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import ru.sfedu.mmcs_nexus.data.event.EventService;
 import ru.sfedu.mmcs_nexus.data.grade.Grade;
 import ru.sfedu.mmcs_nexus.data.grade.GradeKey;
@@ -15,11 +14,10 @@ import ru.sfedu.mmcs_nexus.data.grade.GradeService;
 import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJuryEventService;
 import ru.sfedu.mmcs_nexus.data.project.ProjectService;
 import ru.sfedu.mmcs_nexus.data.project_to_event.ProjectEventService;
-import ru.sfedu.mmcs_nexus.data.user.User;
 
 import java.util.UUID;
 
-@Controller
+@RestController
 public class AdminGradeController {
 
     private final ProjectService projectService;
@@ -32,6 +30,7 @@ public class AdminGradeController {
 
     private final GradeService gradeService;
 
+    @Autowired
     public AdminGradeController(ProjectService projectService, ProjectEventService projectEventService, ProjectJuryEventService projectJuryEventService, EventService eventService, GradeService gradeService) {
         this.projectService = projectService;
         this.projectEventService = projectEventService;

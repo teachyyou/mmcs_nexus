@@ -30,6 +30,7 @@ public class SecurityConfig {
         return http
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/api/v1/auth/**").permitAll();
+                    auth.requestMatchers("/api/v1/public/**").permitAll();
                     //todo change later to admin
                     //auth.requestMatchers("/api/v1/admin/**").hasRole("USER");
                     auth.requestMatchers("/api/v1/admin/**").permitAll();

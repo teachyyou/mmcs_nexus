@@ -10,6 +10,9 @@ const NavigationBar = ({ isAuthenticated, setIsAuthenticated }) => {
                 <Button component={Link} to="/admin" color="inherit">
                     Admin
                 </Button>
+                <Button component={Link} to="/grades" color="inherit">
+                    Grades
+                </Button>
                 <LoginButton
                     className='login-button'
                     isAuthenticated={isAuthenticated}

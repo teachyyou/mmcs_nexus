@@ -17,6 +17,7 @@ import ru.sfedu.mmcs_nexus.data.user.UserService;
 
 import java.util.*;
 
+@RestController
 public class GradeSpreadsheetController {
 
     private final GradeService gradeService;
@@ -46,7 +47,7 @@ public class GradeSpreadsheetController {
     }
 
     @GetMapping(value = "/api/v1/jury/grades", produces = "application/json")
-    public ResponseEntity<Map<String, Object>> getAllGradesByYear(
+    public ResponseEntity<Map<String, Object>> getGradesByYear(
             Authentication authentication,
             @RequestParam(defaultValue = "2024") int year)
     {

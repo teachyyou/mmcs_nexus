@@ -19,7 +19,7 @@ import EventEdit from "./components/admin/eventList/EventEdit";
 import EventCreate from "./components/admin/eventList/EventCreate";
 import ProjectJuryManagement from "./components/admin/ProjectJuryManagement";
 import ProjectEventManagement from "./components/admin/ProjectEventManagement";
-import GradeTable from "./components/grades/GradeTable"; // Подключаем GradeTable
+import GradeTable from "./components/jury/GradeTable"; // Подключаем GradeTable
 
 const dataProvider = springBootRestProvider('http://localhost:8080/api/v1/admin');
 
