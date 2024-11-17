@@ -25,7 +25,7 @@ public class GradeTableDTO {
     private Map<UUID,GradeTableRowDTO> rows;
 
     public GradeTableDTO() {
-
+        this.rows = new HashMap<>();
     }
 
 
@@ -59,6 +59,7 @@ public class GradeTableDTO {
 
     public void setProjects(List<Project> projects) {
         this.projects = projects;
+        this.projectsCount=projects.size();
     }
 
     public List<UserDTO> getJuries() {
@@ -67,6 +68,7 @@ public class GradeTableDTO {
 
     public void setJuries(List<UserDTO> juries) {
         this.juries = juries;
+        this.juriesCount=juries.size();
     }
 
     public Map<UUID, GradeTableRowDTO> getRows() {
@@ -77,8 +79,8 @@ public class GradeTableDTO {
         this.rows = rows;
     }
 
-    public void addGradeRow(Project project, GradeTableRowDTO row) {
-        this.rows.put(project.getId(), row);
+    public void addGradeRow(GradeTableRowDTO row) {
+        this.rows.put(row.getProjectId(), row);
     }
 
     public void addGrade(Project project, User jury, GradeDTO gradeDTO) {

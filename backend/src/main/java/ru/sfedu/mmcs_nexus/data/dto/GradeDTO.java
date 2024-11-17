@@ -1,10 +1,12 @@
 package ru.sfedu.mmcs_nexus.data.dto;
 
+import ru.sfedu.mmcs_nexus.data.grade.GradeKey;
+
 import java.util.UUID;
 
 public class GradeDTO {
 
-    private UUID id;
+    private GradeKey id;
 
     private String projectDisplayName;
 
@@ -18,7 +20,7 @@ public class GradeDTO {
 
     private Integer buildPoints;
 
-    public GradeDTO(UUID id, String projectDisplayName, String juryName, String eventName, String comment, Integer presPoints, Integer buildPoints) {
+    public GradeDTO(GradeKey id, String projectDisplayName, String juryName, String eventName, String comment, Integer presPoints, Integer buildPoints) {
         this.id=id;
         this.projectDisplayName=projectDisplayName;
         this.juryName=juryName;
@@ -29,11 +31,12 @@ public class GradeDTO {
     }
 
 
-    public UUID getId() {
+
+    public GradeKey getId() {
         return id;
     }
 
-    public void setId(UUID id) {
+    public void setId(GradeKey id) {
         this.id = id;
     }
 

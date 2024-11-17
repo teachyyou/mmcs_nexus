@@ -16,7 +16,11 @@ public class GradeTableRowDTO {
         this.projectDisplayName=projectDisplayName;
         this.projectId=projectId;
         this.tableRow=tableRow;
+    }
 
+    public GradeTableRowDTO(UUID projectId, String projectDisplayName) {
+        this.projectDisplayName=projectDisplayName;
+        this.projectId=projectId;
     }
 
     public UUID getProjectId() {
