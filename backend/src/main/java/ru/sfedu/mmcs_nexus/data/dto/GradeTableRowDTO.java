@@ -1,5 +1,6 @@
 package ru.sfedu.mmcs_nexus.data.dto;
 
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -10,9 +11,9 @@ public class GradeTableRowDTO {
     private String projectDisplayName;
 
     //maps jury to its grade in table
-    private Map<UUID,GradeDTO> tableRow;
+    private List<GradeDTO> tableRow;
 
-    public GradeTableRowDTO(UUID projectId, String projectDisplayName, Map<UUID,GradeDTO> tableRow) {
+    public GradeTableRowDTO(UUID projectId, String projectDisplayName, List<GradeDTO> tableRow) {
         this.projectDisplayName=projectDisplayName;
         this.projectId=projectId;
         this.tableRow=tableRow;
@@ -39,11 +40,11 @@ public class GradeTableRowDTO {
         this.projectDisplayName = projectDisplayName;
     }
 
-    public Map<UUID, GradeDTO> getTableRow() {
+    public List<GradeDTO> getTableRow() {
         return tableRow;
     }
 
-    public void setTableRow(Map<UUID, GradeDTO> tableRow) {
+    public void setTableRow(List<GradeDTO> tableRow) {
         this.tableRow = tableRow;
     }
 }

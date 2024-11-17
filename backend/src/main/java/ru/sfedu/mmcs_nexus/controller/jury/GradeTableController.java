@@ -4,9 +4,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.web.bind.annotation.*;
 import ru.sfedu.mmcs_nexus.data.dto.GradeDTO;
 import ru.sfedu.mmcs_nexus.data.dto.GradeTableDTO;
 import ru.sfedu.mmcs_nexus.data.dto.GradeTableRowDTO;
@@ -14,11 +13,15 @@ import ru.sfedu.mmcs_nexus.data.dto.UserDTO;
 import ru.sfedu.mmcs_nexus.data.event.Event;
 import ru.sfedu.mmcs_nexus.data.event.EventService;
 import ru.sfedu.mmcs_nexus.data.grade.Grade;
+import ru.sfedu.mmcs_nexus.data.grade.GradeKey;
 import ru.sfedu.mmcs_nexus.data.grade.GradeService;
+import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJuryEvent;
 import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJuryEventService;
 import ru.sfedu.mmcs_nexus.data.project.Project;
 import ru.sfedu.mmcs_nexus.data.project.ProjectService;
 import ru.sfedu.mmcs_nexus.data.project_to_event.ProjectEventService;
+import ru.sfedu.mmcs_nexus.data.user.User;
+import ru.sfedu.mmcs_nexus.data.user.UserService;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -36,14 +39,17 @@ public class GradeTableController {
 
     private final GradeService gradeService;
 
+    private final UserService userService;
+
 
     @Autowired
-    public GradeTableController(ProjectService projectService, ProjectEventService projectEventService, ProjectJuryEventService projectJuryEventService, EventService eventService, GradeService gradeService) {
+    public GradeTableController(ProjectService projectService, ProjectEventService projectEventService, ProjectJuryEventService projectJuryEventService, EventService eventService, GradeService gradeService, UserService userService) {
         this.projectService = projectService;
         this.projectEventService = projectEventService;
         this.projectJuryEventService = projectJuryEventService;
         this.eventService = eventService;
         this.gradeService = gradeService;
+        this.userService = userService;
     }
 
 
@@ -62,7 +68,6 @@ public class GradeTableController {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);        }
         Event event = eventOptional.get();
 
-        System.out.println("WOWOWO DEBUG 1");
         List<Project> eventProjects = projectEventService.findByEventId(eventId);
         List<UserDTO> eventJuries = projectJuryEventService.getJuriesByEvent(eventId);
 
@@ -74,9 +79,8 @@ public class GradeTableController {
         //Создаем строки для объекта таблицы - каждому проекту ставим в соответствие несколько gradeDTO в формате Map
         for (Project project : eventProjects) {
             GradeTableRowDTO row = new GradeTableRowDTO(project.getId(), project.getName());
-            List<Grade> grades = gradeService.findByEventAndProject(event.getId(), project.getId());
-            Map<UUID, GradeDTO> rowMap = grades.stream().collect(Collectors.toMap(grade -> grade.getJury().getId(), grade ->
-                    new GradeDTO(
+            List<GradeDTO> grades = gradeService.findByEventAndProject(event.getId(), project.getId())
+                    .stream().map(grade-> new GradeDTO(
                             grade.getId(),
                             project.getName(),
                             grade.getJury().getFullName(),
@@ -85,12 +89,10 @@ public class GradeTableController {
                             grade.getPresPoints(),
                             grade.getPresPoints()
 
-                    )));
-            row.setTableRow(rowMap);
+                    )).toList();
+            row.setTableRow(grades);
             table.addGradeRow(row);
         }
-
-        //temporary for testing
 
         Map<String, Object> response = new HashMap<>();
         response.put("content", table);
@@ -98,6 +100,7 @@ public class GradeTableController {
 
         return ResponseEntity.ok().body(response);
     }
+
 
 
 }

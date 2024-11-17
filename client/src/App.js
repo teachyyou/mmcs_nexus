@@ -19,7 +19,7 @@ import EventEdit from "./components/admin/eventList/EventEdit";
 import EventCreate from "./components/admin/eventList/EventCreate";
 import ProjectJuryManagement from "./components/admin/ProjectJuryManagement";
 import ProjectEventManagement from "./components/admin/ProjectEventManagement";
-import GradeTable from "./components/jury/GradeTable"; // Подключаем GradeTable
+import GradeTablePage from "./components/jury/GradeTablePage";
 
 const dataProvider = springBootRestProvider('http://localhost:8080/api/v1/admin');
 
@@ -50,7 +50,7 @@ function App() {
                 {/*can get here only when authenticated and updated user data*/}
                 <Route element={<AuthenticatedAndVerifiedRoutes isAuthenticated={isAuthenticated}/>}>
                     {/*Добавляем маршрут для таблицы оценок*/}
-                    <Route path="/grades" element={<GradeTable />} />
+                    <Route path="/grades" element={<GradeTablePage />} />
                 </Route>
 
                 {/*can get here only when authenticated*/}

@@ -18,14 +18,14 @@ import ru.sfedu.mmcs_nexus.data.user.UserService;
 import java.util.*;
 
 @RestController
-public class GradeSpreadsheetController {
+public class GradeController {
 
     private final GradeService gradeService;
     private final UserService userService;
     private final ProjectJuryEventService projectJuryEventService;
 
     @Autowired
-    public GradeSpreadsheetController(GradeService gradeService, UserService userService, ProjectJuryEventService projectJuryEventService) {
+    public GradeController(GradeService gradeService, UserService userService, ProjectJuryEventService projectJuryEventService) {
         this.gradeService = gradeService;
         this.userService = userService;
         this.projectJuryEventService = projectJuryEventService;
@@ -79,9 +79,9 @@ public class GradeSpreadsheetController {
                 grade.getEvent().getId(),
                 creator.getId());
 
-        if (relationType == null || relationType == ProjectJuryEvent.RelationType.MENTOR) {
+        if (relationType == ProjectJuryEvent.RelationType.MENTOR) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("Жюри не имеет права оценивать данный проект");
+                    .body("Ментор не имеет права оценивать закрепленный за собой проект");
         }
 
         grade.setJury(creator);
@@ -91,6 +91,28 @@ public class GradeSpreadsheetController {
                 creator.getId()
                 );
         grade.setId(key);
+
+        gradeService.save(grade);
+
+        return ResponseEntity.ok().body(grade);
+
+    }
+
+    @PostMapping(value = "/api/v1/jury/grades/force", produces = "application/json")
+    public ResponseEntity<?> createGradeForce(
+            Authentication authentication,
+            @RequestBody Grade grade
+    ) {
+
+        ProjectJuryEvent.RelationType relationType = projectJuryEventService.getRelationType(
+                grade.getProject().getId(),
+                grade.getEvent().getId(),
+                grade.getJury().getId());
+
+        if (relationType == ProjectJuryEvent.RelationType.MENTOR) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                    .body("Ментор не имеет права оценивать закрепленный за собой проект");
+        }
 
         gradeService.save(grade);
 
@@ -116,9 +138,9 @@ public class GradeSpreadsheetController {
                 grade.getEvent().getId(),
                 editor.getId());
 
-        if (relationType == null || relationType == ProjectJuryEvent.RelationType.MENTOR) {
+        if (relationType == ProjectJuryEvent.RelationType.MENTOR) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("Жюри не имеет права оценивать данный проект");
+                    .body("Ментор не имеет права оценивать закрепленный за собой проект");
         }
 
         if (grade.getPresPoints() != null) {

@@ -37,7 +37,7 @@ public class SecurityConfig {
                     auth.requestMatchers("/api/v1/admin/**").permitAll();
                     auth.anyRequest().authenticated();
                 })
-                .csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.ignoringRequestMatchers("/api/v1/auth/**", "api/v1/admin/**"))
+                .csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.ignoringRequestMatchers("/api/v1/auth/**", "api/v1/admin/**", "/api/v1/jury/**"))
                 .cors(Customizer.withDefaults()) // Enable CORS
                 .logout(logout -> logout
                         .logoutUrl("/api/v1/auth/logout")

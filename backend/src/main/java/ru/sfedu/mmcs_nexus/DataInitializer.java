@@ -53,11 +53,33 @@ public class DataInitializer implements CommandLineRunner {
             // Создаем пользователей
             User user1 = new User("John", "Doe", "johndoe", 1, UserStatus.VERIFIED, UserRole.ROLE_USER);
             User user2 = new User("Jane", "Smith", "janesmith", 2, UserStatus.NON_VERIFIED, UserRole.ROLE_ADMIN);
-            // Добавляем остальных пользователей аналогично
 
-            // Сохраняем пользователей в базу данных
+// Создаем и добавляем еще подтвержденных пользователей
+            User user3 = new User("Alice", "Brown", "alicebrown", 3, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user4 = new User("Bob", "White", "bobwhite", 4, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user5 = new User("Carol", "Black", "carolblack", 5, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user6 = new User("David", "Green", "davidgreen", 6, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user7 = new User("Emma", "Blue", "emmablue", 7, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user8 = new User("Frank", "Red", "frankred", 8, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user9 = new User("Grace", "Yellow", "graceyellow", 9, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user10 = new User("Hank", "Purple", "hankpurple", 10, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user11 = new User("Ivy", "Gray", "ivygray", 11, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user12 = new User("Jack", "Orange", "jackorange", 12, UserStatus.VERIFIED, UserRole.ROLE_USER);
+
+// Сохраняем всех пользователей в базу данных
             userRepository.save(user1);
             userRepository.save(user2);
+            userRepository.save(user3);
+            userRepository.save(user4);
+            userRepository.save(user5);
+            userRepository.save(user6);
+            userRepository.save(user7);
+            userRepository.save(user8);
+            userRepository.save(user9);
+            userRepository.save(user10);
+            userRepository.save(user11);
+            userRepository.save(user12);
+
             // Сохраняем остальных пользователей
 
             // Создаем Projectы
