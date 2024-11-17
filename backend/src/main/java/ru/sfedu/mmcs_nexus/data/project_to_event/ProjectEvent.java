@@ -10,39 +10,39 @@ public class ProjectEvent {
     @EmbeddedId
     private ProjectEventKey id;
 
-    public ProjectEvent() {
-    }
-
-    public ProjectEvent(ProjectEventKey id, Event events, Project projects) {
-        this.id = id;
-        this.events = events;
-        this.projects = projects;
-    }
-
     @ManyToOne
     @MapsId("eventId")
     @JoinColumn(name = "event_id")
-    private Event events;
+    private Event event;
 
     @ManyToOne
     @MapsId("projectId")
     @JoinColumn(name = "project_id")
-    private Project projects;
+    private Project project;
 
-    public Event getEvents() {
-        return events;
+    public ProjectEvent() {
     }
 
-    public void setEvents(Event events) {
-        this.events = events;
+    public ProjectEvent(ProjectEventKey id, Event event, Project project) {
+        this.id = id;
+        this.event = event;
+        this.project = project;
     }
 
-    public Project getProjects() {
-        return projects;
+    public Event getEvent() {
+        return event;
     }
 
-    public void setProjects(Project projects) {
-        this.projects = projects;
+    public void setEvent(Event event) {
+        this.event = event;
+    }
+
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
     }
 
     public ProjectEventKey getId() {

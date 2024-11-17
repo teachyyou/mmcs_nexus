@@ -1,5 +1,6 @@
 package ru.sfedu.mmcs_nexus.data.jury_to_project;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +36,13 @@ public class ProjectJuryEventService {
         this.projectEventRepository = projectEventRepository;
         this.eventRepository = eventRepository;
         this.userRepository = userRepository;
+    }
+
+    @Nullable
+    public ProjectJuryEvent.RelationType getRelationType(UUID projectId, UUID eventId, UUID juryId) {
+        Optional<ProjectJuryEvent> relation = projectJuryEventRepository.findByProjectIdAndEventIdAndJuryId(projectId,eventId,juryId);
+
+        return relation.map(ProjectJuryEvent::getRelationType).orElse(null);
     }
 
     public Map<String, List<UserDTO>> getJuriesByProjectAndEvent(UUID projectId, UUID eventId) {

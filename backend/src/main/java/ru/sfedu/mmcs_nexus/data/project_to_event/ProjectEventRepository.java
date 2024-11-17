@@ -14,14 +14,14 @@ import java.util.UUID;
 @Repository
 public interface ProjectEventRepository extends JpaRepository<ProjectEvent, ProjectEventKey> {
 
-    @Query("SELECT pe.projects FROM ProjectEvent pe WHERE pe.events.id = :eventId")
+    @Query("SELECT pe.project FROM ProjectEvent pe WHERE pe.event.id = :eventId")
     List<Project> findByEventId(@Param("eventId") UUID eventId);
 
-    @Query("SELECT pe.events FROM ProjectEvent pe WHERE pe.projects.id = :projectId")
+    @Query("SELECT pe.event FROM ProjectEvent pe WHERE pe.project.id = :projectId")
     List<Event> findByProjectId(@Param("projectId") UUID projectId);
 
     @Modifying
-    @Query("DELETE FROM ProjectEvent pe WHERE pe.events.id = :eventId")
+    @Query("DELETE FROM ProjectEvent pe WHERE pe.event.id = :eventId")
     void deleteByEventId(@Param("eventId") UUID eventId);
 
 

@@ -22,6 +22,7 @@ public class AdminUserController {
     public AdminUserController(UserService userService) {
         this.userService = userService;
     }
+
     @GetMapping(value = "/api/v1/admin/users", produces = "application/json")
     public ResponseEntity<Map<String, Object>> getUsersList(
             @RequestParam(defaultValue = "id") String sort,

@@ -7,7 +7,6 @@ public class EventProjectsRequest {
     private List<UUID> projectIds;
     private boolean linkAllProjects;
 
-    // Getters and Setters
     public List<UUID> getProjectIds() {
         return projectIds;
     }

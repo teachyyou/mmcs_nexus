@@ -6,6 +6,9 @@ import org.springframework.stereotype.Component;
 import ru.sfedu.mmcs_nexus.data.event.Event;
 import ru.sfedu.mmcs_nexus.data.event.EventRepository;
 import ru.sfedu.mmcs_nexus.data.event.EventType;
+import ru.sfedu.mmcs_nexus.data.grade.Grade;
+import ru.sfedu.mmcs_nexus.data.grade.GradeKey;
+import ru.sfedu.mmcs_nexus.data.grade.GradeRepository;
 import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJuryEvent;
 import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJuryEventKey;
 import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJuryEventRepository;
@@ -29,17 +32,18 @@ public class DataInitializer implements CommandLineRunner {
     private final ProjectEventRepository projectEventRepository;
 
     private final EventRepository eventRepository;
-
+    private final GradeRepository gradeRepository;
     @Autowired
     public DataInitializer(UserRepository userRepository,
                            ProjectRepository projectRepository,
                            ProjectJuryEventRepository projectJuryEventRepository, ProjectEventRepository projectEventRepository,
-                           EventRepository eventRepository) {
+                           EventRepository eventRepository, GradeRepository gradeRepository) {
         this.userRepository = userRepository;
         this.projectRepository = projectRepository;
         this.projectJuryEventRepository = projectJuryEventRepository;
         this.projectEventRepository = projectEventRepository;
         this.eventRepository = eventRepository;
+        this.gradeRepository = gradeRepository;
     }
 
     @Override
@@ -134,6 +138,46 @@ public class DataInitializer implements CommandLineRunner {
             ProjectEventKey projectEventKey4d = new ProjectEventKey(project4.getId(), releaseEvent.getId());
             ProjectEvent projectEvent4d = new ProjectEvent(projectEventKey4d, releaseEvent, project4);
             projectEventRepository.save(projectEvent4d);
+
+            Grade grade1 = new Grade();
+            grade1.setId(new GradeKey(project1.getId(), user1.getId(), ideaEvent.getId()));
+            grade1.setProject(project1);
+            grade1.setJury(user1);
+            grade1.setEvent(ideaEvent);
+            grade1.setComment("Отличная презентация");
+            grade1.setPresPoints(8);
+            grade1.setBuildPoints(9);
+            gradeRepository.save(grade1);
+
+            Grade grade2 = new Grade();
+            grade2.setId(new GradeKey(project2.getId(), user2.getId(), zeroVersionEvent.getId()));
+            grade2.setProject(project2);
+            grade2.setJury(user2);
+            grade2.setEvent(zeroVersionEvent);
+            grade2.setComment("Хорошее развитие проекта");
+            grade2.setPresPoints(7);
+            grade2.setBuildPoints(8);
+            gradeRepository.save(grade2);
+
+            Grade grade3 = new Grade();
+            grade3.setId(new GradeKey(project3.getId(), user1.getId(), preReleaseEvent.getId()));
+            grade3.setProject(project3);
+            grade3.setJury(user1);
+            grade3.setEvent(preReleaseEvent);
+            grade3.setComment("Проект близок к завершению");
+            grade3.setPresPoints(9);
+            grade3.setBuildPoints(9);
+            gradeRepository.save(grade3);
+
+            Grade grade4 = new Grade();
+            grade4.setId(new GradeKey(project4.getId(), user2.getId(), releaseEvent.getId()));
+            grade4.setProject(project4);
+            grade4.setJury(user2);
+            grade4.setEvent(releaseEvent);
+            grade4.setComment("Полностью готовый продукт");
+            grade4.setPresPoints(10);
+            grade4.setBuildPoints(10);
+            gradeRepository.save(grade4);
         }
     }
 
