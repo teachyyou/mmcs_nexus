@@ -31,6 +31,11 @@ public class GradeSpreadsheetController {
         this.projectJuryEventService = projectJuryEventService;
     }
 
+
+
+
+    //todo вынести эти методы по другим контроллерам
+
     @GetMapping(value = "/api/v1/jury/grades/my", produces = "application/json")
     public ResponseEntity<Map<String, Object>> getGradesByYearForJury(
             Authentication authentication,

@@ -28,8 +28,6 @@ public class EventService {
         return eventRepository.findAll(Sort.by(direction, sort)).stream().filter(x->x.getYear()==year).toList();
     }
 
-    //public List<User> getJuriesByEvent
-
     public Optional<Event> findById(UUID id) {
         return eventRepository.findById(id);
     }
@@ -50,4 +48,5 @@ public class EventService {
         Sort.Direction direction = order.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
         return eventRepository.findAllEventsYears();
     }
+
 }

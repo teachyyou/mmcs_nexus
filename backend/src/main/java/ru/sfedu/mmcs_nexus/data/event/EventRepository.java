@@ -12,4 +12,5 @@ public interface EventRepository extends JpaRepository<Event, UUID>  {
 
     @Query("SELECT DISTINCT e.year FROM Event e ORDER BY e.year")
     List<Integer> findAllEventsYears();
+
 }

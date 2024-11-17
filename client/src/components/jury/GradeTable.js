@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
-import { Container, FormControl, InputLabel, Select, MenuItem, Button, List, ListItem, ListItemText } from '@mui/material';
+import { Container, FormControl, InputLabel, Select, MenuItem, Button } from '@mui/material';
 
 const GradeTable = () => {
     const [year, setYear] = useState(''); // Устанавливаем пустое значение по умолчанию
     const [years, setYears] = useState([]); // Список годов, получаемый с бэка
     const [events, setEvents] = useState([]); // Список событий
     const [selectedEvent, setSelectedEvent] = useState('');
-    const [grades, setGrades] = useState([]);
-    const [isTableVisible, setIsTableVisible] = useState(false);
+    const [grades, setGrades] = useState(null); // Сохраняем полный JSON-ответ
+    const [isDataVisible, setIsDataVisible] = useState(false);
 
     // Получение доступных годов при загрузке компонента
     useEffect(() => {
@@ -53,13 +53,13 @@ const GradeTable = () => {
     // Обработчик изменения года
     const handleYearChange = (event) => {
         setYear(event.target.value);
-        setIsTableVisible(false); // Скрываем таблицу при изменении года
+        setIsDataVisible(false); // Скрываем данные при изменении года
     };
 
     // Обработчик изменения события
     const handleEventChange = (event) => {
         setSelectedEvent(event.target.value);
-        setIsTableVisible(false); // Скрываем таблицу при изменении события
+        setIsDataVisible(false); // Скрываем данные при изменении события
         console.log("Selected Event UUID:", event.target.value); // Выводим uuid выбранного события
     };
 
@@ -68,14 +68,14 @@ const GradeTable = () => {
         if (!selectedEvent) return;
 
         try {
-            const response = await fetch(`http://localhost:8080/api/v1/jury/grades?eventId=${selectedEvent}`);
+            const response = await fetch(`http://localhost:8080/api/v1/jury/table/${selectedEvent}`);
             if (!response.ok) throw new Error('Ошибка при загрузке оценок');
             const data = await response.json();
-            setGrades(Array.isArray(data) ? data : []);
-            setIsTableVisible(true); // Показываем таблицу после получения данных
+            setGrades(data); // Сохраняем полный JSON-ответ
+            setIsDataVisible(true); // Показываем данные после получения
         } catch (error) {
             console.error(error.message);
-            setGrades([]);
+            setGrades(null);
         }
     };
 
@@ -118,18 +118,11 @@ const GradeTable = () => {
                 Показать оценки
             </Button>
 
-            {/* Список оценок */}
-            {isTableVisible && (
-                <List sx={{ marginTop: 2 }}>
-                    {grades.map((grade) => (
-                        <ListItem key={`${grade.projectId}-${grade.juryId}`}>
-                            <ListItemText
-                                primary={`Проект: ${grade.projectName} - Жюри: ${grade.juryName}`}
-                                secondary={`Презентация: ${grade.presPoints}, Сборка: ${grade.buildPoints}, Комментарий: ${grade.comment}`}
-                            />
-                        </ListItem>
-                    ))}
-                </List>
+            {/* Печать полного JSON-ответа */}
+            {isDataVisible && grades && (
+                <pre style={{ marginTop: '16px', whiteSpace: 'pre-wrap', wordBreak: 'break-all' }}>
+                    {JSON.stringify(grades, null, 2)}
+                </pre>
             )}
         </Container>
     );

@@ -20,7 +20,10 @@ public interface ProjectJuryEventRepository extends JpaRepository<ProjectJuryEve
 
     Optional<ProjectJuryEvent> findByProjectIdAndEventIdAndJuryId(UUID projectId, UUID eventId, UUID juryId);
 
+    @Query("SELECT pje.jury FROM ProjectJuryEvent pje WHERE pje.event.id = :eventId")
+    List<User> findJuriesByEventId(UUID eventId);
+
     @Modifying
-    @Query("DELETE FROM ProjectJuryEvent pe WHERE pe.event.id = :eventId AND pe.project.id = :projectId")
+    @Query("DELETE FROM ProjectJuryEvent pje WHERE pje.event.id = :eventId AND pje.project.id = :projectId")
     void deleteByProjectAndEvent(@Param("projectId") UUID projectId, @Param("eventId") UUID eventId);
 }

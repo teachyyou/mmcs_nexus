@@ -33,6 +33,7 @@ public class SecurityConfig {
                     auth.requestMatchers("/api/v1/public/**").permitAll();
                     //todo change later to admin
                     //auth.requestMatchers("/api/v1/admin/**").hasRole("USER");
+                    auth.requestMatchers("/api/v1/jury/**").permitAll();
                     auth.requestMatchers("/api/v1/admin/**").permitAll();
                     auth.anyRequest().authenticated();
                 })

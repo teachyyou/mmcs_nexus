@@ -75,14 +75,16 @@ public class GradeService {
         return gradeRepository.findByJuryForYear(juryId, year);
     }
 
-    public List<Grade> findByEventForYear(UUID eventId, int year) {
-        return gradeRepository.findByEventForYear(eventId, year);
-    }
 
     public List<Grade> findByProjectForYear(UUID projectId, int year) {
         return gradeRepository.findByProjectForYear(projectId, year);
     }
 
+
+    //idk why I wrote these tbh, event has a year in it already
+    public List<Grade> findByEventForYear(UUID eventId, int year) {
+        return gradeRepository.findByEventForYear(eventId, year);
+    }
     public List<Grade> findByJuryAndEventForYear(UUID juryId, UUID eventId, int year) {
         return gradeRepository.findByJuryAndEventForYear(juryId, eventId, year);
     }

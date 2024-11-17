@@ -45,6 +45,15 @@ public class ProjectJuryEventService {
         return relation.map(ProjectJuryEvent::getRelationType).orElse(null);
     }
 
+    //find all juries that are linked to a certain event
+    public List<UserDTO> getJuriesByEvent(UUID eventId) {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new EntityNotFoundException("Event not found"));
+
+        return projectJuryEventRepository.findJuriesByEventId(eventId).stream().map(UserDTO::new).toList();
+    }
+
+
     public Map<String, List<UserDTO>> getJuriesByProjectAndEvent(UUID projectId, UUID eventId) {
 
         // Verify that the project exists
