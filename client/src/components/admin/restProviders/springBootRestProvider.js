@@ -31,7 +31,7 @@ let sprintBootProvider = (apiUrl, httpClient = fetchUtils.fetchJson) => {
      */
     const convertDataRequestToHTTP = (type, resource, params) => {
         let url = "";
-        const options = {};
+        const options = {credentials: 'include'};
         switch (type) {
             case GET_LIST: {
                 const { page, perPage } = params.pagination;

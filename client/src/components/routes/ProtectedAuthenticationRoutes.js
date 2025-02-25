@@ -24,7 +24,7 @@ const ProtectedAuthenticationRoutes = ({ isAuthenticated }) => {
         }
     }, [isAuthenticated]);
 
-    if (!isLoading) return !isAuthenticated || isProfileComplete ? <Outlet /> : <Navigate to="/update-profile" />;
+    if (!isLoading) return !isAuthenticated || isProfileComplete ? <Outlet /> : <Navigate to="/update_profile" />;
 };
 
 export default ProtectedAuthenticationRoutes;

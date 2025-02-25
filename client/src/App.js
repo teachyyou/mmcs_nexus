@@ -51,11 +51,6 @@ function App() {
                 <Route element={<AuthenticatedAndVerifiedRoutes isAuthenticated={isAuthenticated}/>}>
                     {/*Добавляем маршрут для таблицы оценок*/}
                     <Route path="/grades" element={<GradeTablePage />} />
-                </Route>
-
-                {/*can get here only when authenticated*/}
-                <Route element={<OnlyAuthenticatedRoutes isAuthenticated={isAuthenticated}/>}>
-                    <Route path="/update-profile" element={<UpdateProfilePage />} />
                     <Route path = "admin/*" element={
                         <Admin dataProvider={dataProvider} basename="/admin">
                             <Resource name="users" list={UserList} edit={UserEdit} />
@@ -65,6 +60,12 @@ function App() {
                             <Resource name="project_event" list={ProjectEventManagement} edit={ProjectEventManagement} create={ProjectEventManagement}/>
                         </Admin>
                     } />
+                </Route>
+
+                {/*can get here only when authenticated*/}
+                <Route element={<OnlyAuthenticatedRoutes isAuthenticated={isAuthenticated}/>}>
+                    <Route path="/update_profile" element={<UpdateProfilePage />} />
+
                 </Route>
             </Routes>
         </Router>

@@ -1,18 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, TextField, Button, Typography, Box } from '@mui/material';
 
 const UpdateProfilePage = () => {
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
-    const [course, setCourse] = useState("");
-    const [userGroup, setUserGroup] = useState("");
+    const [userCourse, setCourse] = useState("");
+    const [userGroup, setGroup] = useState("");
     const navigate = useNavigate();
+
+    // Запрос к API для получения информации о пользователе
+    useEffect(() => {
+        const fetchUserInfo = async () => {
+            try {
+                const response = await fetch('http://localhost:8080/api/v1/auth/user', {
+                    credentials: 'include',
+                });
+                if (response.ok) {
+                    const data = await response.json();
+                    // Если профиль уже заполнен, заполняем поля формы
+                    if (data.firstname) setFirstName(data.firstname);
+                    if (data.lastname) setLastName(data.lastname);
+                    if (data.course) setCourse(data.course.toString());
+                    if (data.group) setGroup(data.group.toString());
+                } else {
+                    console.error('Failed to fetch user info');
+                }
+            } catch (error) {
+                console.error('Error fetching user info:', error);
+            }
+        };
+
+        fetchUserInfo();
+    }, []);
 
     const handleSubmit = async (event) => {
         event.preventDefault();
 
-        const response = await fetch('http://localhost:8080/api/v1/auth/update-profile', {
+        const response = await fetch('http://localhost:8080/api/v1/auth/update_profile', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -21,7 +46,7 @@ const UpdateProfilePage = () => {
             body: JSON.stringify({
                 firstName,
                 lastName,
-                course,
+                userCourse: parseInt(userCourse),
                 userGroup: parseInt(userGroup),
             }),
         });
@@ -65,7 +90,7 @@ const UpdateProfilePage = () => {
                     <TextField
                         label="Course"
                         variant="outlined"
-                        value={course}
+                        value={userCourse}
                         onChange={(e) => setCourse(e.target.value)}
                         required
                     />
@@ -74,7 +99,7 @@ const UpdateProfilePage = () => {
                         variant="outlined"
                         type="number"
                         value={userGroup}
-                        onChange={(e) => setUserGroup(e.target.value)}
+                        onChange={(e) => setGroup(e.target.value)}
                         required
                     />
                     <Button type="submit" variant="contained" color="primary">

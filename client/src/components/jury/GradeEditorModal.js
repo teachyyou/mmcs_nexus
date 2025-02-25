@@ -43,6 +43,7 @@ const GradeEditorModal = ({ open, onClose, grade, projectId, juryId, grades }) =
                 headers: {
                     'Content-Type': 'application/json',
                 },
+                credentials: 'include',
                 body: JSON.stringify(gradeData)
             });
 

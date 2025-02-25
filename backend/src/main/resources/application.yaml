@@ -3,7 +3,7 @@ spring:
     name: MMCS Nexus
 
   datasource:
-    url: jdbc:postgresql://localhost:1096/mmcsnexus
+    url: jdbc:postgresql://localhost:5432/mmcsnexus
     username: postgres
     password: mypassword
 

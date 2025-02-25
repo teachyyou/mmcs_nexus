@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Grid, FormControl, InputLabel, Select, MenuItem, Button } from '@mui/material';
+import { Container, Grid, FormControl, InputLabel, Select, MenuItem, Button, Box } from '@mui/material';
 import GradeTable from './GradeTable';
 
 const GradeTablePage = () => {
@@ -8,17 +8,20 @@ const GradeTablePage = () => {
     const [events, setEvents] = useState([]);
     const [selectedEvent, setSelectedEvent] = useState('');
     const [grades, setGrades] = useState(null);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const fetchYears = async () => {
             try {
-                const response = await fetch('http://localhost:8080/api/v1/public/events/years');
+                const response = await fetch('http://localhost:8080/api/v1/public/events/years', {
+                    credentials: 'include'
+                });
                 if (!response.ok) throw new Error('Ошибка при загрузке годов');
                 const data = await response.json();
-                const yearsData = data.content;
+                const yearsData = data.content || [];
                 setYears(yearsData);
                 const currentYear = new Date().getFullYear();
-                setYear(yearsData.includes(currentYear) ? currentYear : yearsData[0] || '');
+                setYear(yearsData.includes(currentYear) ? currentYear : (yearsData[0] || ''));
             } catch (error) {
                 console.error(error.message);
                 setYears([]);
@@ -31,7 +34,9 @@ const GradeTablePage = () => {
         const fetchEvents = async () => {
             if (!year) return;
             try {
-                const response = await fetch(`http://localhost:8080/api/v1/public/events?year=${year}`);
+                const response = await fetch(`http://localhost:8080/api/v1/public/events?year=${year}`, {
+                    credentials: 'include'
+                });
                 if (!response.ok) throw new Error('Ошибка при загрузке событий');
                 const data = await response.json();
                 setEvents(Array.isArray(data.content) ? data.content : []);
@@ -44,68 +49,75 @@ const GradeTablePage = () => {
         fetchEvents();
     }, [year]);
 
-    const handleYearChange = (event) => {
-        setYear(event.target.value);
+    const handleYearChange = (e) => {
+        setYear(e.target.value);
     };
 
-    const handleEventChange = (event) => {
-        setSelectedEvent(event.target.value);
+    const handleEventChange = (e) => {
+        setSelectedEvent(e.target.value);
     };
 
     const fetchGrades = async () => {
         if (!selectedEvent) return;
-
+        setLoading(true);
         try {
-            const response = await fetch(`http://localhost:8080/api/v1/jury/table/${selectedEvent}`);
+            const response = await fetch(`http://localhost:8080/api/v1/jury/table/${selectedEvent}`, {
+                credentials: 'include',
+            });
             if (!response.ok) throw new Error('Ошибка при загрузке оценок');
             const data = await response.json();
             setGrades(data.content);
         } catch (error) {
             console.error(error.message);
             setGrades(null);
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <Container>
+        <Container maxWidth="lg" sx={{ marginTop: 4 }}>
             <h2>Просмотр оценок по событию</h2>
             <Grid container spacing={2}>
-                {/* Панель выбора года и события слева, сужена */}
-                <Grid item xs={2} sx={{ marginLeft: -2 }}>
-                    <FormControl fullWidth margin="normal" sx={{ maxWidth: '90%' }}>
-                        <InputLabel>Год</InputLabel>
-                        <Select value={year} onChange={handleYearChange} displayEmpty>
-                            {years.map((availableYear) => (
-                                <MenuItem key={availableYear} value={availableYear}>
-                                    {availableYear}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
+                {/* Левая панель: выбор года и события с фиксированной/уменьшенной шириной */}
+                <Grid item xs={12} md={2}>
+                    <Box sx={{ p: 2, border: '1px solid #ccc', borderRadius: 2 }}>
+                        <FormControl fullWidth margin="normal">
+                            <InputLabel>Год</InputLabel>
+                            <Select value={year} onChange={handleYearChange} displayEmpty>
+                                {years.map((availableYear) => (
+                                    <MenuItem key={availableYear} value={availableYear}>
+                                        {availableYear}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
 
-                    <FormControl fullWidth margin="normal" disabled={!events.length} sx={{ maxWidth: '90%' }}>
-                        <InputLabel>Событие</InputLabel>
-                        <Select value={selectedEvent} onChange={handleEventChange}>
-                            {events.map((event) => (
-                                <MenuItem key={event.id} value={event.id}>
-                                    {event.name}
-                                </MenuItem>
-                            ))}
-                        </Select>
-                    </FormControl>
+                        <FormControl fullWidth margin="normal" disabled={!events.length}>
+                            <InputLabel>Событие</InputLabel>
+                            <Select value={selectedEvent} onChange={handleEventChange}>
+                                {events.map((eventItem) => (
+                                    <MenuItem key={eventItem.id} value={eventItem.id}>
+                                        {eventItem.name}
+                                    </MenuItem>
+                                ))}
+                            </Select>
+                        </FormControl>
 
-                    <Button
-                        variant="contained"
-                        color="primary"
-                        onClick={fetchGrades}
-                        disabled={!selectedEvent}
-                        sx={{ marginTop: 2, maxWidth: '90%' }}
-                    >
-                        Показать оценки
-                    </Button>
+                        <Button
+                            variant="contained"
+                            color="primary"
+                            onClick={fetchGrades}
+                            disabled={!selectedEvent || loading}
+                            sx={{ marginTop: 2, width: '100%' }}
+                        >
+                            {loading ? 'Загрузка...' : 'Показать оценки'}
+                        </Button>
+                    </Box>
                 </Grid>
 
-                <Grid item xs={10}>
+                {/* Правая панель: таблица, занимающая оставшуюся ширину */}
+                <Grid item xs={12} md={10}>
                     {grades && <GradeTable grades={grades} />}
                 </Grid>
             </Grid>

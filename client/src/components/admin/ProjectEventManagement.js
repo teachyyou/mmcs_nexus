@@ -2,87 +2,93 @@ import React, { useEffect, useState } from 'react';
 import { Autocomplete, TextField, Button, Checkbox, FormControlLabel, Snackbar, Alert } from '@mui/material';
 
 const ProjectEventManagement = () => {
-    const [events, setEvents] = useState([]); // Список событий
-    const [selectedEvent, setSelectedEvent] = useState(null); // Выбранное событие
-    const [projects, setProjects] = useState([]); // Список всех проектов
-    const [selectedProjects, setSelectedProjects] = useState([]); // Связанные с событием проекты
-    const [linkAllProjects, setLinkAllProjects] = useState(false); // Галочка "Link all projects for the same year"
-    const [openSnackbar, setOpenSnackbar] = useState(false); // Состояние для Snackbar
-    const [snackbarMessage, setSnackbarMessage] = useState(''); // Сообщение для Snackbar
-    const [snackbarSeverity, setSnackbarSeverity] = useState('success'); // Тип сообщения (success или error)
+    const [events, setEvents] = useState([]);
+    const [selectedEvent, setSelectedEvent] = useState(null);
+    const [projects, setProjects] = useState([]);
+    const [selectedProjects, setSelectedProjects] = useState([]);
+    const [linkAllProjects, setLinkAllProjects] = useState(false);
+    const [openSnackbar, setOpenSnackbar] = useState(false);
+    const [snackbarMessage, setSnackbarMessage] = useState('');
+    const [snackbarSeverity, setSnackbarSeverity] = useState('success');
+    const [loading, setLoading] = useState(false);
 
-    // Загрузка данных с бэка (список событий и всех проектов)
+    // Загружаем список событий и проектов
     useEffect(() => {
-        // Fetch all available events
-        fetch('http://localhost:8080/api/v1/admin/events')
-            .then((response) => response.json())
-            .then((data) => {
-                setEvents(Array.isArray(data.content) ? data.content : []);
-            })
-            .catch((error) => console.error('Error fetching events:', error));
+        const fetchData = async () => {
+            try {
+                const eventsResponse = await fetch('http://localhost:8080/api/v1/admin/events', { credentials: 'include' });
+                const eventsData = await eventsResponse.json();
+                setEvents(Array.isArray(eventsData.content) ? eventsData.content : []);
 
-        // Fetch all available projects
-        fetch('http://localhost:8080/api/v1/admin/projects')
-            .then((response) => response.json())
-            .then((data) => {
-                setProjects(Array.isArray(data.content) ? data.content : []);
-            })
-            .catch((error) => console.error('Error fetching projects:', error));
-    }, []);
-
-    // Загрузка проектов, связанных с выбранным событием
-    useEffect(() => {
-        if (selectedEvent && !linkAllProjects) {
-            // Fetch projects linked to the selected event
-            fetch(`http://localhost:8080/api/v1/admin/events/${selectedEvent}/projects`)
-                .then((response) => response.json())
-                .then((data) => {
-                    setSelectedProjects(Array.isArray(data.content) ? data.content : []);
-                })
-                .catch((error) => console.error('Error fetching linked projects:', error));
-        } else {
-            setSelectedProjects([]); // Очистить список, если не выбрано событие или выбрана опция "Link all projects for the same year"
-        }
-    }, [selectedEvent, linkAllProjects]);
-
-    // Отправка изменений на бэк
-    const handleSubmit = () => {
-        const data = {
-            eventId: selectedEvent,
-            projectIds: linkAllProjects ? null : selectedProjects.map(project => project.id), // Если "Link all projects", projectIds = null
-            linkAllProjects: linkAllProjects // Признак применения ко всем проектам за тот же год
+                const projectsResponse = await fetch('http://localhost:8080/api/v1/admin/projects', { credentials: 'include' });
+                const projectsData = await projectsResponse.json();
+                setProjects(Array.isArray(projectsData.content) ? projectsData.content : []);
+            } catch (error) {
+                console.error('Error fetching events or projects:', error);
+            }
         };
 
-        fetch(`http://localhost:8080/api/v1/admin/events/${selectedEvent}/projects`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(data),
-        })
-            .then((response) => {
-                if (!response.ok) {
-                    setSnackbarMessage('Failed to save');
-                    setSnackbarSeverity('error');
-                    setOpenSnackbar(true);
-                } else {
-                    setSnackbarMessage('Saved successfully');
-                    setSnackbarSeverity('success');
-                    setOpenSnackbar(true);
+        fetchData();
+    }, []);
+
+    // Загружаем проекты, связанные с выбранным событием (если не выбрана опция "Link all projects")
+    useEffect(() => {
+        const fetchLinkedProjects = async () => {
+            if (selectedEvent && !linkAllProjects) {
+                try {
+                    const response = await fetch(`http://localhost:8080/api/v1/admin/events/${selectedEvent}/projects`, { credentials: 'include' });
+                    const data = await response.json();
+                    setSelectedProjects(Array.isArray(data.content) ? data.content : []);
+                } catch (error) {
+                    console.error('Error fetching linked projects:', error);
                 }
-            })
-            .catch((error) => {
+            } else {
+                setSelectedProjects([]);
+            }
+        };
+
+        fetchLinkedProjects();
+    }, [selectedEvent, linkAllProjects]);
+
+    // Отправка данных на сервер
+    const handleSubmit = async () => {
+        if (!selectedEvent) return;
+        setLoading(true);
+
+        const payload = {
+            eventId: selectedEvent,
+            projectIds: linkAllProjects ? null : selectedProjects.map(project => project.id),
+            linkAllProjects: linkAllProjects
+        };
+
+        try {
+            const response = await fetch(`http://localhost:8080/api/v1/admin/events/${selectedEvent}/projects`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                credentials: 'include',
+                body: JSON.stringify(payload),
+            });
+            if (!response.ok) {
                 setSnackbarMessage('Failed to save');
                 setSnackbarSeverity('error');
-                setOpenSnackbar(true);
-            });
+            } else {
+                setSnackbarMessage('Saved successfully');
+                setSnackbarSeverity('success');
+            }
+        } catch (error) {
+            console.error('Error saving changes:', error);
+            setSnackbarMessage('Failed to save');
+            setSnackbarSeverity('error');
+        } finally {
+            setOpenSnackbar(true);
+            setLoading(false);
+        }
     };
 
-    // Обработчик закрытия Snackbar
     const handleSnackbarClose = (event, reason) => {
-        if (reason === 'clickaway') {
-            return;
-        }
+        if (reason === 'clickaway') return;
         setOpenSnackbar(false);
     };
 
@@ -90,15 +96,16 @@ const ProjectEventManagement = () => {
         <div>
             <h2>Manage Projects for Event</h2>
 
-            {/* Select Event */}
+            {/* Выбор события */}
             <Autocomplete
                 options={events}
                 getOptionLabel={(option) => `${option.name} ${option.year}-${parseInt(option.year) + 1}`}
                 onChange={(event, newValue) => setSelectedEvent(newValue?.id || null)}
                 renderInput={(params) => <TextField {...params} label="Select Event" />}
+                style={{ marginBottom: '16px' }}
             />
 
-            {/* Checkbox for "Link all projects for the same year" */}
+            {/* Чекбокс "Link all projects for the same year" */}
             {selectedEvent && (
                 <FormControlLabel
                     control={
@@ -111,32 +118,33 @@ const ProjectEventManagement = () => {
                 />
             )}
 
-            {/* Edit linked projects (if not "Link all" and an event is selected) */}
+            {/* Редактирование связанных проектов (если не выбрана опция "Link all" и событие выбрано) */}
             {!linkAllProjects && selectedEvent && (
                 <Autocomplete
                     multiple
                     options={projects}
-                    getOptionLabel={(option) => `${option.name}`}
+                    getOptionLabel={(option) => option.name}
                     isOptionEqualToValue={(option, value) => option.id === value.id}
-                    value={selectedProjects} // Set selected projects
+                    value={selectedProjects}
                     onChange={(event, newValue) => setSelectedProjects(newValue)}
                     renderInput={(params) => <TextField {...params} label="Linked Projects" />}
+                    style={{ marginTop: '16px', marginBottom: '16px' }}
                 />
             )}
 
-            {/* Save Changes Button */}
+            {/* Кнопка сохранения изменений */}
             {selectedEvent && (
-                <Button onClick={handleSubmit} variant="contained" color="primary">
-                    Save Changes
+                <Button onClick={handleSubmit} variant="contained" color="primary" disabled={loading}>
+                    {loading ? 'Saving...' : 'Save Changes'}
                 </Button>
             )}
 
-            {/* Snackbar for displaying messages */}
+            {/* Snackbar для вывода сообщений */}
             <Snackbar
                 open={openSnackbar}
-                autoHideDuration={3000} // Message will disappear after 3 seconds
+                autoHideDuration={3000}
                 onClose={handleSnackbarClose}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }} // Position of the message
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
             >
                 <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
                     {snackbarMessage}

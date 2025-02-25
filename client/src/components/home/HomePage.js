@@ -17,7 +17,7 @@ const HomePage = ({ isAuthenticated, setIsAuthenticated }) => {
                 .then(
                     response => response.json())
                 .then(data => {
-                    setName(data.name);
+                    setName(data.github_name);
                     //setLogin(data.login);
                     setAvatarUrl(data.avatar_url);
                     setIsLoading(false);
