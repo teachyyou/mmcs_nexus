@@ -1,5 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Grid, FormControl, InputLabel, Select, MenuItem, Button, Box } from '@mui/material';
+import {
+    Container,
+    Grid,
+    FormControl,
+    InputLabel,
+    Select,
+    MenuItem,
+    Button,
+    Box
+} from '@mui/material';
 import GradeTable from './GradeTable';
 
 const GradeTablePage = () => {
@@ -76,11 +85,13 @@ const GradeTablePage = () => {
     };
 
     return (
-        <Container maxWidth="lg" sx={{ marginTop: 4 }}>
-            <h2>Просмотр оценок по событию</h2>
+        <Container maxWidth="xl" sx={{ mt: 4 }}>
+            <Box sx={{ mb: 2 }}>
+                <h2>Просмотр оценок по событию</h2>
+            </Box>
             <Grid container spacing={2}>
-                {/* Левая панель: выбор года и события с фиксированной/уменьшенной шириной */}
-                <Grid item xs={12} md={2}>
+                {/* Левая боковая панель – минимальная по ширине */}
+                <Grid item xs={12} sm={3} md={2}>
                     <Box sx={{ p: 2, border: '1px solid #ccc', borderRadius: 2 }}>
                         <FormControl fullWidth margin="normal">
                             <InputLabel>Год</InputLabel>
@@ -92,7 +103,6 @@ const GradeTablePage = () => {
                                 ))}
                             </Select>
                         </FormControl>
-
                         <FormControl fullWidth margin="normal" disabled={!events.length}>
                             <InputLabel>Событие</InputLabel>
                             <Select value={selectedEvent} onChange={handleEventChange}>
@@ -103,22 +113,24 @@ const GradeTablePage = () => {
                                 ))}
                             </Select>
                         </FormControl>
-
                         <Button
                             variant="contained"
                             color="primary"
                             onClick={fetchGrades}
                             disabled={!selectedEvent || loading}
-                            sx={{ marginTop: 2, width: '100%' }}
+                            sx={{ mt: 2, width: '100%' }}
                         >
                             {loading ? 'Загрузка...' : 'Показать оценки'}
                         </Button>
                     </Box>
                 </Grid>
-
-                {/* Правая панель: таблица, занимающая оставшуюся ширину */}
-                <Grid item xs={12} md={10}>
-                    {grades && <GradeTable grades={grades} />}
+                {/* Правая панель – таблица, занимающая всю оставшуюся ширину */}
+                <Grid item xs={12} sm={9} md={10}>
+                    {grades ? (
+                        <GradeTable grades={grades} />
+                    ) : (
+                        <Box sx={{ p: 2 }}>Здесь появятся оценки после выбора события.</Box>
+                    )}
                 </Grid>
             </Grid>
         </Container>

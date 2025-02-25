@@ -1,6 +1,7 @@
 package ru.sfedu.mmcs_nexus.controller.auth;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
@@ -25,14 +26,20 @@ public class AuthController {
     @GetMapping(value = "/api/v1/auth/status", produces="application/json")
     public Map<String, Boolean> getAuthStatus(Authentication authentication) {
         Map<String, Boolean> response = new HashMap<>();
-        response.put("isAuthenticated", authentication != null && authentication.isAuthenticated());
+
+        boolean isAuthenticated = authentication != null &&
+                !(authentication instanceof AnonymousAuthenticationToken) &&
+                authentication.isAuthenticated();
+
+        response.put("isAuthenticated", isAuthenticated);
+        System.out.println("LALA" + isAuthenticated);
         return response;
     }
 
     @GetMapping(value = "/api/v1/auth/verify_status", produces="application/json")
     public Boolean verifyAuthStatus(Authentication authentication) {
 
-        if (authentication != null && authentication.isAuthenticated()) {
+        if (authentication != null && !(authentication instanceof AnonymousAuthenticationToken) && authentication.isAuthenticated()) {
             DefaultOAuth2User oauthUser = (DefaultOAuth2User) authentication.getPrincipal();
             String githubLogin = oauthUser.getAttribute("login");
 
@@ -44,18 +51,28 @@ public class AuthController {
 
     @ResponseBody
     @GetMapping(value = "/api/v1/auth/user", produces="application/json")
-    public Map<String, String> getUserInfo(Authentication authentication) {
-        Map<String, String> response = new HashMap<>();
-        DefaultOAuth2User user = (DefaultOAuth2User) authentication.getPrincipal();
+    public Map<String, Object> getUserInfo(Authentication authentication) {
+        Map<String, Object> response = new HashMap<>();
+        DefaultOAuth2User github_user = (DefaultOAuth2User) authentication.getPrincipal();
 
-        response.put("login", user.getAttribute("login"));
-        response.put("name", user.getAttribute("name"));
-        response.put("avatar_url", user.getAttribute("avatar_url"));
+        String login = github_user.getAttribute("login");
+
+        User existingUser = userService.findByGithubLogin(login)
+                .orElseThrow(() -> new UsernameNotFoundException(STR."User with GitHub login \{login} not found"));
+
+        response.put("login", login);
+        response.put("github_name", github_user.getAttribute("name"));
+        response.put("firstname", existingUser.getFirstName());
+        response.put("lastname", existingUser.getLastName());
+        response.put("group", existingUser.getUserGroup());
+        response.put("course", existingUser.getUserCourse());
+        response.put("avatar_url", github_user.getAttribute("avatar_url"));
+
 
         return response;
     }
 
-    @PostMapping("api/v1/auth/update-profile")
+    @PostMapping("api/v1/auth/update_profile")
     public void updateProfile(Authentication authentication, @RequestBody User user) {
 
         DefaultOAuth2User oauthUser = (DefaultOAuth2User) authentication.getPrincipal();

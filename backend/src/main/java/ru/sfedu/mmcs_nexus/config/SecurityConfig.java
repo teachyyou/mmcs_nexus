@@ -4,6 +4,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
+import org.springframework.security.access.hierarchicalroles.RoleHierarchyImpl;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -25,16 +27,18 @@ public class SecurityConfig {
     @Autowired
     private UserService userService;
 
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
         return http
+                .anonymous((anonymous)->anonymous.authorities("ROLE_GUEST"))
                 .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers("/api/v1/auth/**").permitAll();
-                    auth.requestMatchers("/api/v1/public/**").permitAll();
-                    //todo change later to admin
-                    //auth.requestMatchers("/api/v1/admin/**").hasRole("USER");
-                    auth.requestMatchers("/api/v1/jury/**").permitAll();
-                    auth.requestMatchers("/api/v1/admin/**").permitAll();
+                    auth.requestMatchers("/api/v1/auth/**").hasRole("GUEST");
+                    auth.requestMatchers("/api/v1/public/**").hasRole("USER");
+                    auth.requestMatchers("/api/v1/admin/**").hasRole("ADMIN");
+                    //auth.requestMatchers("/api/v1/admin/**").permitAll();
+                    auth.requestMatchers("/api/v1/jury/**").hasRole("JURY");
                     auth.anyRequest().authenticated();
                 })
                 .csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.ignoringRequestMatchers("/api/v1/auth/**", "api/v1/admin/**", "/api/v1/jury/**"))
@@ -66,15 +70,27 @@ public class SecurityConfig {
             if (userService.isNotFoundOrVerified(githubLogin)) {
                 userService.saveUser(githubLogin);
             }
-            String roleName = userService.findByGithubLogin(githubLogin).get().getRole().name();
+            String roleName = userService.findByGithubLogin(githubLogin).orElseThrow().getRole().name();
             DefaultOAuth2User newUser = new DefaultOAuth2User(List.of(new SimpleGrantedAuthority(roleName)),
                     oauthUser.getAttributes(),"id");
             Authentication newAuthentication = new OAuth2AuthenticationToken(newUser, List.of(new SimpleGrantedAuthority(roleName)),"github");
+            System.out.println("WOWOWO " + new SimpleGrantedAuthority(roleName).toString());
             SecurityContextHolder.getContext().setAuthentication(newAuthentication);
 
+            System.out.println("GOGOGO " + SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().findFirst().get());
             response.sendRedirect(ApplicationConfig.CLIENT_URL);
 
         });
     }
+
+    @Bean
+    public RoleHierarchy roleHierarchy() {
+        String hierarchy =  "ROLE_ADMIN > ROLE_JURY \n" +
+                            "ROLE_JURY > ROLE_USER \n" +
+                            "ROLE_USER > ROLE_GUEST";
+        return RoleHierarchyImpl.fromHierarchy(hierarchy);
+    }
+
+
 
 }

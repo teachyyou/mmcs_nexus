@@ -4,27 +4,23 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RestController;
 import ru.sfedu.mmcs_nexus.data.dto.GradeDTO;
 import ru.sfedu.mmcs_nexus.data.dto.GradeTableDTO;
 import ru.sfedu.mmcs_nexus.data.dto.GradeTableRowDTO;
 import ru.sfedu.mmcs_nexus.data.dto.UserDTO;
 import ru.sfedu.mmcs_nexus.data.event.Event;
 import ru.sfedu.mmcs_nexus.data.event.EventService;
-import ru.sfedu.mmcs_nexus.data.grade.Grade;
-import ru.sfedu.mmcs_nexus.data.grade.GradeKey;
 import ru.sfedu.mmcs_nexus.data.grade.GradeService;
-import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJuryEvent;
 import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJuryEventService;
 import ru.sfedu.mmcs_nexus.data.project.Project;
 import ru.sfedu.mmcs_nexus.data.project.ProjectService;
 import ru.sfedu.mmcs_nexus.data.project_to_event.ProjectEventService;
-import ru.sfedu.mmcs_nexus.data.user.User;
 import ru.sfedu.mmcs_nexus.data.user.UserService;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @RestController
 public class GradeTableController {
@@ -87,7 +83,7 @@ public class GradeTableController {
                             event.getName(),
                             grade.getComment(),
                             grade.getPresPoints(),
-                            grade.getPresPoints()
+                            grade.getBuildPoints()
 
                     )).toList();
             row.setTableRow(grades);

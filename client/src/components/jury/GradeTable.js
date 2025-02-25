@@ -1,5 +1,14 @@
 import React, { useState } from 'react';
-import { Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper } from '@mui/material';
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableContainer,
+    TableHead,
+    TableRow,
+    Paper,
+    Box
+} from '@mui/material';
 import GradeEditorModal from './GradeEditorModal';
 
 const GradeTable = ({ grades }) => {
@@ -19,38 +28,87 @@ const GradeTable = ({ grades }) => {
         setIsModalOpen(false);
     };
 
+    // Формируем карту оценок для быстрого доступа по projectId и juryId
+    const gradeMap = {};
+    if (grades && grades.rows) {
+        grades.rows.forEach((row) => {
+            gradeMap[row.projectId] = {};
+            row.tableRow.forEach((item) => {
+                gradeMap[row.projectId][item.id.juryId] = item;
+            });
+        });
+    }
+
     return (
         <>
-            <TableContainer component={Paper} sx={{ marginTop: 2 }}>
-                <Table>
+            <TableContainer component={Paper} sx={{ mt: 2 }}>
+                <Table sx={{ minWidth: 800 }}>
                     <TableHead>
                         <TableRow>
-                            <TableCell>Проекты / Жюри</TableCell>
+                            <TableCell sx={{ fontWeight: 'bold', border: '2px solid black' }}>
+                                Проекты / Жюри
+                            </TableCell>
                             {grades.juries.map((jury) => (
-                                <TableCell key={jury.id}>{jury.firstName} {jury.lastName}</TableCell>
+                                <TableCell
+                                    key={jury.id}
+                                    align="center"
+                                    sx={{ fontWeight: 'bold', border: '2px solid black' }}
+                                >
+                                    {jury.firstName} {jury.lastName}
+                                </TableCell>
                             ))}
                         </TableRow>
                     </TableHead>
                     <TableBody>
                         {grades.projects.map((project) => (
                             <TableRow key={project.id}>
-                                <TableCell>{project.name}</TableCell>
+                                <TableCell sx={{ fontWeight: 'bold', border: '2px solid black' }}>
+                                    {project.name}
+                                </TableCell>
                                 {grades.juries.map((jury) => {
-                                    const gradeRow = grades.rows.find(row => row.projectId === project.id);
-                                    const grade = gradeRow ? gradeRow.tableRow.find(item => item.id.juryId === jury.id) : null;
+                                    const gradeItem = gradeMap[project.id]?.[jury.id];
                                     return (
                                         <TableCell
-                                            key={jury.id}
-                                            onClick={() => handleCellClick(grade, project.id, jury.id)}
+                                            key={`${project.id}-${jury.id}`}
+                                            align="center"
+                                            onClick={() => handleCellClick(gradeItem, project.id, jury.id)}
                                             sx={{
                                                 cursor: 'pointer',
-                                                border: '1px solid rgba(0, 0, 0, 0.1)',
-                                                '&:hover': {
-                                                    backgroundColor: 'rgba(33, 150, 243, 0.2)',
-                                                },
+                                                border: '2px solid black',
+                                                p: 1
                                             }}
                                         >
-                                            {grade ? grade.comment : 'Не оценено'}
+                                            {gradeItem ? (
+                                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+                                                    {/* Две миниячейки для оценки за билд и презентацию */}
+                                                    <Box sx={{ display: 'flex', gap: 1 }}>
+                                                        <Box sx={{
+                                                            border: '1px solid black',
+                                                            flex: 1,
+                                                            textAlign: 'center',
+                                                            p: 0.5
+                                                        }}>
+                                                            {gradeItem.buildPoints !== undefined ? gradeItem.buildPoints : '-'}
+                                                        </Box>
+                                                        <Box sx={{
+                                                            border: '1px solid black',
+                                                            flex: 1,
+                                                            textAlign: 'center',
+                                                            p: 0.5
+                                                        }}>
+                                                            {gradeItem.presPoints !== undefined ? gradeItem.presPoints : '-'}
+                                                        </Box>
+                                                    </Box>
+                                                    {/* Комментарий с усечением, если слишком длинный */}
+                                                    <Box sx={{ fontSize: '0.8rem' }}>
+                                                        {gradeItem.comment && gradeItem.comment.length > 20
+                                                            ? `${gradeItem.comment.substring(0, 20)}...`
+                                                            : gradeItem.comment || ''}
+                                                    </Box>
+                                                </Box>
+                                            ) : (
+                                                'Не оценено'
+                                            )}
                                         </TableCell>
                                     );
                                 })}
@@ -59,14 +117,13 @@ const GradeTable = ({ grades }) => {
                     </TableBody>
                 </Table>
             </TableContainer>
-
             <GradeEditorModal
                 open={isModalOpen}
                 onClose={handleCloseModal}
                 grade={selectedGrade}
                 projectId={selectedProjectId}
                 juryId={selectedJuryId}
-                grades={grades} // Передаем все данные
+                grades={grades}
             />
         </>
     );

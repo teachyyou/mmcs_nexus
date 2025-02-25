@@ -20,7 +20,9 @@ public class User {
     private String lastName;
     private String login;
     private int userGroup;
-
+    
+    private int userCourse;
+    
     @Enumerated(EnumType.STRING)
     private UserStatus status;
 
@@ -32,21 +34,23 @@ public class User {
         this.status = UserStatus.NON_VERIFIED;
     }
 
-    public User(UUID id, String firstName, String lastName, String login, int userGroup, UserStatus status, UserRole role) {
+    public User(UUID id, String firstName, String lastName, String login, int group, int course, UserStatus status, UserRole role) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.login = login;
-        this.userGroup = userGroup;
+        this.userGroup = group;
+        this.userCourse = course;
         this.status = status;
         this.role = role;
     }
 
-    public User(String firstName, String lastName, String login, int userGroup, UserStatus status, UserRole role) {
+    public User(String firstName, String lastName, String login, int group, int course, UserStatus status, UserRole role) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.login = login;
-        this.userGroup = userGroup;
+        this.userGroup = group;
+        this.userCourse = course;
         this.status = status;
         this.role = role;
     }
@@ -101,6 +105,14 @@ public class User {
         this.userGroup = userGroup;
     }
 
+    public int getUserCourse() {
+        return userCourse;
+    }
+
+    public void setUserCourse(int userCourse) {
+        this.userCourse = userCourse;
+    }
+
     public UserStatus getStatus() {
         return status;
     }
@@ -121,6 +133,7 @@ public class User {
         setFirstName(user.getFirstName());
         setLastName(user.getLastName());
         setUserGroup(user.getUserGroup());
+        setUserCourse(user.getUserCourse());
         setStatus(UserStatus.VERIFIED);
     }
 
@@ -128,7 +141,9 @@ public class User {
         setFirstName(user.getFirstName());
         setLastName(user.getLastName());
         setUserGroup(user.getUserGroup());
+        setUserCourse(user.getUserCourse());
         setStatus(user.getStatus());
         setRole(user.getRole());
     }
+
 }

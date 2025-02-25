@@ -11,16 +11,18 @@ public class UserDTO {
     private String lastName;
     private String login;
     private int userGroup;
+    private int userCourse;
     private UserRole role;
 
     public UserDTO() {}
 
-    public UserDTO(UUID id, String firstName, String lastName, String login, int userGroup, UserRole role) {
+    public UserDTO(UUID id, String firstName, String lastName, String login, int group, int course, UserRole role) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.login = login;
-        this.userGroup = userGroup;
+        this.userGroup = group;
+        this.userCourse = course;
         this.role = role;
     }
 
@@ -30,6 +32,7 @@ public class UserDTO {
         this.lastName = user.getLastName();
         this.login = user.getLogin();
         this.userGroup = user.getUserGroup();
+        this.userCourse = user.getUserCourse();
         this.role = user.getRole();
     }
 
@@ -79,5 +82,13 @@ public class UserDTO {
 
     public void setRole(UserRole role) {
         this.role = role;
+    }
+
+    public int getUserCourse() {
+        return userCourse;
+    }
+
+    public void setUserCourse(int userCourse) {
+        this.userCourse = userCourse;
     }
 }
