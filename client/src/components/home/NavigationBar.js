@@ -8,10 +8,10 @@ const NavigationBar = ({ isAuthenticated, setIsAuthenticated }) => {
         <AppBar position='static' sx={{ height: 75 }}>
             <Toolbar>
                 <Button component={Link} to="/admin" color="inherit">
-                    Admin
+                    Админка
                 </Button>
                 <Button component={Link} to="/grades" color="inherit">
-                    Grades
+                    Оценки
                 </Button>
                 <LoginButton
                     className='login-button'

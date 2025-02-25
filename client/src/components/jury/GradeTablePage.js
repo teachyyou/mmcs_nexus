@@ -10,8 +10,9 @@ import {
     Box
 } from '@mui/material';
 import GradeTable from './GradeTable';
+import NavigationBar from '../home/NavigationBar';
 
-const GradeTablePage = () => {
+const GradeTablePage = ({ isAuthenticated, setIsAuthenticated }) => {
     const [year, setYear] = useState('');
     const [years, setYears] = useState([]);
     const [events, setEvents] = useState([]);
@@ -85,55 +86,60 @@ const GradeTablePage = () => {
     };
 
     return (
-        <Container maxWidth="xl" sx={{ mt: 4 }}>
-            <Box sx={{ mb: 2 }}>
-                <h2>Просмотр оценок по событию</h2>
-            </Box>
-            <Grid container spacing={2}>
-                {/* Левая боковая панель – минимальная по ширине */}
-                <Grid item xs={12} sm={3} md={2}>
-                    <Box sx={{ p: 2, border: '1px solid #ccc', borderRadius: 2 }}>
-                        <FormControl fullWidth margin="normal">
-                            <InputLabel>Год</InputLabel>
-                            <Select value={year} onChange={handleYearChange} displayEmpty>
-                                {years.map((availableYear) => (
-                                    <MenuItem key={availableYear} value={availableYear}>
-                                        {availableYear}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                        <FormControl fullWidth margin="normal" disabled={!events.length}>
-                            <InputLabel>Событие</InputLabel>
-                            <Select value={selectedEvent} onChange={handleEventChange}>
-                                {events.map((eventItem) => (
-                                    <MenuItem key={eventItem.id} value={eventItem.id}>
-                                        {eventItem.name}
-                                    </MenuItem>
-                                ))}
-                            </Select>
-                        </FormControl>
-                        <Button
-                            variant="contained"
-                            color="primary"
-                            onClick={fetchGrades}
-                            disabled={!selectedEvent || loading}
-                            sx={{ mt: 2, width: '100%' }}
-                        >
-                            {loading ? 'Загрузка...' : 'Показать оценки'}
-                        </Button>
-                    </Box>
+        <>
+            {/* Навигационная панель сверху */}
+            <NavigationBar isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />
+
+            <Container maxWidth="xl" sx={{ mt: 4 }}>
+                <Box sx={{ mb: 2 }}>
+                    <h2>Просмотр оценок по событию</h2>
+                </Box>
+                <Grid container spacing={2}>
+                    {/* Левая панель с выбором года и события */}
+                    <Grid item xs={12} sm={3} md={2}>
+                        <Box sx={{ p: 2, border: '1px solid #ccc', borderRadius: 2 }}>
+                            <FormControl fullWidth margin="normal">
+                                <InputLabel>Год</InputLabel>
+                                <Select value={year} onChange={handleYearChange} displayEmpty>
+                                    {years.map((availableYear) => (
+                                        <MenuItem key={availableYear} value={availableYear}>
+                                            {availableYear}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                            <FormControl fullWidth margin="normal" disabled={!events.length}>
+                                <InputLabel>Событие</InputLabel>
+                                <Select value={selectedEvent} onChange={handleEventChange}>
+                                    {events.map((eventItem) => (
+                                        <MenuItem key={eventItem.id} value={eventItem.id}>
+                                            {eventItem.name}
+                                        </MenuItem>
+                                    ))}
+                                </Select>
+                            </FormControl>
+                            <Button
+                                variant="contained"
+                                color="primary"
+                                onClick={fetchGrades}
+                                disabled={!selectedEvent || loading}
+                                sx={{ mt: 2, width: '100%' }}
+                            >
+                                {loading ? 'Загрузка...' : 'Показать оценки'}
+                            </Button>
+                        </Box>
+                    </Grid>
+                    {/* Правая панель с таблицей оценок */}
+                    <Grid item xs={12} sm={9} md={10}>
+                        {grades ? (
+                            <GradeTable grades={grades} />
+                        ) : (
+                            <Box sx={{ p: 2 }}>Здесь появятся оценки после выбора события.</Box>
+                        )}
+                    </Grid>
                 </Grid>
-                {/* Правая панель – таблица, занимающая всю оставшуюся ширину */}
-                <Grid item xs={12} sm={9} md={10}>
-                    {grades ? (
-                        <GradeTable grades={grades} />
-                    ) : (
-                        <Box sx={{ p: 2 }}>Здесь появятся оценки после выбора события.</Box>
-                    )}
-                </Grid>
-            </Grid>
-        </Container>
+            </Container>
+        </>
     );
 };
 

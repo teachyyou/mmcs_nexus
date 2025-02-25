@@ -20,6 +20,7 @@ import EventCreate from "./components/admin/eventList/EventCreate";
 import ProjectJuryManagement from "./components/admin/ProjectJuryManagement";
 import ProjectEventManagement from "./components/admin/ProjectEventManagement";
 import GradeTablePage from "./components/jury/GradeTablePage";
+import AdminLayout from "./components/admin/AdminLayout";
 
 const dataProvider = springBootRestProvider('http://localhost:8080/api/v1/admin');
 
@@ -50,9 +51,9 @@ function App() {
                 {/*can get here only when authenticated and updated user data*/}
                 <Route element={<AuthenticatedAndVerifiedRoutes isAuthenticated={isAuthenticated}/>}>
                     {/*Добавляем маршрут для таблицы оценок*/}
-                    <Route path="/grades" element={<GradeTablePage />} />
+                    <Route path="/grades" element={<GradeTablePage isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated}/>} />
                     <Route path = "admin/*" element={
-                        <Admin dataProvider={dataProvider} basename="/admin">
+                        <Admin dataProvider={dataProvider} basename="/admin" layout={AdminLayout}>
                             <Resource name="users" list={UserList} edit={UserEdit} />
                             <Resource name="projects" list={ProjectList} edit={ProjectEdit} create={ProjectCreate} />
                             <Resource name="events" list={EventList} edit={EventEdit} create={EventCreate} />
