@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { AuthProvider, useAuth } from './AuthContext';
 import LoginPage from './components/login/LoginPage';
 import HomePage from './components/home/HomePage';
 import './App.css';
@@ -24,8 +25,8 @@ import AdminLayout from "./components/admin/AdminLayout";
 
 const dataProvider = springBootRestProvider('http://localhost:8080/api/v1/admin');
 
-function App() {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+function AppContent() {
+    const { setIsAuthenticated, setUserStatus, setUserRole } = useAuth();
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -35,43 +36,58 @@ function App() {
             .then(response => response.json())
             .then(data => {
                 setIsAuthenticated(data.isAuthenticated);
+                setUserRole(data.userRole);
+                setUserStatus(data.userStatus);
                 setIsLoading(false);
             });
-    }, []);
+    }, [setIsAuthenticated, setUserStatus, setUserRole]);
 
-    if (!isLoading) return (
+    if (isLoading) {
+        return <div>Loading...</div>;
+    }
+
+    return (
         <Router>
             <Routes>
-                {/*can get there only when not-authenticated OR updated user data*/}
-                <Route element={<ProtectedAuthenticationRoutes isAuthenticated={isAuthenticated}/>}>
-                    <Route path="/" element={<HomePage isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />} />
+                {/* Доступны для не-аутентифицированных или обновивших профиль */}
+                <Route element={<ProtectedAuthenticationRoutes/>}>
+                    <Route path="/" element={<HomePage />} />
                     <Route path="/login" element={<LoginPage />} />
                 </Route>
 
-                {/*can get here only when authenticated and updated user data*/}
-                <Route element={<AuthenticatedAndVerifiedRoutes isAuthenticated={isAuthenticated}/>}>
-                    {/*Добавляем маршрут для таблицы оценок*/}
-                    <Route path="/grades" element={<GradeTablePage isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated}/>} />
-                    <Route path = "admin/*" element={
+                {/* Доступны для аутентифицированных и верифицированных (ТОЛЬКО ЖЮРИ) */}
+                <Route element={<AuthenticatedAndVerifiedRoutes roleRequired={"ROLE_JURY"}/>}>
+                    <Route path="/grades" element={<GradeTablePage />} />
+
+                </Route>
+                {/* Доступны для аутентифицированных и верифицированных (ТОЛЬКО АДМИНЫ)*/}
+                <Route element={<AuthenticatedAndVerifiedRoutes roleRequired={"ROLE_ADMIN"} />}>
+                    <Route path="admin/*" element={
                         <Admin dataProvider={dataProvider} basename="/admin" layout={AdminLayout}>
                             <Resource name="users" list={UserList} edit={UserEdit} />
                             <Resource name="projects" list={ProjectList} edit={ProjectEdit} create={ProjectCreate} />
                             <Resource name="events" list={EventList} edit={EventEdit} create={EventCreate} />
-                            <Resource name="project_jury" list={ProjectJuryManagement} edit={ProjectJuryManagement} create={ProjectJuryManagement}/>
-                            <Resource name="project_event" list={ProjectEventManagement} edit={ProjectEventManagement} create={ProjectEventManagement}/>
+                            <Resource name="project_jury" list={ProjectJuryManagement} edit={ProjectJuryManagement} create={ProjectJuryManagement} />
+                            <Resource name="project_event" list={ProjectEventManagement} edit={ProjectEventManagement} create={ProjectEventManagement} />
                         </Admin>
                     } />
                 </Route>
 
-                {/*can get here only when authenticated*/}
-                <Route element={<OnlyAuthenticatedRoutes isAuthenticated={isAuthenticated}/>}>
+                {/* Доступны для аутентифицированных */}
+                <Route element={<OnlyAuthenticatedRoutes />}>
                     <Route path="/update_profile" element={<UpdateProfilePage />} />
-
                 </Route>
             </Routes>
         </Router>
     );
+}
 
+function App() {
+    return (
+        <AuthProvider>
+            <AppContent />
+        </AuthProvider>
+    );
 }
 
 export default App;

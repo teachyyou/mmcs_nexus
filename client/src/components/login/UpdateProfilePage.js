@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, TextField, Button, Typography, Box } from '@mui/material';
+import { useAuth } from "../../AuthContext";
 
 const UpdateProfilePage = () => {
     const [firstName, setFirstName] = useState("");
@@ -9,7 +10,8 @@ const UpdateProfilePage = () => {
     const [userGroup, setGroup] = useState("");
     const navigate = useNavigate();
 
-    // Запрос к API для получения информации о пользователе
+    const { setIsAuthenticated, setUserStatus } = useAuth();
+
     useEffect(() => {
         const fetchUserInfo = async () => {
             try {
@@ -18,7 +20,6 @@ const UpdateProfilePage = () => {
                 });
                 if (response.ok) {
                     const data = await response.json();
-                    // Если профиль уже заполнен, заполняем поля формы
                     if (data.firstname) setFirstName(data.firstname);
                     if (data.lastname) setLastName(data.lastname);
                     if (data.course) setCourse(data.course.toString());
@@ -52,10 +53,28 @@ const UpdateProfilePage = () => {
         });
 
         if (response.ok) {
+            setUserStatus("VERIFIED")
             navigate('/');
         } else {
             console.error('Profile updating failed.');
         }
+    };
+
+    const handleLogout = () => {
+        fetch('http://localhost:8080/api/v1/auth/logout', {
+            method: 'POST',
+            credentials: 'include'
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                setIsAuthenticated(false);
+                navigate('/');
+            })
+            .catch(error => {
+                console.error('Logout failed:', error);
+            });
     };
 
     return (
@@ -72,6 +91,7 @@ const UpdateProfilePage = () => {
                 <Typography variant="h5" component="h1" gutterBottom>
                     Complete your profile
                 </Typography>
+
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
                     <TextField
                         label="First Name"
@@ -106,6 +126,14 @@ const UpdateProfilePage = () => {
                         Submit
                     </Button>
                 </form>
+
+                <Button
+                    variant="outlined"
+                    onClick={handleLogout}
+                    sx={{ mt: 4, color: 'black', borderColor: 'black' }}
+                >
+                    Logout
+                </Button>
             </Box>
         </Container>
     );

@@ -1,13 +1,16 @@
 import React, {useEffect, useState} from 'react';
 import NavigationBar from './NavigationBar';
 import {StyledEngineProvider} from "@mui/material";
+import { useAuth } from '../../AuthContext';
 
-const HomePage = ({ isAuthenticated, setIsAuthenticated }) => {
+
+const HomePage = () => {
 
     const [isLoading, setIsLoading] = useState(true);
     //const [login, setLogin] = useState("default_user");
     const [name, setName] = useState("Unknown User");
     const [avatar_url, setAvatarUrl] = useState("default_url");
+    const {isAuthenticated, setIsAuthenticated} = useAuth();
 
     useEffect(() => {
         if (isAuthenticated) {

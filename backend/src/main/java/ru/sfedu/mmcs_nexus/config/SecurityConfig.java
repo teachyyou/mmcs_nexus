@@ -74,10 +74,8 @@ public class SecurityConfig {
             DefaultOAuth2User newUser = new DefaultOAuth2User(List.of(new SimpleGrantedAuthority(roleName)),
                     oauthUser.getAttributes(),"id");
             Authentication newAuthentication = new OAuth2AuthenticationToken(newUser, List.of(new SimpleGrantedAuthority(roleName)),"github");
-            System.out.println("WOWOWO " + new SimpleGrantedAuthority(roleName).toString());
             SecurityContextHolder.getContext().setAuthentication(newAuthentication);
 
-            System.out.println("GOGOGO " + SecurityContextHolder.getContext().getAuthentication().getAuthorities().stream().findFirst().get());
             response.sendRedirect(ApplicationConfig.CLIENT_URL);
 
         });

@@ -1,30 +1,27 @@
-import { Outlet, Navigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import React from 'react';
+import { Outlet, Navigate } from 'react-router-dom';
+import { useAuth, useIsAdmin, useIsJury, useIsUser } from '../../AuthContext';
 
-const AuthenticatedAndVerifiedRoutes = ({ isAuthenticated }) => {
-    const [isProfileComplete, setIsProfileComplete] = useState(false);
-    const [isLoading, setIsLoading] = useState(true);
+const AuthenticatedAndVerifiedRoutes = ({ roleRequired }) => {
+    const { isAuthenticated, userStatus } = useAuth();
+    const isAdmin = useIsAdmin();
+    const isJury = useIsJury();
+    const isUser = useIsUser();
 
-    useEffect(() => {
-        if (isAuthenticated) {
-            fetch('http://localhost:8080/api/v1/auth/verify_status', {
-                credentials: 'include'
-            })
-                .then(response => response.json())
-                .then(verified => {
-                    setIsProfileComplete(verified);
-                    setIsLoading(false);
-                })
-                .catch(() => {
-                    setIsProfileComplete(false);
-                    setIsLoading(false);
-                });
-        } else {
-            setIsLoading(false);
-        }
-    }, [isAuthenticated]);
+    let hasRequiredRole = false;
+    if (roleRequired === "ROLE_ADMIN") {
+        hasRequiredRole = isAdmin;
+    } else if (roleRequired === "ROLE_JURY") {
+        hasRequiredRole = isJury;
+    } else if (roleRequired === "ROLE_USER") {
+        hasRequiredRole = isUser;
+    }
 
-    if (!isLoading) return isAuthenticated && isProfileComplete ? <Outlet /> : <Navigate to="/" />;
+    return isAuthenticated && userStatus === "VERIFIED" && hasRequiredRole ? (
+        <Outlet />
+    ) : (
+        <Navigate to="/" />
+    );
 };
 
 export default AuthenticatedAndVerifiedRoutes;
