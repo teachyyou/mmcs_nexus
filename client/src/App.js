@@ -26,7 +26,7 @@ import AdminLayout from "./components/admin/AdminLayout";
 const dataProvider = springBootRestProvider('http://localhost:8080/api/v1/admin');
 
 function AppContent() {
-    const { setIsAuthenticated, setUserStatus, setUserRole } = useAuth();
+    const { setIsAuthenticated, setUserStatus, setUserRole, setUser } = useAuth();
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -38,6 +38,20 @@ function AppContent() {
                 setIsAuthenticated(data.isAuthenticated);
                 setUserRole(data.userRole);
                 setUserStatus(data.userStatus);
+
+                if (data.user) {
+                    setUser({
+                        login: data.user.login,
+                        github_name: data.user.github_name,
+                        firstname: data.user.firstname,
+                        lastname: data.user.lastname,
+                        avatarUrl: data.user.avatar_url,
+                        email: data.user.email,
+                        course: data.user.course,
+                        group: data.user.group,
+                    });
+                }
+
                 setIsLoading(false);
             });
     }, [setIsAuthenticated, setUserStatus, setUserRole]);
