@@ -9,8 +9,8 @@ const HomePage = () => {
     const [isLoading, setIsLoading] = useState(true);
     //const [login, setLogin] = useState("default_user");
     const [name, setName] = useState("Unknown User");
-    const [avatar_url, setAvatarUrl] = useState("default_url");
-    const {isAuthenticated, setIsAuthenticated} = useAuth();
+    const [avatarUrl, setAvatarUrl] = useState("default_url");
+    const {isAuthenticated} = useAuth();
 
     useEffect(() => {
         if (isAuthenticated) {
@@ -37,12 +37,10 @@ const HomePage = () => {
         <div className="App">
             <header className="App-header">
                 <StyledEngineProvider injectFirst>
-                    <NavigationBar className='navigation-bar' isAuthenticated={isAuthenticated}
-                                   setIsAuthenticated={setIsAuthenticated}/>
+                    <NavigationBar className='navigation-bar' avatarUrl={avatarUrl} userName={name} userEmail={"test@mail.ru"}/>
                 </StyledEngineProvider>
             </header>
             Welcome, {name}!
-            <img src={avatar_url} alt = ""/>
         </div>
     );
 };

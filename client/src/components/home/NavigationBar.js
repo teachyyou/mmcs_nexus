@@ -1,13 +1,35 @@
-import React from 'react';
-import { AppBar, Button, Toolbar } from '@mui/material';
+import React, { useState } from 'react';
+import { AppBar, Toolbar, Button, IconButton, Avatar, Box } from '@mui/material';
 import { Link } from 'react-router-dom';
 import LoginButton from '../login/LoginButton';
 import { useAuth, useIsAdmin, useIsJury } from '../../AuthContext';
+import UserMenu from './UserMenu';
 
-const NavigationBar = () => {
+const NavigationBar = ({ avatarUrl, userName, userEmail }) => {
     const { isAuthenticated, setIsAuthenticated } = useAuth();
     const isAdmin = useIsAdmin();
     const isJury = useIsJury();
+
+    const [menuOpen, setMenuOpen] = useState(false);
+
+    const handleAvatarClick = () => {
+        setMenuOpen(true);
+    };
+
+    const handleMenuClose = () => {
+        setMenuOpen(false);
+    };
+
+    const handleLogout = () => {
+        // Добавьте вызов API для выхода, если нужно
+        setIsAuthenticated(false);
+    };
+
+    const user = {
+        name: userName,
+        email: userEmail,
+        avatarUrl: avatarUrl,
+    };
 
     return (
         <AppBar position="static" sx={{ height: 75 }}>
@@ -22,11 +44,19 @@ const NavigationBar = () => {
                         Оценки
                     </Button>
                 )}
-                <LoginButton
-                    className="login-button"
-                    isAuthenticated={isAuthenticated}
-                    setIsAuthenticated={setIsAuthenticated}
-                />
+                <Box sx={{ flexGrow: 1 }} />
+                {isAuthenticated ? (
+                    <>
+                        <IconButton onClick={handleAvatarClick} sx={{ p: 0 }}>
+                            <Avatar src={user.avatarUrl} alt={user.name} />
+                        </IconButton>
+                        <UserMenu open={menuOpen} onClose={handleMenuClose} user={user} onLogout={handleLogout} />
+                    </>
+                ) : (
+                    <Button component={Link} to="/login" color="inherit">
+                        Вход
+                    </Button>
+                )}
             </Toolbar>
         </AppBar>
     );
