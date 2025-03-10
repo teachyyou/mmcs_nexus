@@ -39,6 +39,7 @@ public class AuthController {
 
         UserStatus status = null;
         UserRole role = UserRole.ROLE_GUEST;
+        Map<String, Object> userMap = null;
 
         if (isAuthenticated) {
             Optional<User> optionalUser = userService.findByGithubLogin(authentication);
@@ -49,10 +50,23 @@ public class AuthController {
             User user = optionalUser.get();
             status = user.getStatus();
             role = user.getRole();
+
+            DefaultOAuth2User githubUser = (DefaultOAuth2User) authentication.getPrincipal();
+
+            userMap = new HashMap<>();
+            userMap.put("login", githubUser.getAttribute("login"));
+            userMap.put("github_name", githubUser.getAttribute("name"));
+            userMap.put("firstname", user.getFirstName());
+            userMap.put("lastname", user.getLastName());
+            userMap.put("group", user.getUserGroup());
+            userMap.put("course", user.getUserCourse());
+            userMap.put("avatar_url", githubUser.getAttribute("avatar_url"));
+
         }
 
         response.put("userStatus", status);
         response.put("userRole", role);
+        response.put("user", userMap);
 
 
         return ResponseEntity.ok(response);

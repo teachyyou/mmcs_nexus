@@ -7,10 +7,9 @@ import { useAuth } from '../../AuthContext';
 const HomePage = () => {
 
     const [isLoading, setIsLoading] = useState(true);
-    //const [login, setLogin] = useState("default_user");
     const [name, setName] = useState("Unknown User");
     const [avatarUrl, setAvatarUrl] = useState("default_url");
-    const {isAuthenticated} = useAuth();
+    const {isAuthenticated,setUser, user} = useAuth();
 
     useEffect(() => {
         if (isAuthenticated) {
@@ -20,9 +19,18 @@ const HomePage = () => {
                 .then(
                     response => response.json())
                 .then(data => {
-                    setName(data.github_name);
-                    //setLogin(data.login);
-                    setAvatarUrl(data.avatar_url);
+                    if (data.user) {
+                        setUser({
+                            login: data.user.login,
+                            github_name: data.user.github_name,
+                            firstname: data.user.firstname,
+                            lastname: data.user.lastname,
+                            avatar_url: data.user.avatar_url,
+                            email: data.user.email,
+                            course: data.user.course,
+                            group: data.user.group,
+                        });
+                    }
                     setIsLoading(false);
                 })
         }
@@ -37,10 +45,9 @@ const HomePage = () => {
         <div className="App">
             <header className="App-header">
                 <StyledEngineProvider injectFirst>
-                    <NavigationBar className='navigation-bar' avatarUrl={avatarUrl} userName={name} userEmail={"test@mail.ru"}/>
+                    <NavigationBar className='navigation-bar' avatarUrl={user.avatar_url} userName={name} userEmail={"test@mail.ru"}/>
                 </StyledEngineProvider>
             </header>
-            Welcome, {name}!
         </div>
     );
 };

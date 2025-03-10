@@ -6,7 +6,7 @@ import { useAuth, useIsAdmin, useIsJury } from '../../AuthContext';
 import UserMenu from './UserMenu';
 
 const NavigationBar = ({ avatarUrl, userName, userEmail }) => {
-    const { isAuthenticated, setIsAuthenticated } = useAuth();
+    const { isAuthenticated, setIsAuthenticated, user } = useAuth();
     const isAdmin = useIsAdmin();
     const isJury = useIsJury();
 
@@ -23,12 +23,6 @@ const NavigationBar = ({ avatarUrl, userName, userEmail }) => {
     const handleLogout = () => {
         // Добавьте вызов API для выхода, если нужно
         setIsAuthenticated(false);
-    };
-
-    const user = {
-        name: userName,
-        email: userEmail,
-        avatarUrl: avatarUrl,
     };
 
     return (
