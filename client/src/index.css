@@ -6,8 +6,12 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  overflow: auto !important;
-  position: relative !important;
+
+  padding-right: 0 !important;
+}
+
+header {
+  padding-right: 0 !important;
 }
 
 code {
