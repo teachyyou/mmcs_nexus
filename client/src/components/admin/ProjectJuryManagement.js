@@ -84,11 +84,9 @@ const ProjectJuryManagement = () => {
     // Получаем назначенных жюри для выбранного проекта и события (или для всех событий)
     useEffect(() => {
         const fetchAssignedJuries = async () => {
-            if (selectedProject && (selectedEvent || applyToAllEvents)) {
+            if (selectedProject && selectedEvent) {
                 try {
-                    const url = applyToAllEvents
-                        ? `http://localhost:8080/api/v1/admin/projects/${selectedProject}/juries`
-                        : `http://localhost:8080/api/v1/admin/projects/${selectedProject}/juries/${selectedEvent}`;
+                    const url = `http://localhost:8080/api/v1/admin/projects/${selectedProject}/juries/${selectedEvent}`;
                     const response = await fetch(url, { credentials: 'include' });
                     const data = await response.json();
                     setWillingJuries(data.willingJuries || []);
@@ -101,7 +99,7 @@ const ProjectJuryManagement = () => {
         };
 
         fetchAssignedJuries();
-    }, [selectedProject, selectedEvent, applyToAllEvents]);
+    }, [selectedProject, selectedEvent]);
 
     // Обработчики изменения выбранных жюри
     const handleWillingJuriesChange = (event, newValue) => {

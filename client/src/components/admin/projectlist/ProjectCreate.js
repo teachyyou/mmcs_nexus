@@ -60,6 +60,7 @@ const ProjectCreate = (props) => {
                         { id: 'TELEGRAM_BOT', name: 'Telegram Bot' }
                     ]}
                     validate={required()}
+
                 />
             </SimpleForm>
         </Create>
