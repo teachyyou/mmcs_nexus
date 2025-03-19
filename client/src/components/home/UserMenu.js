@@ -53,7 +53,7 @@ const UserMenu = ({ open, onClose, user, onLogout }) => {
                                 />
                                 <MuiLink
                                     component={Link}
-                                    to="/profile"
+                                    to="/update_profile"
                                     underline="none"
                                     color="inherit"
                                     onClick={onClose}
@@ -67,11 +67,11 @@ const UserMenu = ({ open, onClose, user, onLogout }) => {
                                 )}
                             </Box>
                             <Divider sx={{ bgcolor: theme.palette.primary.dark }} />
-                            <MenuItem component={Link} to="/profile" onClick={onClose} sx={{ color: 'inherit' }}>
+                            <MenuItem component={Link} to="/update_profile" onClick={onClose} sx={{ color: 'inherit' }}>
                                 Профиль
                             </MenuItem>
                             <MenuItem component={Link} to="/settings" onClick={onClose} sx={{ color: 'inherit' }}>
-                                Настройки
+                                Пустой клик
                             </MenuItem>
                             <MenuItem onClick={() => { onLogout(); onClose(); }} sx={{ color: 'inherit' }}>
                                 Выйти

@@ -9,12 +9,17 @@ spring:
 
   jpa:
     hibernate:
-      ddl-auto: create-drop
+      ddl-auto: none
     show-sql: true
     properties:
       hibernate:
+        globally_quoted_identifiers: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: true
+
+  liquibase:
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    enabled: true
 
   security:
     oauth2:

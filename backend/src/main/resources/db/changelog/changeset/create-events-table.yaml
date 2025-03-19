@@ -1,0 +1,30 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-events-table-1
+      author: TeachYou
+      changes:
+        - createTable:
+            tableName: events
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  defaultValueComputed: "uuid_generate_v4()"
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: name
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: event_type
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: year
+                  type: int
+                  constraints:
+                    nullable: false

@@ -1,0 +1,51 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-users-table-1
+      author: TeachYou
+      changes:
+        - createTable:
+            tableName: users
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  defaultValueComputed: "uuid_generate_v4()"
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: first_name
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: last_name
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: login
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+                    unique: true
+              - column:
+                  name: user_group
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: user_course
+                  type: int
+                  constraints:
+                    nullable: false
+              - column:
+                  name: status
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: role
+                  type: varchar(255)
+                  constraints:
+                    nullable: false

@@ -1,0 +1,34 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-project-event-1
+      author: TeachYou
+      changes:
+        - createTable:
+            tableName: project_event
+            columns:
+              - column:
+                  name: event_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: project_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+        - addPrimaryKey:
+            tableName: project_event
+            columnNames: event_id, project_id
+            constraintName: pk_project_event
+        - addForeignKeyConstraint:
+            constraintName: fk_project_event_event
+            baseTableName: project_event
+            baseColumnNames: event_id
+            referencedTableName: events
+            referencedColumnNames: id
+        - addForeignKeyConstraint:
+            constraintName: fk_project_event_project
+            baseTableName: project_event
+            baseColumnNames: project_id
+            referencedTableName: projects
+            referencedColumnNames: id

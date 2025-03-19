@@ -7,8 +7,7 @@ import { useAuth } from '../../AuthContext';
 const HomePage = () => {
 
     const [isLoading, setIsLoading] = useState(true);
-    const [name, setName] = useState("Unknown User");
-    const [avatarUrl, setAvatarUrl] = useState("default_url");
+
     const {isAuthenticated,setUser, user} = useAuth();
 
     useEffect(() => {
@@ -35,8 +34,6 @@ const HomePage = () => {
                 })
         }
         else {
-            setName("Guest");
-            setAvatarUrl(null)
             setIsLoading(false)
         }
     }, [isAuthenticated]);
@@ -45,7 +42,7 @@ const HomePage = () => {
         <div className="App">
             <header className="App-header">
                 <StyledEngineProvider injectFirst>
-                    <NavigationBar className='navigation-bar' avatarUrl={user.avatar_url} userName={name} userEmail={"test@mail.ru"}/>
+                    <NavigationBar className='navigation-bar'/>
                 </StyledEngineProvider>
             </header>
         </div>

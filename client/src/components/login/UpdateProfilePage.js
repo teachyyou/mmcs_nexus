@@ -89,7 +89,7 @@ const UpdateProfilePage = () => {
                 }}
             >
                 <Typography variant="h5" component="h1" gutterBottom>
-                    Complete your profile
+                    {firstName !== null ? "Редактирование данных" : "Завершение регистрации"}
                 </Typography>
 
                 <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
