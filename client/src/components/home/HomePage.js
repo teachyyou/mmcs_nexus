@@ -41,9 +41,7 @@ const HomePage = () => {
     if (!isLoading) return (
         <div className="App">
             <header className="App-header">
-                <StyledEngineProvider injectFirst>
-                    <NavigationBar className='navigation-bar'/>
-                </StyledEngineProvider>
+                <NavigationBar className='navigation-bar'/>
             </header>
         </div>
     );

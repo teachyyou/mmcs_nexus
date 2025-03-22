@@ -3,7 +3,7 @@ import { Edit, SimpleForm, TextInput, SelectInput, required } from 'react-admin'
 
 const EventEdit = (props) => {
     return (
-        <Edit title="Edit Project" {...props}>
+        <Edit title="Изменить событие" {...props}>
             <SimpleForm>
                 <TextInput
                     source="name"
@@ -19,10 +19,10 @@ const EventEdit = (props) => {
                     source="eventType"
                     name="eventType"
                     choices={[
-                        { id: 'IDEA', name: 'Idea' },
-                        { id: 'ZERO_VERSION', name: 'Zero Version' },
-                        { id: 'PRE_RELEASE', name: 'Pre-Release' },
-                        { id: 'RELEASE', name: 'Release' },
+                        { id: 'IDEA', name: 'Защита идеи' },
+                        { id: 'ZERO_VERSION', name: 'Защита нулевой версии' },
+                        { id: 'PRE_RELEASE', name: 'Предзащита' },
+                        { id: 'RELEASE', name: 'Итоговая защита' },
                     ]}
                     validate={required()}
                 />

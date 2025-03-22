@@ -48,10 +48,75 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
+
+        if (false) {
+            User user1 = new User("Алексей", "Сидоренко", "alexsidr", 2, 4, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user2 = new User("Иван", "Журавлёв", "ivanzoor", 3, 2, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user3 = new User("Дмитрий", "Смирнов", "dmsmir", 1, 1, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user4 = new User("Сергей", "Орлов", "sergorlov", 4, 3, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user5 = new User("Николай", "Белов", "nikbel", 5, 2, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user6 = new User("Михаил", "Тарасов", "mihtaras", 2, 4, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user7 = new User("Андрей", "Фомин", "andfom", 1, 3, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user8 = new User("Евгений", "Соловьёв", "eugsol", 3, 1, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user9 = new User("Константин", "Мартынов", "konmart", 4, 2, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user10 = new User("Олег", "Кириллов", "olegkir", 5, 4, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user11 = new User("Владимир", "Субботин", "vlsub", 2, 1, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user12 = new User("Александр", "Калинин", "alekalin", 3, 3, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user13 = new User("Павел", "Морозов", "pavmoroz", 1, 2, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user14 = new User("Юрий", "Гончаров", "yurgon", 4, 1, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user15 = new User("Максим", "Карпов", "maxkarp", 3, 4, UserStatus.VERIFIED, UserRole.ROLE_USER);
+
+            User user16 = new User("Анастасия", "Кузнецова", "nastiakuz", 1, 1, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user17 = new User("Екатерина", "Сорокина", "katiasorok", 2, 2, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user18 = new User("Мария", "Попова", "mariapop", 3, 3, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user19 = new User("Дарья", "Романова", "dasha_roma", 4, 4, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user20 = new User("Ольга", "Новикова", "olganov", 5, 1, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user21 = new User("Валерия", "Федорова", "valfed", 1, 2, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user22 = new User("Полина", "Литвинова", "polinalit", 2, 3, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user23 = new User("Елизавета", "Зайцева", "liza_zay", 3, 4, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user24 = new User("Ксения", "Миронова", "ksumiro", 4, 2, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user25 = new User("Татьяна", "Громова", "tatagrom", 5, 3, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user26 = new User("Вероника", "Павлова", "verapav", 1, 4, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user27 = new User("Светлана", "Егорова", "svetaego", 2, 1, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user28 = new User("Юлия", "Мельникова", "yulamel", 3, 2, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user29 = new User("Алёна", "Киселева", "alena_kis", 4, 1, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user30 = new User("Наталья", "Чернова", "natachern", 5, 4, UserStatus.VERIFIED, UserRole.ROLE_USER);
+
+            userRepository.save(user1);
+            userRepository.save(user2);
+            userRepository.save(user3);
+            userRepository.save(user4);
+            userRepository.save(user5);
+            userRepository.save(user6);
+            userRepository.save(user7);
+            userRepository.save(user8);
+            userRepository.save(user9);
+            userRepository.save(user10);
+            userRepository.save(user11);
+            userRepository.save(user12);
+            userRepository.save(user13);
+            userRepository.save(user14);
+            userRepository.save(user15);
+            userRepository.save(user16);
+            userRepository.save(user17);
+            userRepository.save(user18);
+            userRepository.save(user19);
+            userRepository.save(user20);
+            userRepository.save(user21);
+            userRepository.save(user23);
+            userRepository.save(user23);
+            userRepository.save(user24);
+            userRepository.save(user25);
+            userRepository.save(user26);
+            userRepository.save(user27);
+            userRepository.save(user28);
+            userRepository.save(user29);
+            userRepository.save(user30);
+        }
         // Проверяем, пусты ли таблицы, чтобы избежать дублирования
-        if (userRepository.count() == 0 && projectRepository.count() == 0) {
+        if (false && userRepository.count() == 0 && projectRepository.count() == 0) {
             // Создаем пользователей
-            User user1 = new User("John", "Doe", "johndoe", 1, 5, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user1 = new User("Алексей", "Сидоренко", "alexsidr", 2, 4, UserStatus.VERIFIED, UserRole.ROLE_USER);
             User user2 = new User("Jane", "Smith", "janesmith", 2, 3, UserStatus.NON_VERIFIED, UserRole.ROLE_ADMIN);
 
 // Создаем и добавляем еще подтвержденных пользователей

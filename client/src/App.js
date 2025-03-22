@@ -10,7 +10,7 @@ import OnlyAuthenticatedRoutes from "./components/routes/OnlyAuthenticatedRoutes
 import AuthenticatedAndVerifiedRoutes from "./components/routes/AuthenticatedAndVerifiedRoutes";
 import UserList from "./components/admin/userlist/UserList";
 import UserEdit from "./components/admin/userlist/UserEdit";
-import { Admin, Resource } from "react-admin";
+import {Admin, Resource} from "react-admin";
 import springBootRestProvider from "./components/admin/restProviders/springBootRestProvider";
 import ProjectList from "./components/admin/projectlist/ProjectList";
 import ProjectEdit from "./components/admin/projectlist/ProjectEdit";
@@ -75,18 +75,20 @@ function AppContent() {
 
                 </Route>
                 {/* Доступны для аутентифицированных и верифицированных (ТОЛЬКО АДМИНЫ)*/}
-                <Route element={<AuthenticatedAndVerifiedRoutes roleRequired={"ROLE_ADMIN"} />}>
+                <Route element={<AuthenticatedAndVerifiedRoutes roleRequired={"ROLE_ADMIN"}/>}>
                     <Route path="admin/*" element={
                         <Admin dataProvider={dataProvider} basename="/admin" layout={AdminLayout}>
-                            <Resource name="users" list={UserList} edit={UserEdit} />
-                            <Resource name="projects" list={ProjectList} edit={ProjectEdit} create={ProjectCreate} />
-                            <Resource name="events" list={EventList} edit={EventEdit} create={EventCreate} />
-                            <Resource name="project_jury" list={ProjectJuryManagement} edit={ProjectJuryManagement} create={ProjectJuryManagement} />
-                            <Resource name="project_event" list={ProjectEventManagement} edit={ProjectEventManagement} create={ProjectEventManagement} />
+                            <Resource name="users" list={UserList} edit={UserEdit}/>
+                            <Resource name="projects" list={ProjectList} edit={ProjectEdit} create={ProjectCreate}/>
+                            <Resource name="events" list={EventList} edit={EventEdit} create={EventCreate}/>
+                            <Resource name="project_jury" list={ProjectJuryManagement} edit={ProjectJuryManagement}
+                                      create={ProjectJuryManagement}/>
+                            <Resource name="project_event" list={ProjectEventManagement} edit={ProjectEventManagement}
+                                      create={ProjectEventManagement}/>
                         </Admin>
-                    } />
-                </Route>
+                    }/>
 
+            </Route>
                 {/* Доступны для аутентифицированных */}
                 <Route element={<OnlyAuthenticatedRoutes />}>
                     <Route path="/update_profile" element={<UpdateProfilePage />} />

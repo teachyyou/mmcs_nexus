@@ -1,5 +1,5 @@
 import React from 'react';
-import { List, Datagrid, TextField } from 'react-admin';
+import {List, Datagrid, TextField, Empty} from 'react-admin';
 
 const EventList = (props) => {
     return (
@@ -9,6 +9,9 @@ const EventList = (props) => {
                 <TextField source="eventType" label="Type" />
                 <TextField source="year" label="Year" />
             </Datagrid>
+            <Empty>
+
+            </Empty>
         </List>
     );
 }

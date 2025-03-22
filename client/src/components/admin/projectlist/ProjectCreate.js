@@ -17,20 +17,20 @@ const ProjectCreate = (props) => {
     const handleSubmit = async (data) => {
         dataProvider.create('projects', { data })
             .then(() => {
-                notify('Project created successfully');
+                notify('Сохранено успешно');
                 redirect('list', 'projects');
             })
             .catch((error) => {
                 if (error.status === 409) {
-                    notify('Project with that name already exists', { type: 'warning' });
+                    notify('Проект с таким названием уже существует', { type: 'warning' });
                 } else {
-                    notify('An error occurred', { type: 'error' });
+                    notify('Неизвестная ошибка', { type: 'error' });
                 }
             });
     };
 
     return (
-        <Create title="Create Project" {...props} redirect="list">
+        <Create title="Добавить проект" {...props} redirect="list">
             <SimpleForm onSubmit={handleSubmit}>
                 <TextInput
                     source="name"

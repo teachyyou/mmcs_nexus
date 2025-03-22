@@ -43,7 +43,7 @@ public class AdminProjectController {
     public ResponseEntity<Map<String, Object>> getProjectsList(
             @RequestParam(defaultValue = "id") String sort,
             @RequestParam(defaultValue = "asc") String order,
-            @RequestParam(defaultValue = "2024") String year,
+            @RequestParam(defaultValue = "2025") String year,
             Authentication authentication) {
 
         List<Project> projects = projectService.getProjects(sort, order, year);

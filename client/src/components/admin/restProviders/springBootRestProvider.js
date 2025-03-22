@@ -36,7 +36,7 @@ let sprintBootProvider = (apiUrl, httpClient = fetchUtils.fetchJson) => {
             case GET_LIST: {
                 const { page, perPage } = params.pagination;
                 const { field, order } = params.sort;
-                url = `${apiUrl}/${resource}?page=${page}&pageSize=${perPage}&sort=${field}&order=${order}`;
+                url = `${apiUrl}/${resource}?limit=${perPage}&offset=${(page-1)*perPage}&sort=${field}&order=${order}`;
                 break;
             }
             case GET_ONE:
@@ -54,7 +54,7 @@ let sprintBootProvider = (apiUrl, httpClient = fetchUtils.fetchJson) => {
             case GET_MANY_REFERENCE: {
                 const { page, perPage } = params.pagination;
                 const { field, order } = params.sort;
-                url = `${apiUrl}/${resource}?page=${page}&pageSize=${perPage}&sort=${field}&order=${order}`;
+                url = `${apiUrl}/${resource}?limit=${perPage}&offset=${(page-1)*perPage}&sort=${field}&order=${order}`;
                 break;
             }
             case UPDATE:
