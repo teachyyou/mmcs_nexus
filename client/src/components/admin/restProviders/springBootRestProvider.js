@@ -1,14 +1,14 @@
 import {
+    CREATE,
+    DELETE,
+    DELETE_MANY,
     fetchUtils,
     GET_LIST,
-    GET_ONE,
     GET_MANY,
     GET_MANY_REFERENCE,
-    CREATE,
+    GET_ONE,
     UPDATE,
-    UPDATE_MANY,
-    DELETE,
-    DELETE_MANY
+    UPDATE_MANY
 } from "react-admin";
 
 /**
@@ -118,6 +118,7 @@ let sprintBootProvider = (apiUrl, httpClient = fetchUtils.fetchJson) => {
                 params.ids.map(id =>
                     httpClient(`${apiUrl}/${resource}/${id}`, {
                         method: "PUT",
+                        credentials: "include",
                         body: JSON.stringify(params.data)
                     })
                 )
@@ -130,7 +131,8 @@ let sprintBootProvider = (apiUrl, httpClient = fetchUtils.fetchJson) => {
             return Promise.all(
                 params.ids.map(id =>
                     httpClient(`${apiUrl}/${resource}/${id}`, {
-                        method: "DELETE"
+                        method: "DELETE",
+                        credentials: "include"
                     })
                 )
             ).then(responses => ({

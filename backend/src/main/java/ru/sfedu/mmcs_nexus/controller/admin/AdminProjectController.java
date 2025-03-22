@@ -122,7 +122,6 @@ public class AdminProjectController {
 
     @PutMapping(value = "/api/v1/admin/projects/{id}", produces = "application/json")
     public ResponseEntity<Project> editProjectById(@PathVariable("id") UUID id, Authentication authentication, @RequestBody Project project) {
-
         Project existingProject = projectService.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(STR."Project with id \{id} not found"));
 
@@ -133,7 +132,6 @@ public class AdminProjectController {
     }
     @PostMapping(value = "/api/v1/admin/projects", produces = "application/json")
     public ResponseEntity<?> createProject(Authentication authentication, @RequestBody Project project) {
-
         if (projectService.existsByName(project.getName())) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(STR."Project with name \{project.getName()} already exists!");
@@ -144,14 +142,12 @@ public class AdminProjectController {
         return ResponseEntity.ok(project);
     }
 
-    @DeleteMapping(value = "/api/v1/admin/projects/{id}")
-    public ResponseEntity<Void> deleteProjectById(@PathVariable("id") UUID id) {
+    @DeleteMapping("/api/v1/admin/projects/{id}")
+    public ResponseEntity<?> deleteProjectById(@PathVariable("id") UUID id, Authentication authentication) {
         if (!projectService.existsById(id)) {
             return ResponseEntity.notFound().build();
         }
-
-        projectService.deleteProjectById(id);
-
+        projectService.deleteById(id);
         return ResponseEntity.noContent().build();
     }
 }

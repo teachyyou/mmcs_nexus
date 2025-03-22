@@ -55,7 +55,18 @@ public class SecurityConfig {
                         -> httpSecurityOAuth2LoginConfigurer.successHandler(this.successHandler()))
                 .exceptionHandling(exceptionHandling ->
                         exceptionHandling
-                                .authenticationEntryPoint((request, response, authException) -> response.sendRedirect(STR."\{ApplicationConfig.CLIENT_URL}/tuda"))
+                                .authenticationEntryPoint((request, response, authException) -> {
+                                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401
+                                    response.setContentType("application/json");
+                                    response.setCharacterEncoding("UTF-8");
+                                    response.getWriter().write("{\"error\": \"Пользователь не авторизован.\"}");
+                                })
+                                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                                    response.setStatus(HttpServletResponse.SC_FORBIDDEN); // 403
+                                    response.setContentType("application/json");
+                                    response.setCharacterEncoding("UTF-8");
+                                    response.getWriter().write("{\"error\": \"Недостаточно прав\"}");
+                                })
                 )
                 .formLogin(Customizer.withDefaults())
                 .build();

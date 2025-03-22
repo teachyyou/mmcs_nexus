@@ -78,7 +78,7 @@ public class ProjectService {
         return projectRepository.existsById(id);
     }
 
-    public void deleteProjectById(UUID id) {
+    public void deleteById(UUID id) {
         projectRepository.deleteById(id);
     }
 }

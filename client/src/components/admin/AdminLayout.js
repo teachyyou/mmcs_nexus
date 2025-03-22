@@ -1,5 +1,5 @@
 import React from 'react';
-import { Layout, AppBar } from 'react-admin';
+import {AppBar, Layout} from 'react-admin';
 import NavigationBar from '../home/NavigationBar';
 import CustomAppBar from "./CustomAppBar"; // путь к вашему компоненту
 

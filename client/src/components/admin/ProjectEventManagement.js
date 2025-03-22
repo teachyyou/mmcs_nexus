@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Autocomplete, TextField, Button, Checkbox, FormControlLabel, Snackbar, Alert } from '@mui/material';
+import React, {useEffect, useState} from 'react';
+import {Alert, Autocomplete, Button, Checkbox, FormControlLabel, Snackbar, TextField} from '@mui/material';
 
 const ProjectEventManagement = () => {
     const [events, setEvents] = useState([]);
