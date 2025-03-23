@@ -27,6 +27,8 @@ const EventList = (props) => {
                     render={renderEventType}
                 />
                 <TextField source="year" label="Год" />
+                <TextField source="maxBuildPoints" label="Максимум за билд" />
+                <TextField source="maxPresPoints" label="Максимум за презентацию" />
             </Datagrid>
         </List>
     );

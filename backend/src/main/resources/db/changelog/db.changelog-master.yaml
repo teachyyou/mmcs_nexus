@@ -13,3 +13,5 @@ databaseChangeLog:
       file: db/changelog/changeset/create-project_jury_event-table.yaml
   - include:
       file: db/changelog/changeset/create-grades-table.yaml
+  - include:
+      file: db/changelog/changeset/add-grade-points-maximum.yaml

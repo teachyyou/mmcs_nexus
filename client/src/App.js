@@ -76,12 +76,12 @@ function AppContent() {
                 <Route element={<AuthenticatedAndVerifiedRoutes roleRequired={"ROLE_ADMIN"}/>}>
                     <Route path="admin/*" element={
                         <Admin dataProvider={dataProvider} basename="/admin" layout={AdminLayout}>
-                            <Resource name="users" list={UserList} edit={UserEdit}/>
-                            <Resource name="projects" list={ProjectList} edit={ProjectEdit} create={ProjectCreate}/>
-                            <Resource name="events" list={EventList} edit={EventEdit} create={EventCreate}/>
-                            <Resource name="project_jury" list={ProjectJuryManagement} edit={ProjectJuryManagement}
+                            <Resource name="users" options={{label: 'Пользователи'}} list={UserList} edit={UserEdit}/>
+                            <Resource name="projects" options={{label: 'Проекты'}} list={ProjectList} edit={ProjectEdit} create={ProjectCreate}/>
+                            <Resource name="events" options={{label: 'События'}} list={EventList} edit={EventEdit} create={EventCreate}/>
+                            <Resource name="project_jury" options={{label: 'Проверяющие и менторы'}} list={ProjectJuryManagement} edit={ProjectJuryManagement}
                                       create={ProjectJuryManagement}/>
-                            <Resource name="project_event" list={ProjectEventManagement} edit={ProjectEventManagement}
+                            <Resource name="project_event" options={{label: 'Этапы отчётности'}} list={ProjectEventManagement} edit={ProjectEventManagement}
                                       create={ProjectEventManagement}/>
                         </Admin>
                     }/>

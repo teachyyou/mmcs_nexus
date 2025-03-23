@@ -1,4 +1,5 @@
 import {
+    NumberInput,
     required,
     SelectInput,
     SimpleForm,
@@ -16,6 +17,35 @@ const EventAdminForm = (props) => {
     const notify = useNotify();
     const redirect = useRedirect();
     const record = useRecordContext();
+
+
+    const handleKeyDown = (event) => {
+        if (event.key === '-' || event.key === 'e' || event.key === 'E') {
+            event.preventDefault();
+        }
+    };
+
+    const handlePaste = (event) => {
+        const pasteData = event.clipboardData.getData('text');
+        if (/[-eE]/.test(pasteData)) {
+            event.preventDefault();
+        }
+    };
+
+    const handleChange = (event) => {
+        const originalValue = event.target.value;
+        const cleanedValue = originalValue.replace(/[eE-]/g, '');
+        if (originalValue !== cleanedValue) {
+            event.target.value = cleanedValue;
+        }
+        else if (cleanedValue.length > 2) {
+            event.target.value = cleanedValue.slice(0, 2);
+        }
+    };
+
+    const year = new Date().getFullYear();
+
+    const requiredWithMessage = required("Обязательное поле");
 
     const handleSubmit =  async (data) => {
 
@@ -42,24 +72,54 @@ const EventAdminForm = (props) => {
                 source="name"
                 name="name"
                 label="Название"
-                validate={required()}
+                validate={requiredWithMessage}
+                inputProps={{ maxLength: 32 }}
             />
-            <TextInput
+            <NumberInput
                 source="year"
                 name="year"
-                label="Тип события"
-                validate={required()}
+                label="Год"
+                min={year-5}
+                max={year+5}
+                defaultValue={year}
+                validate={requiredWithMessage}
+                inputProps={{ maxLength: 4 }}
             />
             <SelectInput
                 source="eventType"
                 name="eventType"
+                label="Тип события"
                 choices={[
                     { id: 'IDEA', name: 'Защита идеи' },
                     { id: 'ZERO_VERSION', name: 'Защита нулевой версии' },
                     { id: 'PRE_RELEASE', name: 'Предзащита' },
                     { id: 'RELEASE', name: 'Итоговая защита' },
                 ]}
-                validate={required()}
+                validate={requiredWithMessage}
+            />
+            <NumberInput
+                source="maxBuildPoints"
+                name="maxBuildPoints"
+                label="Максимальная оценка за билд"
+                validate={requiredWithMessage}
+                inputProps={{
+                    onKeyDown: handleKeyDown,
+                    onPaste: handlePaste,
+                    onChange: handleChange,
+                    maxLength: 2
+                }}
+            />
+            <NumberInput
+                source="maxPresPoints"
+                name="maxPresPoints"
+                label="Максимальная оценка за презентацию"
+                validate={requiredWithMessage}
+                inputProps={{
+                    onKeyDown: handleKeyDown,
+                    onPaste: handlePaste,
+                    onChange: handleChange,
+                    maxLength: 2
+                }}
             />
         </SimpleForm>
     );

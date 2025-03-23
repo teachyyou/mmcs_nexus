@@ -164,10 +164,10 @@ public class DataInitializer implements CommandLineRunner {
             // Добавляем остальные связи жюри
 
             // Создаем события для 2024 года
-            Event ideaEvent = new Event("Idea", EventType.IDEA, 2024);
-            Event zeroVersionEvent = new Event("Zero Version", EventType.ZERO_VERSION, 2024);
-            Event preReleaseEvent = new Event("Pre-Release", EventType.PRE_RELEASE, 2024);
-            Event releaseEvent = new Event("Release", EventType.RELEASE, 2024);
+            Event ideaEvent = new Event("Idea", EventType.IDEA, 2024, 0, 15);
+            Event zeroVersionEvent = new Event("Zero Version", EventType.ZERO_VERSION, 2024, 10, 15);
+            Event preReleaseEvent = new Event("Pre-Release", EventType.PRE_RELEASE, 2024, 10, 15);
+            Event releaseEvent = new Event("Release", EventType.RELEASE, 2024,10, 15);
 
             // Сохраняем события в базу данных
             eventRepository.save(ideaEvent);

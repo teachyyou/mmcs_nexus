@@ -1,0 +1,20 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-grade-points-maximum-1
+      author: TeachYou
+      changes:
+        - addColumn:
+            tableName: events
+            columns:
+              - column:
+                  name: max_pres_points
+                  type: int
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+              - column:
+                  name: max_build_points
+                  type: int
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false

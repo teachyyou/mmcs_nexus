@@ -1,6 +1,7 @@
 package ru.sfedu.mmcs_nexus.controller.admin;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -106,8 +107,8 @@ public class AdminEventController {
     }
 
     @PostMapping(value = "/api/v1/admin/events", produces = "application/json")
-    public ResponseEntity<Event> createEvent(Authentication authentication, @RequestBody Event event) {
-
+    public ResponseEntity<Event> createEvent(Authentication authentication, @Valid @RequestBody Event event) {
+        
         eventService.saveEvent(event);
         return ResponseEntity.ok(event);
     }
