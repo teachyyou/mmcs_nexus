@@ -34,7 +34,7 @@ const GradeTable = ({ grades }) => {
         grades.rows.forEach((row) => {
             gradeMap[row.projectId] = {};
             row.tableRow.forEach((item) => {
-                gradeMap[row.projectId][item.id.juryId] = item;
+                gradeMap[row.projectId][item.juryId] = item;
             });
         });
     }

@@ -1,17 +1,23 @@
 package ru.sfedu.mmcs_nexus.controller.jury;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
+import ru.sfedu.mmcs_nexus.data.dto.GradeDTO;
+import ru.sfedu.mmcs_nexus.data.event.Event;
+import ru.sfedu.mmcs_nexus.data.event.EventService;
 import ru.sfedu.mmcs_nexus.data.grade.Grade;
 import ru.sfedu.mmcs_nexus.data.grade.GradeKey;
 import ru.sfedu.mmcs_nexus.data.grade.GradeService;
 import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJuryEvent;
 import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJuryEventService;
+import ru.sfedu.mmcs_nexus.data.project.Project;
+import ru.sfedu.mmcs_nexus.data.project.ProjectService;
 import ru.sfedu.mmcs_nexus.data.user.User;
 import ru.sfedu.mmcs_nexus.data.user.UserService;
 
@@ -22,12 +28,16 @@ public class GradeController {
 
     private final GradeService gradeService;
     private final UserService userService;
+    private final ProjectService projectService;
+    private final EventService eventService;
     private final ProjectJuryEventService projectJuryEventService;
 
     @Autowired
-    public GradeController(GradeService gradeService, UserService userService, ProjectJuryEventService projectJuryEventService) {
+    public GradeController(GradeService gradeService, UserService userService, ProjectService projectService, EventService eventService, ProjectJuryEventService projectJuryEventService) {
         this.gradeService = gradeService;
         this.userService = userService;
+        this.projectService = projectService;
+        this.eventService = eventService;
         this.projectJuryEventService = projectJuryEventService;
     }
 
@@ -68,89 +78,93 @@ public class GradeController {
     @PostMapping(value = "/api/v1/jury/grades", produces = "application/json")
     public ResponseEntity<?> createGrade(
             Authentication authentication,
-            @RequestBody Grade grade
+            @Valid @RequestBody GradeDTO gradeDTO
     ) {
 
-        //Нужно убедиться, что в качестве создателя запишется тот, с чьего аккаунта был отправлен запрос
-        User creator = userService.findByGithubLogin(authentication).orElseThrow(()->new UsernameNotFoundException("Jury not found"));
+        // Получаем пользователя (проверяющего) из аутентификации
+        User creator = userService.findByGithubLogin(authentication)
+                .orElseThrow(() -> new UsernameNotFoundException("Jury not found"));
+        gradeDTO.setJuryId(creator.getId());
+
+
+        if (projectService.findById(gradeDTO.getProjectId()).isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Project not found");
+        } else if (eventService.findById(gradeDTO.getEventId()).isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Event not found");
+        }
+
 
         ProjectJuryEvent.RelationType relationType = projectJuryEventService.getRelationType(
-                grade.getProject().getId(),
-                grade.getEvent().getId(),
+                gradeDTO.getProjectId(),
+                gradeDTO.getEventId(),
                 creator.getId());
 
+        //Если ментор - запрещаем, если отсутствует связь - ставим как проверяющего по желанию
         if (relationType == ProjectJuryEvent.RelationType.MENTOR) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN)
                     .body("Ментор не имеет права оценивать закрепленный за собой проект");
+        } else if (relationType == null) {
+            projectJuryEventService.addJuryToProjectEvent(gradeDTO.getProjectId(), gradeDTO.getEventId(), creator.getId(), ProjectJuryEvent.RelationType.WILLING);
         }
 
-        grade.setJury(creator);
+
         GradeKey key = new GradeKey(
-                grade.getProject().getId(),
-                grade.getEvent().getId(),
+                gradeDTO.getProjectId(),
+                gradeDTO.getEventId(),
                 creator.getId()
-                );
+        );
+
+        Grade grade = new Grade();
+
         grade.setId(key);
+        grade.setComment(gradeDTO.getComment());
+        grade.setPresPoints(gradeDTO.getPresPoints());
+        grade.setBuildPoints(gradeDTO.getBuildPoints());
+        grade.setEvent(eventService.findById(gradeDTO.getEventId()).get());
+        grade.setProject(projectService.findById(gradeDTO.getProjectId()).get());
+        grade.setJury(creator);
 
         gradeService.save(grade);
 
-        return ResponseEntity.ok().body(grade);
-
-    }
-
-    @PostMapping(value = "/api/v1/jury/grades/force", produces = "application/json")
-    public ResponseEntity<?> createGradeForce(
-            Authentication authentication,
-            @RequestBody Grade grade
-    ) {
-
-        ProjectJuryEvent.RelationType relationType = projectJuryEventService.getRelationType(
-                grade.getProject().getId(),
-                grade.getEvent().getId(),
-                grade.getJury().getId());
-
-        if (relationType == ProjectJuryEvent.RelationType.MENTOR) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("Ментор не имеет права оценивать закрепленный за собой проект");
-        }
-
-        gradeService.save(grade);
-
-        return ResponseEntity.ok().body(grade);
+        return ResponseEntity.ok().body(gradeDTO);
 
     }
 
     @PutMapping(value = "/api/v1/jury/grades", produces = "application/json")
     public ResponseEntity<?> updateGrade(
             Authentication authentication,
-            @RequestBody Grade grade
+            @Valid @RequestBody GradeDTO gradeDTO
     ) {
 
         User editor = userService.findByGithubLogin(authentication)
                 .orElseThrow(() -> new UsernameNotFoundException("Jury not found"));
 
-        Grade existingGrade = gradeService.findById(grade.getId())
-                .orElseThrow(() -> new IllegalArgumentException("Grade not found for given ID"));
+        GradeKey key = new GradeKey(
+                gradeDTO.getProjectId(),
+                gradeDTO.getEventId(),
+                editor.getId()
+        );
 
-        // Проверяем, что текущий пользователь имеет право редактировать оценку
-        ProjectJuryEvent.RelationType relationType = projectJuryEventService.getRelationType(
-                grade.getProject().getId(),
-                grade.getEvent().getId(),
-                editor.getId());
+        Grade existingGrade;
 
-        if (relationType == ProjectJuryEvent.RelationType.MENTOR) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN)
-                    .body("Ментор не имеет права оценивать закрепленный за собой проект");
+        if (gradeService.findById(key).isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Grade not found");
+        } else {
+            existingGrade = gradeService.findById(key).get();
         }
 
-        if (grade.getPresPoints() != null) {
-            existingGrade.setPresPoints(grade.getPresPoints());
+
+        if (gradeDTO.getPresPoints() != null) {
+            existingGrade.setPresPoints(gradeDTO.getPresPoints());
         }
-        if (grade.getBuildPoints() != null) {
-            existingGrade.setBuildPoints(grade.getBuildPoints());
+        if (gradeDTO.getBuildPoints() != null) {
+            existingGrade.setBuildPoints(gradeDTO.getBuildPoints());
         }
-        if (grade.getComment() != null) {
-            existingGrade.setComment(grade.getComment());
+        if (gradeDTO.getComment() != null) {
+            existingGrade.setComment(gradeDTO.getComment());
         }
 
         gradeService.save(existingGrade);

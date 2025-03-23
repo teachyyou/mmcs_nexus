@@ -106,15 +106,29 @@ public class ProjectJuryEventService {
         }
     }
 
+    //Для привязки нескольких жюри с указанным типом связи
     @Transactional
     public void saveJuriesToProjectEvent(Project project, Event event, List<UUID> juries, ProjectJuryEvent.RelationType relationType) {
 
         for (UUID juryId: juries) {
             User jury = userRepository.findById(juryId).orElseThrow(() -> new EntityNotFoundException(STR."Jury with id \{juryId} not found"));
 
-            ProjectJuryEventKey key = new ProjectJuryEventKey(juryId, jury.getId(), event.getId());
+            ProjectJuryEventKey key = new ProjectJuryEventKey(project.getId(), jury.getId(), event.getId());
             ProjectJuryEvent projectJuryEvent = new ProjectJuryEvent(key, jury, project, event, relationType);
             projectJuryEventRepository.save(projectJuryEvent);
         }
+    }
+
+    //Для привязки одного жюри с указанным типом связи
+    @Transactional
+    public void addJuryToProjectEvent(UUID projectId, UUID eventId, UUID juryId, ProjectJuryEvent.RelationType relationType) {
+
+        User jury = userRepository.findById(juryId).orElseThrow(() -> new EntityNotFoundException(STR."Jury with id \{juryId} not found"));
+        Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(STR."Project with id \{projectId} not found"));
+        Event event = eventRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(STR."Event with id \{eventId} not found"));
+
+        ProjectJuryEventKey key = new ProjectJuryEventKey(projectId, jury.getId(), eventId);
+        ProjectJuryEvent projectJuryEvent = new ProjectJuryEvent(key, jury, project, event, relationType);
+        projectJuryEventRepository.save(projectJuryEvent);
     }
 }
