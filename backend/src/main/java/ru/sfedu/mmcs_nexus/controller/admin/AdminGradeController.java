@@ -1,12 +1,14 @@
 package ru.sfedu.mmcs_nexus.controller.admin;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import ru.sfedu.mmcs_nexus.data.dto.GradeDTO;
 import ru.sfedu.mmcs_nexus.data.event.EventService;
 import ru.sfedu.mmcs_nexus.data.grade.Grade;
 import ru.sfedu.mmcs_nexus.data.grade.GradeKey;
@@ -40,14 +42,10 @@ public class AdminGradeController {
     }
 
     @GetMapping(value = "/api/v1/admin/grades", produces = "application/json")
-    public ResponseEntity<Grade> getGradeById(
-            @RequestParam("projectId") UUID projectId,
-            @RequestParam("juryId") UUID juryId,
-            @RequestParam("eventId") UUID eventId,
-            Authentication authentication) {
-        Grade grade = gradeService.findById(new GradeKey(projectId, eventId, juryId))
-                .orElseThrow(() -> new EntityNotFoundException("Grade not found"));
-        return ResponseEntity.ok(grade);
+    public ResponseEntity<GradeDTO> getGradeById(@Valid GradeKey key, Authentication authentication) {
+        GradeDTO gradeDTO = new GradeDTO(gradeService.findById(key)
+                .orElseThrow(() -> new EntityNotFoundException("Grade not found")));
+        return ResponseEntity.ok(gradeDTO);
     }
 
 

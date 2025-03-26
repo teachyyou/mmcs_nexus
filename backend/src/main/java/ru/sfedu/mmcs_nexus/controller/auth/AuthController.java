@@ -72,6 +72,7 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    //todo remove this and use only above
     @ResponseBody
     @GetMapping(value = "/api/v1/auth/user", produces="application/json")
     public ResponseEntity<Map<String, Object>> getUserInfo(Authentication authentication) {

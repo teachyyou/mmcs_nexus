@@ -46,9 +46,11 @@ public class SecurityConfig {
                 .logout(logout -> logout
                         .logoutUrl("/api/v1/auth/logout")
                         .logoutSuccessHandler((request, response, authentication) -> {
+                            System.out.println("wowowo");
                             response.setStatus(HttpServletResponse.SC_OK);
                         })
                         .deleteCookies("JSESSIONID")
+                        .clearAuthentication(true)
                         .invalidateHttpSession(true)
                 )
                 .oauth2Login(httpSecurityOAuth2LoginConfigurer

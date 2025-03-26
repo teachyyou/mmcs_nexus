@@ -10,11 +10,11 @@ import java.util.UUID;
 
 public class GradeDTO {
 
-    //@org.hibernate.validator.constraints.UUID(message = "projectId: Incorrect UUID format")
     @NotNull(message="project UUID is required")
+    @ru.sfedu.mmcs_nexus.valigators.UUID(message = "projectId: Incorrect UUID format")
     private UUID projectId;
 
-    //@org.hibernate.validator.constraints.UUID(message = "eventId: Incorrect UUID format")
+    @ru.sfedu.mmcs_nexus.valigators.UUID(message = "eventId: Incorrect UUID format")
     @NotNull(message="event UUID is required")
     private UUID eventId;
 

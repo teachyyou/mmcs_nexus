@@ -2,6 +2,7 @@ package ru.sfedu.mmcs_nexus.data.grade;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import jakarta.validation.constraints.NotNull;
 
 import java.io.Serializable;
 import java.util.UUID;
@@ -10,12 +11,15 @@ import java.util.UUID;
 public class GradeKey implements Serializable {
 
     @Column(name = "project_id")
+    @NotNull(message = "projectId cannot be null")
     private UUID projectId;
 
     @Column(name = "event_id")
+    @NotNull(message = "eventId cannot be null")
     private UUID eventId;
 
     @Column(name = "jury_id")
+    @NotNull(message = "juryId cannot be null")
     private UUID juryId;
 
     public GradeKey(UUID projectId, UUID eventId, UUID juryId) {
