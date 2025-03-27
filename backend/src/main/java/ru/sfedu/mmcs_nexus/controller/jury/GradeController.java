@@ -18,6 +18,8 @@ import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJuryEvent;
 import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJuryEventService;
 import ru.sfedu.mmcs_nexus.data.project.Project;
 import ru.sfedu.mmcs_nexus.data.project.ProjectService;
+import ru.sfedu.mmcs_nexus.data.project_to_event.ProjectEventKey;
+import ru.sfedu.mmcs_nexus.data.project_to_event.ProjectEventService;
 import ru.sfedu.mmcs_nexus.data.user.User;
 import ru.sfedu.mmcs_nexus.data.user.UserService;
 
@@ -29,14 +31,16 @@ public class GradeController {
     private final GradeService gradeService;
     private final UserService userService;
     private final ProjectService projectService;
+    private final ProjectEventService projectEventService;
     private final EventService eventService;
     private final ProjectJuryEventService projectJuryEventService;
 
     @Autowired
-    public GradeController(GradeService gradeService, UserService userService, ProjectService projectService, EventService eventService, ProjectJuryEventService projectJuryEventService) {
+    public GradeController(GradeService gradeService, UserService userService, ProjectService projectService, ProjectEventService projectEventService, EventService eventService, ProjectJuryEventService projectJuryEventService) {
         this.gradeService = gradeService;
         this.userService = userService;
         this.projectService = projectService;
+        this.projectEventService = projectEventService;
         this.eventService = eventService;
         this.projectJuryEventService = projectJuryEventService;
     }
@@ -82,19 +86,33 @@ public class GradeController {
     ) {
 
         // Получаем пользователя (проверяющего) из аутентификации
-        User creator = userService.findByGithubLogin(authentication)
-                .orElseThrow(() -> new UsernameNotFoundException("Jury not found"));
-        gradeDTO.setJuryId(creator.getId());
-
-
-        if (projectService.findById(gradeDTO.getProjectId()).isEmpty()) {
+        if (userService.findByGithubLogin(authentication).isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } else if (projectService.findById(gradeDTO.getProjectId()).isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("Project not found");
         } else if (eventService.findById(gradeDTO.getEventId()).isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("Event not found");
+        } else if (projectEventService.findById(new ProjectEventKey(gradeDTO.getProjectId(), gradeDTO.getEventId())).isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Project and event are not linked");
         }
 
+        Event event = eventService.findById(gradeDTO.getEventId()).get();
+        Project project = projectService.findById(gradeDTO.getProjectId()).get();
+        User creator = userService.findByGithubLogin(authentication).get();
+
+        gradeDTO.setJuryId(creator.getId());
+
+
+        if (gradeDTO.getPresPoints() != null && gradeDTO.getPresPoints() > event.getMaxPresPoints()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(STR."Maximum presentation score for \{event.getName()} is \{event.getMaxPresPoints()}");
+        } else if (gradeDTO.getBuildPoints() != null && gradeDTO.getBuildPoints() > event.getMaxBuildPoints()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(STR."Maximum build score for \{event.getName()} is \{event.getMaxBuildPoints()}");
+        }
 
         ProjectJuryEvent.RelationType relationType = projectJuryEventService.getRelationType(
                 gradeDTO.getProjectId(),
@@ -116,15 +134,27 @@ public class GradeController {
                 creator.getId()
         );
 
+        if (gradeService.findById(key).isPresent()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body("Grade already exists");
+        }
+
         Grade grade = new Grade();
 
         grade.setId(key);
-        grade.setComment(gradeDTO.getComment());
-        grade.setPresPoints(gradeDTO.getPresPoints());
-        grade.setBuildPoints(gradeDTO.getBuildPoints());
-        grade.setEvent(eventService.findById(gradeDTO.getEventId()).get());
-        grade.setProject(projectService.findById(gradeDTO.getProjectId()).get());
+        grade.setEvent(event);
+        grade.setProject(project);
         grade.setJury(creator);
+
+        if (gradeDTO.getPresPoints() != null) {
+            grade.setPresPoints(gradeDTO.getPresPoints());
+        }
+        if (gradeDTO.getBuildPoints() != null) {
+            grade.setBuildPoints(gradeDTO.getBuildPoints());
+        }
+        if (gradeDTO.getComment() != null) {
+            grade.setComment(gradeDTO.getComment());
+        }
 
         gradeService.save(grade);
 
@@ -138,8 +168,11 @@ public class GradeController {
             @Valid @RequestBody GradeDTO gradeDTO
     ) {
 
-        User editor = userService.findByGithubLogin(authentication)
-                .orElseThrow(() -> new UsernameNotFoundException("Jury not found"));
+        if (userService.findByGithubLogin(authentication).isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        User editor = userService.findByGithubLogin(authentication).get();
 
         GradeKey key = new GradeKey(
                 gradeDTO.getProjectId(),
@@ -147,15 +180,33 @@ public class GradeController {
                 editor.getId()
         );
 
-        Grade existingGrade;
-
-        if (gradeService.findById(key).isEmpty()) {
+        // Получаем пользователя (проверяющего) из аутентификации
+        if (userService.findByGithubLogin(authentication).isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        } else if (gradeService.findById(key).isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("Grade not found");
-        } else {
-            existingGrade = gradeService.findById(key).get();
+        } else if (projectService.findById(gradeDTO.getProjectId()).isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Project not found");
+        } else if (eventService.findById(gradeDTO.getEventId()).isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Event not found");
+        } else if (projectEventService.findById(new ProjectEventKey(gradeDTO.getProjectId(), gradeDTO.getEventId())).isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body("Project and event are not linked");
         }
 
+        Grade existingGrade = gradeService.findById(key).get();
+        Event event = eventService.findById(gradeDTO.getEventId()).get();
+
+        if (gradeDTO.getPresPoints() != null && gradeDTO.getPresPoints() > event.getMaxPresPoints()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(STR."Maximum presentation score for \{event.getName()} is \{event.getMaxPresPoints()}");
+        } else if (gradeDTO.getBuildPoints() != null && gradeDTO.getBuildPoints() > event.getMaxBuildPoints()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(STR."Maximum build score for \{event.getName()} is \{event.getMaxBuildPoints()}");
+        }
 
         if (gradeDTO.getPresPoints() != null) {
             existingGrade.setPresPoints(gradeDTO.getPresPoints());
@@ -171,5 +222,7 @@ public class GradeController {
 
         return ResponseEntity.ok().body(new GradeDTO(existingGrade));
     }
+
+
 
 }

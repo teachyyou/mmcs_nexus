@@ -125,7 +125,7 @@ public class ProjectJuryEventService {
 
         User jury = userRepository.findById(juryId).orElseThrow(() -> new EntityNotFoundException(STR."Jury with id \{juryId} not found"));
         Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(STR."Project with id \{projectId} not found"));
-        Event event = eventRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(STR."Event with id \{eventId} not found"));
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> new EntityNotFoundException(STR."Event with id \{eventId} not found"));
 
         ProjectJuryEventKey key = new ProjectJuryEventKey(projectId, jury.getId(), eventId);
         ProjectJuryEvent projectJuryEvent = new ProjectJuryEvent(key, jury, project, event, relationType);

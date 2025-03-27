@@ -7,6 +7,7 @@ import ru.sfedu.mmcs_nexus.data.event.Event;
 import ru.sfedu.mmcs_nexus.data.project.Project;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -25,6 +26,10 @@ public class ProjectEventService {
 
     public List<Event> findByProjectId(UUID projectId) {
         return projectEventRepository.findByProjectId(projectId);
+    }
+
+    public Optional<ProjectEvent> findById(ProjectEventKey id) {
+        return projectEventRepository.findById(id);
     }
 
     @Transactional
