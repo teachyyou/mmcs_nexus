@@ -52,7 +52,7 @@ public class GradeController {
             @RequestParam(defaultValue = "2024") int year)
     {
         UUID juryId = userService.findByGithubLogin(authentication).orElseThrow(()->new EntityNotFoundException("Jury not found")).getId();
-        List<Grade> grades = gradeService.findByJuryForYear(juryId, year);
+        List<GradeDTO> grades = gradeService.findByJuryForYear(juryId, year).stream().map(GradeDTO::new).toList();
 
         Map<String, Object> response = new HashMap<>();
         response.put("content", grades);
@@ -66,7 +66,7 @@ public class GradeController {
             Authentication authentication,
             @RequestParam(defaultValue = "2024") int year)
     {
-        List<Grade> grades = gradeService.findByYear(year);
+        List<GradeDTO> grades = gradeService.findByYear(year).stream().map(GradeDTO::new).toList();
 
         Map<String, Object> response = new HashMap<>();
         response.put("content", grades);
@@ -169,7 +169,7 @@ public class GradeController {
 
         gradeService.save(existingGrade);
 
-        return ResponseEntity.ok().body(existingGrade);
+        return ResponseEntity.ok().body(new GradeDTO(existingGrade));
     }
 
 }

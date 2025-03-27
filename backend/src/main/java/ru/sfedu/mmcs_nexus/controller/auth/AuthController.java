@@ -108,6 +108,7 @@ public class AuthController {
         }
     }
 
+    //todo сделать нормальное обновление инфы через POST/PUT
     @PostMapping("api/v1/auth/update_profile")
     public ResponseEntity<?> updateProfile(Authentication authentication, @RequestBody User user) {
         if (authentication == null || authentication instanceof AnonymousAuthenticationToken || !authentication.isAuthenticated()) {

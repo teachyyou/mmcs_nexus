@@ -11,10 +11,10 @@ import java.util.UUID;
 public class GradeDTO {
 
     @NotNull(message="project UUID is required")
-    @ru.sfedu.mmcs_nexus.valigators.UUID(message = "projectId: Incorrect UUID format")
+//    @ru.sfedu.mmcs_nexus.valigators.UUID(message = "projectId: Incorrect UUID format")
     private UUID projectId;
 
-    @ru.sfedu.mmcs_nexus.valigators.UUID(message = "eventId: Incorrect UUID format")
+//    @ru.sfedu.mmcs_nexus.valigators.UUID(message = "eventId: Incorrect UUID format")
     @NotNull(message="event UUID is required")
     private UUID eventId;
 
@@ -37,7 +37,7 @@ public class GradeDTO {
 
     public GradeDTO(Grade grade) {
         this.projectId = grade.getId().getProjectId();
-        this.eventId = grade.getId().getProjectId();
+        this.eventId = grade.getId().getEventId();
         this.juryId = grade.getId().getJuryId();
         this.comment = grade.getComment();
         this.presPoints = grade.getPresPoints();
