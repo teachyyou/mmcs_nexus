@@ -72,6 +72,7 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    //todo remove this and use only above
     @ResponseBody
     @GetMapping(value = "/api/v1/auth/user", produces="application/json")
     public ResponseEntity<Map<String, Object>> getUserInfo(Authentication authentication) {
@@ -107,6 +108,7 @@ public class AuthController {
         }
     }
 
+    //todo сделать нормальное обновление инфы через POST/PUT
     @PostMapping("api/v1/auth/update_profile")
     public ResponseEntity<?> updateProfile(Authentication authentication, @RequestBody User user) {
         if (authentication == null || authentication instanceof AnonymousAuthenticationToken || !authentication.isAuthenticated()) {

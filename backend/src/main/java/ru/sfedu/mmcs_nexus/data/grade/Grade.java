@@ -40,10 +40,10 @@ public class Grade {
 
     }
     public Grade(Grade grade) {
+        this.id = grade.getId();
         this.project = grade.getProject();
         this.event = grade.getEvent();
         this.jury = grade.getJury();
-        this.id = grade.getId();
         this.comment = grade.getComment();
         this.presPoints = grade.getPresPoints();
         this.buildPoints = grade.getBuildPoints();

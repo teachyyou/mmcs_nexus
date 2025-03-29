@@ -24,21 +24,15 @@ const GradeEditorModal = ({ open, onClose, grade, projectId, juryId, grades }) =
 
     const handleSave = async () => {
         const gradeData = {
-            id: {
-                projectId: projectId,
-                eventId: event.id,
-                juryId: juryId
-            },
-            project: { id: projectId },
-            event: { id: event.id },
-            jury: { id: juryId },
+            projectId: projectId,
+            eventId: event.id,
             comment,
             presPoints: parseInt(presPoints, 10),
             buildPoints: parseInt(buildPoints, 10)
         };
 
         try {
-            const response = await fetch('http://localhost:8080/api/v1/jury/grades/force', {
+            const response = await fetch('http://localhost:8080/api/v1/jury/grades', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

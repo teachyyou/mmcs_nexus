@@ -1,67 +1,71 @@
 package ru.sfedu.mmcs_nexus.data.dto;
 
-import ru.sfedu.mmcs_nexus.data.grade.GradeKey;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
+import org.hibernate.validator.constraints.Length;
+import ru.sfedu.mmcs_nexus.data.grade.Grade;
 
 import java.util.UUID;
 
 public class GradeDTO {
 
-    private GradeKey id;
+    @NotNull(message="project UUID is required")
+//    @ru.sfedu.mmcs_nexus.valigators.UUID(message = "projectId: Incorrect UUID format")
+    private UUID projectId;
 
-    private String projectDisplayName;
+//    @ru.sfedu.mmcs_nexus.valigators.UUID(message = "eventId: Incorrect UUID format")
+    @NotNull(message="event UUID is required")
+    private UUID eventId;
 
-    private String juryName;
+    private UUID juryId;
 
-    private String eventName;
-
+    @Length(max=1024, message = "comment: length limit is 1024")
     private String comment;
 
+    @Min(value = 0, message = "Presentation points cannot be negative")
+    @Max(value = 99, message = "Presentation points cannot be greater than 99")
     private Integer presPoints;
 
+    @Min(value = 0, message = "Build points cannot be negative")
+    @Max(value = 99, message = "Build points cannot be greater than 99")
     private Integer buildPoints;
 
-    public GradeDTO(GradeKey id, String projectDisplayName, String juryName, String eventName, String comment, Integer presPoints, Integer buildPoints) {
-        this.id=id;
-        this.projectDisplayName=projectDisplayName;
-        this.juryName=juryName;
-        this.eventName=eventName;
-        this.comment=comment;
-        this.presPoints=presPoints;
-        this.buildPoints=buildPoints;
+    public GradeDTO() {
+
     }
 
-
-
-    public GradeKey getId() {
-        return id;
+    public GradeDTO(Grade grade) {
+        this.projectId = grade.getId().getProjectId();
+        this.eventId = grade.getId().getEventId();
+        this.juryId = grade.getId().getJuryId();
+        this.comment = grade.getComment();
+        this.presPoints = grade.getPresPoints();
+        this.buildPoints = grade.getBuildPoints();
     }
 
-    public void setId(GradeKey id) {
-        this.id = id;
+    public UUID getProjectId() {
+        return projectId;
     }
 
-    public String getProjectDisplayName() {
-        return projectDisplayName;
+    public void setProjectId(UUID projectId) {
+        this.projectId = projectId;
     }
 
-    public void setProjectDisplayName(String projectDisplayName) {
-        this.projectDisplayName = projectDisplayName;
+    public UUID getEventId() {
+        return eventId;
     }
 
-    public String getJuryName() {
-        return juryName;
+    public void setEventId(UUID eventId) {
+        this.eventId = eventId;
     }
 
-    public void setJuryName(String juryName) {
-        this.juryName = juryName;
+    public UUID getJuryId() {
+        return juryId;
     }
 
-    public String getEventName() {
-        return eventName;
-    }
-
-    public void setEventName(String eventName) {
-        this.eventName = eventName;
+    public void setJuryId(UUID juryId) {
+        this.juryId = juryId;
     }
 
     public String getComment() {
@@ -87,4 +91,6 @@ public class GradeDTO {
     public void setBuildPoints(Integer buildPoints) {
         this.buildPoints = buildPoints;
     }
+
+
 }

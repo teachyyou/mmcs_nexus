@@ -7,9 +7,20 @@ import {
     TableHead,
     TableRow,
     Paper,
-    Box
+    Box,
+    Link as MuiLink
 } from '@mui/material';
+import { Link } from 'react-router-dom';
 import GradeEditorModal from './GradeEditorModal';
+import InlineGradeEditor from './InlineGradeEditor';
+
+const cellSx = {
+    border: '2px solid black',
+    p: 0.5,
+    maxWidth: 120,
+    minHeight: 60,
+    overflow: 'hidden'
+};
 
 const GradeTable = ({ grades }) => {
     const [selectedGrade, setSelectedGrade] = useState(null);
@@ -28,13 +39,17 @@ const GradeTable = ({ grades }) => {
         setIsModalOpen(false);
     };
 
-    // Формируем карту оценок для быстрого доступа по projectId и juryId
+    const handleInlineUpdate = (gradeItem, field, newValue) => {
+        console.log(`Updating ${field} for grade ${gradeItem.id} to ${newValue}`);
+        // Здесь можно вставить вызов обновления на сервер
+    };
+
     const gradeMap = {};
     if (grades && grades.rows) {
-        grades.rows.forEach((row) => {
+        grades.rows.forEach(row => {
             gradeMap[row.projectId] = {};
-            row.tableRow.forEach((item) => {
-                gradeMap[row.projectId][item.id.juryId] = item;
+            row.tableRow.forEach(item => {
+                gradeMap[row.projectId][item.juryId] = { ...item };
             });
         });
     }
@@ -42,17 +57,17 @@ const GradeTable = ({ grades }) => {
     return (
         <>
             <TableContainer component={Paper} sx={{ mt: 2 }}>
-                <Table sx={{ minWidth: 800 }}>
+                <Table sx={{ minWidth: 600 }}>
                     <TableHead>
                         <TableRow>
-                            <TableCell sx={{ fontWeight: 'bold', border: '2px solid black' }}>
+                            <TableCell sx={{ ...cellSx, fontWeight: 'bold' }}>
                                 Проекты / Жюри
                             </TableCell>
-                            {grades.juries.map((jury) => (
+                            {grades.juries.map(jury => (
                                 <TableCell
                                     key={jury.id}
                                     align="center"
-                                    sx={{ fontWeight: 'bold', border: '2px solid black' }}
+                                    sx={{ ...cellSx, fontWeight: 'bold' }}
                                 >
                                     {jury.firstName} {jury.lastName}
                                 </TableCell>
@@ -60,54 +75,45 @@ const GradeTable = ({ grades }) => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {grades.projects.map((project) => (
+                        {grades.projects.map(project => (
                             <TableRow key={project.id}>
-                                <TableCell sx={{ fontWeight: 'bold', border: '2px solid black' }}>
+                                <TableCell sx={{ ...cellSx, fontWeight: 'bold' }}>
                                     {project.name}
                                 </TableCell>
-                                {grades.juries.map((jury) => {
+                                {grades.juries.map(jury => {
                                     const gradeItem = gradeMap[project.id]?.[jury.id];
                                     return (
                                         <TableCell
                                             key={`${project.id}-${jury.id}`}
                                             align="center"
-                                            onClick={() => handleCellClick(gradeItem, project.id, jury.id)}
-                                            sx={{
-                                                cursor: 'pointer',
-                                                border: '2px solid black',
-                                                p: 1
-                                            }}
+                                            sx={cellSx}
                                         >
                                             {gradeItem ? (
-                                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-                                                    {/* Две миниячейки для оценки за билд и презентацию */}
-                                                    <Box sx={{ display: 'flex', gap: 1 }}>
-                                                        <Box sx={{
-                                                            border: '1px solid black',
-                                                            flex: 1,
-                                                            textAlign: 'center',
-                                                            p: 0.5
-                                                        }}>
-                                                            {gradeItem.buildPoints !== undefined ? gradeItem.buildPoints : '-'}
-                                                        </Box>
-                                                        <Box sx={{
-                                                            border: '1px solid black',
-                                                            flex: 1,
-                                                            textAlign: 'center',
-                                                            p: 0.5
-                                                        }}>
-                                                            {gradeItem.presPoints !== undefined ? gradeItem.presPoints : '-'}
-                                                        </Box>
-                                                    </Box>
-                                                    {/* Комментарий с усечением, если слишком длинный */}
-                                                    <Box sx={{ fontSize: '0.8rem' }}>
-                                                        {gradeItem.comment && gradeItem.comment.length > 20
-                                                            ? `${gradeItem.comment.substring(0, 20)}...`
-                                                            : gradeItem.comment || ''}
-                                                    </Box>
+                                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                                                    <InlineGradeEditor
+                                                        gradeItem={gradeItem}
+                                                        onUpdate={(field, newValue) =>
+                                                            handleInlineUpdate(gradeItem, field, newValue)
+                                                        }
+                                                    />
+                                                    <MuiLink
+                                                        component={Link}
+                                                        to="#"
+                                                        onClick={() => handleCellClick(gradeItem, project.id, jury.id)}
+                                                        sx={{ fontSize: '0.75rem', color: 'blue' }}
+                                                    >
+                                                        Подробнее...
+                                                    </MuiLink>
                                                 </Box>
                                             ) : (
-                                                'Не оценено'
+                                                <MuiLink
+                                                    component={Link}
+                                                    to="#"
+                                                    onClick={() => handleCellClick(null, project.id, jury.id)}
+                                                    sx={{ fontSize: '0.75rem', color: 'blue' }}
+                                                >
+                                                    Не оценено
+                                                </MuiLink>
                                             )}
                                         </TableCell>
                                     );

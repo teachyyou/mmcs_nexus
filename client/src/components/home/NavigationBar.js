@@ -20,8 +20,11 @@ const NavigationBar = ({ avatarUrl, userName, userEmail }) => {
         setMenuOpen(false);
     };
 
-    const handleLogout = () => {
-        // Добавьте вызов API для выхода, если нужно
+    const handleLogout = async () => {
+        await fetch('http://localhost:8080/api/v1/auth/logout', {
+            method: 'POST',
+            credentials: 'include'
+        });
         setIsAuthenticated(false);
     };
 

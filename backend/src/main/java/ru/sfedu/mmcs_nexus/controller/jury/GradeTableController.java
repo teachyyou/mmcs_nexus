@@ -76,16 +76,7 @@ public class GradeTableController {
         for (Project project : eventProjects) {
             GradeTableRowDTO row = new GradeTableRowDTO(project.getId(), project.getName());
             List<GradeDTO> grades = gradeService.findByEventAndProject(event.getId(), project.getId())
-                    .stream().map(grade-> new GradeDTO(
-                            grade.getId(),
-                            project.getName(),
-                            grade.getJury().getFullName(),
-                            event.getName(),
-                            grade.getComment(),
-                            grade.getPresPoints(),
-                            grade.getBuildPoints()
-
-                    )).toList();
+                    .stream().map(GradeDTO::new).toList();
             row.setTableRow(grades);
             table.addGradeRow(row);
         }
