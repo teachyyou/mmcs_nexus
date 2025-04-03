@@ -1,14 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import {
-    Container,
-    Grid,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
-    Button,
-    Box
-} from '@mui/material';
+import React, {useEffect, useState} from 'react';
+import {Box, Button, Container, FormControl, Grid, InputLabel, MenuItem, Select} from '@mui/material';
 import GradeTable from './GradeTable';
 import NavigationBar from '../home/NavigationBar';
 
@@ -19,6 +10,7 @@ const GradeTablePage = ({ isAuthenticated, setIsAuthenticated }) => {
     const [selectedEvent, setSelectedEvent] = useState('');
     const [grades, setGrades] = useState(null);
     const [loading, setLoading] = useState(false);
+
 
     useEffect(() => {
         const fetchYears = async () => {
@@ -87,7 +79,6 @@ const GradeTablePage = ({ isAuthenticated, setIsAuthenticated }) => {
 
     return (
         <>
-            {/* Навигационная панель сверху */}
             <NavigationBar isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />
 
             <Container maxWidth="xl" sx={{ mt: 4 }}>
@@ -95,7 +86,6 @@ const GradeTablePage = ({ isAuthenticated, setIsAuthenticated }) => {
                     <h2>Просмотр оценок по событию</h2>
                 </Box>
                 <Grid container spacing={2}>
-                    {/* Левая панель с выбором года и события */}
                     <Grid item xs={12} sm={3} md={2}>
                         <Box sx={{ p: 2, border: '1px solid #ccc', borderRadius: 2 }}>
                             <FormControl fullWidth margin="normal">
@@ -129,13 +119,19 @@ const GradeTablePage = ({ isAuthenticated, setIsAuthenticated }) => {
                             </Button>
                         </Box>
                     </Grid>
-                    {/* Правая панель с таблицей оценок */}
                     <Grid item xs={12} sm={9} md={10}>
-                        {grades ? (
-                            <GradeTable grades={grades} />
-                        ) : (
-                            <Box sx={{ p: 2 }}>Здесь появятся оценки после выбора события.</Box>
-                        )}
+                        <Box sx={{
+                            overflowX: 'auto',
+                            width: '100%',
+                            mb: 4,
+                            pb: 4
+                        }}>
+                            {grades ? (
+                                <GradeTable grades={grades} />
+                            ) : (
+                                <Box sx={{ p: 2 }}>Здесь появятся оценки после выбора события.</Box>
+                            )}
+                        </Box>
                     </Grid>
                 </Grid>
             </Container>

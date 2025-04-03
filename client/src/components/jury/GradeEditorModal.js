@@ -1,26 +1,28 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Box, Typography, TextField, Button } from '@mui/material';
 
-const GradeEditorModal = ({ open, onClose, grade, projectId, juryId, grades }) => {
-    const project = grades.projects.find((proj) => proj.id === projectId);
-    const jury = grades.juries.find((jur) => jur.id === juryId);
+const GradeEditorModal = ({ open, onClose, grade, projectId, juryId, grades, onGradeUpdated }) => {
+    const project = grades.projects.find(proj => proj.id === projectId);
+    const jury = grades.juries.find(jur => jur.id === juryId);
     const event = grades.event;
 
-    const [comment, setComment] = React.useState(grade ? grade.comment : '');
-    const [presPoints, setPresPoints] = React.useState(grade ? grade.presPoints : '');
-    const [buildPoints, setBuildPoints] = React.useState(grade ? grade.buildPoints : '');
+    const [comment, setComment] = useState('');
+    const [presPoints, setPresPoints] = useState('');
+    const [buildPoints, setBuildPoints] = useState('');
 
-    React.useEffect(() => {
+    useEffect(() => {
+        if (!open) return;
+        console.log('nice')
         if (grade) {
-            setComment(grade.comment);
-            setPresPoints(grade.presPoints);
-            setBuildPoints(grade.buildPoints);
+            setComment(grade.comment || '');
+            setPresPoints(grade.presPoints !== undefined ? grade.presPoints : '');
+            setBuildPoints(grade.buildPoints !== undefined ? grade.buildPoints : '');
         } else {
             setComment('');
             setPresPoints('');
             setBuildPoints('');
         }
-    }, [grade]);
+    }, [grade, open]);
 
     const handleSave = async () => {
         const gradeData = {
@@ -32,17 +34,18 @@ const GradeEditorModal = ({ open, onClose, grade, projectId, juryId, grades }) =
         };
 
         try {
+            const method = grade ? 'PUT' : 'POST';
             const response = await fetch('http://localhost:8080/api/v1/jury/grades', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                method,
+                headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
                 body: JSON.stringify(gradeData)
             });
-
             if (response.ok) {
-                console.log("Оценка успешно сохранена:", gradeData);
+                const updatedGrade = await response.json();
+                if (onGradeUpdated) {
+                    onGradeUpdated(updatedGrade);
+                }
                 onClose();
             } else {
                 const errorData = await response.json();
@@ -56,20 +59,18 @@ const GradeEditorModal = ({ open, onClose, grade, projectId, juryId, grades }) =
     return (
         <Modal open={open} onClose={onClose}>
             <Box sx={{ p: 3, bgcolor: 'background.paper', borderRadius: 2, width: 400, mx: 'auto', my: '15%' }}>
-                <Typography variant="h6" gutterBottom>Редактирование оценки</Typography>
-
+                <Typography variant="h6" gutterBottom>
+                    {grade ? 'Редактирование оценки' : 'Создание оценки'}
+                </Typography>
                 <Typography variant="body1" gutterBottom>
                     <strong>Название проекта:</strong> {project?.name || "Проект неизвестен"}
                 </Typography>
-
                 <Typography variant="body1" gutterBottom>
                     <strong>Проверяющий:</strong> {jury?.firstName} {jury?.lastName || "Жюри неизвестно"}
                 </Typography>
-
                 <Typography variant="body1" gutterBottom>
                     <strong>Событие:</strong> {event?.name || "Событие неизвестно"}
                 </Typography>
-
                 <TextField
                     label="Комментарий"
                     fullWidth
