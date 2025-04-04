@@ -21,7 +21,7 @@ const cellSx = {
     overflow: 'hidden'
 };
 
-const GradeTable = ({ grades }) => {
+const GradeTable = ({ grades, event}) => {
     const [localGrades, setLocalGrades] = useState(grades);
     const [selectedGrade, setSelectedGrade] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -63,13 +63,11 @@ const GradeTable = ({ grades }) => {
             return row;
         });
         setLocalGrades({ ...localGrades, rows: newRows });
-        console.log(newRows);
     };
 
     const handleInlineUpdate = async (gradeItem, field, newValue) => {
         const oldValue = gradeItem[field];
         const updatedGrade = {...gradeItem, [field]: newValue};
-
         if (newValue==='') {
             return { success: false, oldValue };
         }
@@ -81,6 +79,12 @@ const GradeTable = ({ grades }) => {
                 credentials: 'include',
                 body: JSON.stringify(updatedGrade)
             });
+            //todo доработать удаление
+            if (response.status === 204) {
+                handleGradeUpdated(null);
+                return { success: true};
+            }
+
             if (!response.ok) {
                 const errorData = await response.json();
                 console.error("Ошибка при сохранении оценки:", errorData);
@@ -136,6 +140,8 @@ const GradeTable = ({ grades }) => {
                                                         onUpdate={(field, newValue) =>
                                                             handleInlineUpdate(gradeItem, field, newValue)
                                                         }
+                                                        maxBuild={event.maxBuildPoints}
+                                                        maxPres={event.maxPresPoints}
                                                     />
                                                     <MuiLink
                                                         component={Link}

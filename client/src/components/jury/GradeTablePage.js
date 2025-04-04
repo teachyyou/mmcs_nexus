@@ -7,7 +7,7 @@ const GradeTablePage = ({ isAuthenticated, setIsAuthenticated }) => {
     const [year, setYear] = useState('');
     const [years, setYears] = useState([]);
     const [events, setEvents] = useState([]);
-    const [selectedEvent, setSelectedEvent] = useState('');
+    const [selectedEvent, setSelectedEvent] = useState(null);
     const [grades, setGrades] = useState(null);
     const [loading, setLoading] = useState(false);
 
@@ -42,7 +42,7 @@ const GradeTablePage = ({ isAuthenticated, setIsAuthenticated }) => {
                 if (!response.ok) throw new Error('Ошибка при загрузке событий');
                 const data = await response.json();
                 setEvents(Array.isArray(data.content) ? data.content : []);
-                setSelectedEvent('');
+                setSelectedEvent(null);
             } catch (error) {
                 console.error(error.message);
                 setEvents([]);
@@ -63,7 +63,7 @@ const GradeTablePage = ({ isAuthenticated, setIsAuthenticated }) => {
         if (!selectedEvent) return;
         setLoading(true);
         try {
-            const response = await fetch(`http://localhost:8080/api/v1/jury/table/${selectedEvent}`, {
+            const response = await fetch(`http://localhost:8080/api/v1/jury/table/${selectedEvent.id}`, {
                 credentials: 'include',
             });
             if (!response.ok) throw new Error('Ошибка при загрузке оценок');
@@ -100,9 +100,9 @@ const GradeTablePage = ({ isAuthenticated, setIsAuthenticated }) => {
                             </FormControl>
                             <FormControl fullWidth margin="normal" disabled={!events.length}>
                                 <InputLabel>Событие</InputLabel>
-                                <Select value={selectedEvent} onChange={handleEventChange}>
+                                <Select value={selectedEvent || ""} onChange={handleEventChange}>
                                     {events.map((eventItem) => (
-                                        <MenuItem key={eventItem.id} value={eventItem.id}>
+                                        <MenuItem key={eventItem.id} value={eventItem}>
                                             {eventItem.name}
                                         </MenuItem>
                                     ))}
@@ -127,7 +127,7 @@ const GradeTablePage = ({ isAuthenticated, setIsAuthenticated }) => {
                             pb: 4
                         }}>
                             {grades ? (
-                                <GradeTable grades={grades} />
+                                <GradeTable grades={grades} event={selectedEvent}/>
                             ) : (
                                 <Box sx={{ p: 2 }}>Здесь появятся оценки после выбора события.</Box>
                             )}

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { Box, TextField, Typography } from '@mui/material';
+import { Box, TextField, Typography, InputAdornment } from '@mui/material';
 
-const InlineGradeEditor = ({ gradeItem, onUpdate }) => {
+const InlineGradeEditor = ({ gradeItem, maxBuild, maxPres, onUpdate }) => {
     const [buildPoints, setBuildPoints] = useState(
         gradeItem.buildPoints !== undefined ? gradeItem.buildPoints : ''
     );
@@ -33,10 +33,13 @@ const InlineGradeEditor = ({ gradeItem, onUpdate }) => {
                     value={presPoints}
                     onChange={(e) => setPresPoints(e.target.value)}
                     onBlur={() => handleUpdate('presPoints', presPoints)}
-                    inputProps={{
+                    InputProps={{
                         style: { textAlign: 'center', fontSize: '0.75rem', padding: '2px' },
-                        WebkitAppearance: 'none',
-                        MozAppearance: 'textfield'
+                        endAdornment: (
+                            <InputAdornment position="end">
+                                /{maxPres}
+                            </InputAdornment>
+                        )
                     }}
                     sx={{ width: '100%' }}
                 />
@@ -50,10 +53,13 @@ const InlineGradeEditor = ({ gradeItem, onUpdate }) => {
                     value={buildPoints}
                     onChange={(e) => setBuildPoints(e.target.value)}
                     onBlur={() => handleUpdate('buildPoints', buildPoints)}
-                    inputProps={{
+                    InputProps={{
                         style: { textAlign: 'center', fontSize: '0.75rem', padding: '2px' },
-                        WebkitAppearance: 'none',
-                        MozAppearance: 'textfield'
+                        endAdornment: (
+                            <InputAdornment position="end">
+                                /{maxBuild}
+                            </InputAdornment>
+                        )
                     }}
                     sx={{ width: '100%' }}
                 />
