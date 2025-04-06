@@ -6,7 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
 import ru.sfedu.mmcs_nexus.data.dto.GradeDTO;
 import ru.sfedu.mmcs_nexus.data.event.Event;
@@ -197,6 +196,14 @@ public class GradeController {
                     .body("Project and event are not linked");
         }
 
+//        //Отправка пустых баллов и комментария = удаление оценки
+//        if (gradeDTO.getBuildPoints() == null && gradeDTO.getBuildPoints() == null && gradeDTO.getComment().isEmpty()) {
+//            gradeService.deleteById(key);
+//            System.out.println(Collections.singletonMap("message", "Оценка успешно удалена"));
+//            return ResponseEntity.ok()
+//                    .body(Collections.singletonMap("message", "Оценка успешно удалена"));
+//        }
+
         Grade existingGrade = gradeService.findById(key).get();
         Event event = eventService.findById(gradeDTO.getEventId()).get();
 
@@ -208,21 +215,14 @@ public class GradeController {
                     .body(STR."Maximum build score for \{event.getName()} is \{event.getMaxBuildPoints()}");
         }
 
-        if (gradeDTO.getPresPoints() != null) {
-            existingGrade.setPresPoints(gradeDTO.getPresPoints());
-        }
-        if (gradeDTO.getBuildPoints() != null) {
-            existingGrade.setBuildPoints(gradeDTO.getBuildPoints());
-        }
-        if (gradeDTO.getComment() != null) {
-            existingGrade.setComment(gradeDTO.getComment());
-        }
+        existingGrade.setPresPoints(gradeDTO.getPresPoints());
+        existingGrade.setBuildPoints(gradeDTO.getBuildPoints());
+        existingGrade.setComment(gradeDTO.getComment());
 
         gradeService.save(existingGrade);
 
         return ResponseEntity.ok().body(new GradeDTO(existingGrade));
     }
-
 
 
 }

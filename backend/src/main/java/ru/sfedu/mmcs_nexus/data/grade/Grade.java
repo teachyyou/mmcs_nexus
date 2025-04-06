@@ -2,7 +2,6 @@ package ru.sfedu.mmcs_nexus.data.grade;
 
 import jakarta.persistence.*;
 import lombok.Data;
-import org.hibernate.validator.constraints.UUID;
 import ru.sfedu.mmcs_nexus.data.event.Event;
 import ru.sfedu.mmcs_nexus.data.project.Project;
 import ru.sfedu.mmcs_nexus.data.user.User;
@@ -85,7 +84,7 @@ public class Grade {
         return presPoints;
     }
 
-    public void setPresPoints(int presPoints) {
+    public void setPresPoints(Integer presPoints) {
         this.presPoints = presPoints;
     }
 
@@ -93,7 +92,7 @@ public class Grade {
         return buildPoints;
     }
 
-    public void setBuildPoints(int buildPoints) {
+    public void setBuildPoints(Integer buildPoints) {
         this.buildPoints = buildPoints;
     }
 

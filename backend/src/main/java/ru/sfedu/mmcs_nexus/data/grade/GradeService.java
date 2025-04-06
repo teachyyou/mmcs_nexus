@@ -38,6 +38,10 @@ public class GradeService {
         gradeRepository.save(grade);
     }
 
+    public void deleteById(GradeKey id) {
+         gradeRepository.deleteById(id);
+    }
+
     public Optional<Grade> findById(GradeKey id) {
         return gradeRepository.findById(id);
     }

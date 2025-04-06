@@ -19,7 +19,7 @@ export const AuthProvider = ({ children }) => {
     const [user, setUser] = useState(null);
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, userStatus, userRole, user, setIsAuthenticated, setUserStatus, setUserRole, setUser}}>
+        <AuthContext.Provider value={{isAuthenticated, userStatus, userRole, user, setIsAuthenticated, setUserStatus, setUserRole, setUser}}>
             {children}
         </AuthContext.Provider>
     );

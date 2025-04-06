@@ -1,14 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import {
-    Container,
-    Grid,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
-    Button,
-    Box
-} from '@mui/material';
+import React, {useEffect, useState} from 'react';
+import {Box, Button, Container, FormControl, Grid, InputLabel, MenuItem, Select} from '@mui/material';
 import GradeTable from './GradeTable';
 import NavigationBar from '../home/NavigationBar';
 
@@ -16,9 +7,10 @@ const GradeTablePage = ({ isAuthenticated, setIsAuthenticated }) => {
     const [year, setYear] = useState('');
     const [years, setYears] = useState([]);
     const [events, setEvents] = useState([]);
-    const [selectedEvent, setSelectedEvent] = useState('');
+    const [selectedEvent, setSelectedEvent] = useState(null);
     const [grades, setGrades] = useState(null);
     const [loading, setLoading] = useState(false);
+
 
     useEffect(() => {
         const fetchYears = async () => {
@@ -50,7 +42,7 @@ const GradeTablePage = ({ isAuthenticated, setIsAuthenticated }) => {
                 if (!response.ok) throw new Error('Ошибка при загрузке событий');
                 const data = await response.json();
                 setEvents(Array.isArray(data.content) ? data.content : []);
-                setSelectedEvent('');
+                setSelectedEvent(null);
             } catch (error) {
                 console.error(error.message);
                 setEvents([]);
@@ -71,7 +63,7 @@ const GradeTablePage = ({ isAuthenticated, setIsAuthenticated }) => {
         if (!selectedEvent) return;
         setLoading(true);
         try {
-            const response = await fetch(`http://localhost:8080/api/v1/jury/table/${selectedEvent}`, {
+            const response = await fetch(`http://localhost:8080/api/v1/jury/table/${selectedEvent.id}`, {
                 credentials: 'include',
             });
             if (!response.ok) throw new Error('Ошибка при загрузке оценок');
@@ -87,7 +79,6 @@ const GradeTablePage = ({ isAuthenticated, setIsAuthenticated }) => {
 
     return (
         <>
-            {/* Навигационная панель сверху */}
             <NavigationBar isAuthenticated={isAuthenticated} setIsAuthenticated={setIsAuthenticated} />
 
             <Container maxWidth="xl" sx={{ mt: 4 }}>
@@ -95,7 +86,6 @@ const GradeTablePage = ({ isAuthenticated, setIsAuthenticated }) => {
                     <h2>Просмотр оценок по событию</h2>
                 </Box>
                 <Grid container spacing={2}>
-                    {/* Левая панель с выбором года и события */}
                     <Grid item xs={12} sm={3} md={2}>
                         <Box sx={{ p: 2, border: '1px solid #ccc', borderRadius: 2 }}>
                             <FormControl fullWidth margin="normal">
@@ -110,9 +100,9 @@ const GradeTablePage = ({ isAuthenticated, setIsAuthenticated }) => {
                             </FormControl>
                             <FormControl fullWidth margin="normal" disabled={!events.length}>
                                 <InputLabel>Событие</InputLabel>
-                                <Select value={selectedEvent} onChange={handleEventChange}>
+                                <Select value={selectedEvent || ""} onChange={handleEventChange}>
                                     {events.map((eventItem) => (
-                                        <MenuItem key={eventItem.id} value={eventItem.id}>
+                                        <MenuItem key={eventItem.id} value={eventItem}>
                                             {eventItem.name}
                                         </MenuItem>
                                     ))}
@@ -129,13 +119,19 @@ const GradeTablePage = ({ isAuthenticated, setIsAuthenticated }) => {
                             </Button>
                         </Box>
                     </Grid>
-                    {/* Правая панель с таблицей оценок */}
                     <Grid item xs={12} sm={9} md={10}>
-                        {grades ? (
-                            <GradeTable grades={grades} />
-                        ) : (
-                            <Box sx={{ p: 2 }}>Здесь появятся оценки после выбора события.</Box>
-                        )}
+                        <Box sx={{
+                            overflowX: 'auto',
+                            width: '100%',
+                            mb: 4,
+                            pb: 4
+                        }}>
+                            {grades ? (
+                                <GradeTable grades={grades} event={selectedEvent}/>
+                            ) : (
+                                <Box sx={{ p: 2 }}>Здесь появятся оценки после выбора события.</Box>
+                            )}
+                        </Box>
                     </Grid>
                 </Grid>
             </Container>
