@@ -13,6 +13,7 @@ const InlineGradeEditor = ({ gradeItem, maxBuild, maxPres, onUpdate }) => {
         const numericValue = value === '' ? '' : parseInt(value, 10);
         const result = await onUpdate(field, numericValue);
 
+
         if (result && !result.success) {
             if (field === 'buildPoints') {
                 setBuildPoints(result.oldValue);

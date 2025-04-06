@@ -68,9 +68,6 @@ const GradeTable = ({ grades, event}) => {
     const handleInlineUpdate = async (gradeItem, field, newValue) => {
         const oldValue = gradeItem[field];
         const updatedGrade = {...gradeItem, [field]: newValue};
-        if (newValue==='') {
-            return { success: false, oldValue };
-        }
 
         try {
             const response = await fetch('http://localhost:8080/api/v1/jury/grades', {
@@ -79,11 +76,6 @@ const GradeTable = ({ grades, event}) => {
                 credentials: 'include',
                 body: JSON.stringify(updatedGrade)
             });
-            //todo доработать удаление
-            if (response.status === 204) {
-                handleGradeUpdated(null);
-                return { success: true};
-            }
 
             if (!response.ok) {
                 const errorData = await response.json();
