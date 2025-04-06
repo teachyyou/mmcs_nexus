@@ -60,24 +60,19 @@ public class ProjectJuryEventService {
     public List<Project> findProjectsForEvent(UUID eventId, GradeTableEnums.ShowFilter showFilter, UUID userId) {
         return switch (showFilter) {
             case ALL -> projectEventRepository.findByEventId(eventId);
-            case ASSIGNED -> projectJuryEventRepository.findDistinctProjectByEventAssignedToJury(eventId, userId);
-            case MENTORED -> projectJuryEventRepository.findDistinctProjectByEventMentoredByJury(eventId, userId);
+            case ASSIGNED -> projectJuryEventRepository.findProjectByEventAssignedToJury(eventId, userId);
+            case MENTORED -> projectJuryEventRepository.findProjectByEventMentoredByJury(eventId, userId);
         };
     }
 
     public List<UserDTO> findJuriesForEvent(UUID eventId, GradeTableEnums.ShowFilter showFilter, UUID userId) {
-//        return switch (showFilter) {
-//            case ALL -> projectEventRepository.findByEventId(eventId);
-//            case ASSIGNED -> projectJuryEventRepository.findDistinctProjectByEventAssignedToJury(eventId, userId);
-//            case MENTORED -> projectJuryEventRepository.findDistinctProjectByEventMentoredByJury(eventId, userId);
-//        };
-        //todo make it work
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new EntityNotFoundException("Event not found"));
+        return switch (showFilter) {
+            case ALL -> projectJuryEventRepository.findJuriesByEventId(eventId).stream().map(UserDTO::new).toList();
+            case ASSIGNED -> projectJuryEventRepository.findJuriesForProjectsAssignedToJuryByEvent(eventId, userId).stream().map(UserDTO::new).toList();
+            case MENTORED -> projectJuryEventRepository.findJuriesForProjectsMentoredByJuryByEvent(eventId, userId).stream().map(UserDTO::new).toList();
+        };
 
-        return projectJuryEventRepository.findJuriesByEventId(eventId).stream().map(UserDTO::new).toList();
     }
-
 
     public Map<String, List<UserDTO>> getJuriesByProjectAndEvent(UUID projectId, UUID eventId) {
 

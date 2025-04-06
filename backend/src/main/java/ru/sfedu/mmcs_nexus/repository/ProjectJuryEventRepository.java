@@ -24,10 +24,30 @@ public interface ProjectJuryEventRepository extends JpaRepository<ProjectJuryEve
     List<Project> findDistinctProjectByEventId(@Param("eventId") UUID eventId);
 
     @Query("SELECT pje.project FROM ProjectJuryEvent pje WHERE pje.event.id = :eventId AND pje.jury.id = :juryId")
-    List<Project> findDistinctProjectByEventAssignedToJury(@Param("eventId") UUID eventId, @Param("juryId") UUID juryId);
+    List<Project> findProjectByEventAssignedToJury(@Param("eventId") UUID eventId, @Param("juryId") UUID juryId);
 
-    @Query("SELECT pje.project FROM ProjectJuryEvent pje WHERE pje.event.id = :eventId AND pje.jury.id = :juryId AND relationType = 'MENTOR'")
-    List<Project> findDistinctProjectByEventMentoredByJury(@Param("eventId") UUID eventId, @Param("juryId") UUID juryId);
+    @Query("SELECT pje.project FROM ProjectJuryEvent pje WHERE pje.event.id = :eventId AND pje.jury.id = :juryId AND pje.relationType = 'MENTOR'")
+    List<Project> findProjectByEventMentoredByJury(@Param("eventId") UUID eventId, @Param("juryId") UUID juryId);
+
+    @Query("""
+    SELECT DISTINCT relatedPje.jury
+    FROM ProjectJuryEvent pje
+    JOIN ProjectJuryEvent relatedPje ON pje.project = relatedPje.project
+    WHERE pje.event.id = :eventId
+    AND pje.jury.id = :juryId
+    """)
+    List<User> findJuriesForProjectsAssignedToJuryByEvent(@Param("eventId") UUID eventId, @Param("juryId") UUID juryId);
+
+    @Query("""
+    SELECT DISTINCT relatedPje.jury
+    FROM ProjectJuryEvent pje
+    JOIN ProjectJuryEvent relatedPje ON pje.project = relatedPje.project
+    WHERE pje.event.id = :eventId
+    AND pje.jury.id = :juryId
+    AND pje.relationType = 'MENTOR'
+    """)
+    List<User> findJuriesForProjectsMentoredByJuryByEvent(@Param("eventId") UUID eventId, @Param("juryId") UUID juryId);
+
 
     List<ProjectJuryEvent> findByProjectIdAndEventId(UUID projectId, UUID eventId);
 

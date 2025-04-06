@@ -53,6 +53,7 @@ public class GradeTableController {
             @PathVariable("eventId") UUID eventId,
             @RequestParam(value = "show", defaultValue = "all") String showParam)
     {
+        //todo check for enum parsing exceptions
         GradeTableEnums.ShowFilter show = GradeTableEnums.ShowFilter.valueOf(showParam.toUpperCase());
 
         if (userService.findByGithubLogin(authentication).isEmpty()) {
