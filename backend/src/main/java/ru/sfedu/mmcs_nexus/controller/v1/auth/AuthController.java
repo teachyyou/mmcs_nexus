@@ -61,8 +61,9 @@ public class AuthController {
             userMap.put("course", user.getUserCourse());
             userMap.put("avatar_url", githubUser.getAttribute("avatar_url"));
 
-        }
+            response.put("userId", user.getId());
 
+        }
         response.put("userStatus", status);
         response.put("userRole", role);
         response.put("user", userMap);

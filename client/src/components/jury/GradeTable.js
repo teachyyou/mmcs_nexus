@@ -7,11 +7,14 @@ import {
     TableHead,
     TableRow,
     Box,
-    Link as MuiLink, Card
+    Link as MuiLink,
+    Card
 } from '@mui/material';
 import { Link } from 'react-router-dom';
 import GradeEditorModal from './GradeEditorModal';
 import InlineGradeEditor from './InlineGradeEditor';
+import {useAuth} from "../../AuthContext";
+
 
 const cellSx = {
     border: '2px solid black',
@@ -21,12 +24,13 @@ const cellSx = {
     overflow: 'hidden'
 };
 
-const GradeTable = ({ grades, event}) => {
+const GradeTable = ({ grades, event }) => {
     const [localGrades, setLocalGrades] = useState(grades);
     const [selectedGrade, setSelectedGrade] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedJuryId, setSelectedJuryId] = useState(null);
     const [selectedProjectId, setSelectedProjectId] = useState(null);
+    const {userId} = useAuth();
 
     useEffect(() => {
         setLocalGrades(grades);
@@ -67,19 +71,20 @@ const GradeTable = ({ grades, event}) => {
 
     const handleInlineUpdate = async (gradeItem, field, newValue) => {
         const oldValue = gradeItem[field];
-        const updatedGrade = {...gradeItem, [field]: newValue};
+        const { juryId, ...gradeWithoutJuryId } = gradeItem;
+        const updatedGrade = { ...gradeWithoutJuryId, [field]: newValue };
 
         try {
             const response = await fetch('http://localhost:8080/api/v1/jury/grades', {
                 method: 'PUT',
-                headers: {'Content-Type': 'application/json'},
+                headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
-                body: JSON.stringify(updatedGrade)
+                body: JSON.stringify(gradeWithoutJuryId)
             });
 
             if (!response.ok) {
                 const errorData = await response.json();
-                console.error("Ошибка при сохранении оценки:", errorData);
+                console.error('Ошибка при сохранении оценки:', errorData);
             }
             const updatedGradeFromServer = await response.json();
             handleGradeUpdated(updatedGradeFromServer);
@@ -109,7 +114,11 @@ const GradeTable = ({ grades, event}) => {
                                 Проекты / Жюри
                             </TableCell>
                             {localGrades.juries.map(jury => (
-                                <TableCell key={jury.id} align="center" sx={{ ...cellSx, fontWeight: 'bold' }}>
+                                <TableCell
+                                    key={jury.id}
+                                    align="center"
+                                    sx={{ ...cellSx, fontWeight: 'bold' }}
+                                >
                                     {jury.firstName} {jury.lastName}
                                 </TableCell>
                             ))}
@@ -123,8 +132,11 @@ const GradeTable = ({ grades, event}) => {
                                 </TableCell>
                                 {localGrades.juries.map(jury => {
                                     const gradeItem = gradeMap[project.id]?.[jury.id];
+                                    const isOwner = jury.id === userId;
                                     return (
-                                        <TableCell key={`${project.id}-${jury.id}`} align="center" sx={cellSx}>
+                                        <TableCell
+                                            key={`${project.id}-${jury.id}`} align="center" sx={cellSx}
+                                        >
                                             {gradeItem ? (
                                                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                                                     <InlineGradeEditor
@@ -145,14 +157,20 @@ const GradeTable = ({ grades, event}) => {
                                                     </MuiLink>
                                                 </Box>
                                             ) : (
-                                                <MuiLink
-                                                    component={Link}
-                                                    to="#"
-                                                    onClick={() => handleCellClick(null, project.id, jury.id)}
-                                                    sx={{ fontSize: '0.75rem', color: 'blue' }}
-                                                >
-                                                    Не оценено
-                                                </MuiLink>
+                                                isOwner ? (
+                                                    <MuiLink
+                                                        component={Link}
+                                                        to="#"
+                                                        onClick={() => handleCellClick(null, project.id, jury.id)}
+                                                        sx={{ fontSize: '0.75rem', color: 'blue' }}
+                                                    >
+                                                        Не оценено
+                                                    </MuiLink>
+                                                ) : (
+                                                    <Box sx={{ fontSize: '0.75rem', color: '#999' }}>
+                                                        Не оценено
+                                                    </Box>
+                                                )
                                             )}
                                         </TableCell>
                                     );
