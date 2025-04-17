@@ -1,5 +1,5 @@
-import React, {useEffect, useState} from 'react';
-import {Box, Button, Container, FormControl, Grid, InputLabel, MenuItem, Select} from '@mui/material';
+import React, { useEffect, useState } from 'react';
+import { Box, Button, Container, FormControl, FormControlLabel, Grid, InputLabel, MenuItem, Select, Switch, FormGroup } from '@mui/material';
 import GradeTable from './GradeTable';
 import NavigationBar from '../home/NavigationBar';
 
@@ -10,7 +10,9 @@ const GradeTablePage = ({ isAuthenticated, setIsAuthenticated }) => {
     const [selectedEvent, setSelectedEvent] = useState(null);
     const [grades, setGrades] = useState(null);
     const [loading, setLoading] = useState(false);
-
+    // Новые состояния для свичей
+    const [showOnlyMy, setShowOnlyMy] = useState(false);
+    const [showMentored, setShowMentored] = useState(false);
 
     useEffect(() => {
         const fetchYears = async () => {
@@ -62,10 +64,16 @@ const GradeTablePage = ({ isAuthenticated, setIsAuthenticated }) => {
     const fetchGrades = async () => {
         if (!selectedEvent) return;
         setLoading(true);
+        // Определяем параметр show
+        let showParam = 'ALL';
+        if (showOnlyMy) showParam = showMentored ? 'MENTORED' : 'ASSIGNED';
         try {
-            const response = await fetch(`http://localhost:8080/api/v1/jury/table/${selectedEvent.id}`, {
-                credentials: 'include',
-            });
+            const response = await fetch(
+                `http://localhost:8080/api/v1/jury/table/${selectedEvent.id}?show=${showParam}`,
+                {
+                    credentials: 'include',
+                }
+            );
             if (!response.ok) throw new Error('Ошибка при загрузке оценок');
             const data = await response.json();
             setGrades(data.content);
@@ -100,7 +108,7 @@ const GradeTablePage = ({ isAuthenticated, setIsAuthenticated }) => {
                             </FormControl>
                             <FormControl fullWidth margin="normal" disabled={!events.length}>
                                 <InputLabel>Событие</InputLabel>
-                                <Select value={selectedEvent || ""} onChange={handleEventChange}>
+                                <Select value={selectedEvent || ''} onChange={handleEventChange}>
                                     {events.map((eventItem) => (
                                         <MenuItem key={eventItem.id} value={eventItem}>
                                             {eventItem.name}
@@ -108,6 +116,33 @@ const GradeTablePage = ({ isAuthenticated, setIsAuthenticated }) => {
                                     ))}
                                 </Select>
                             </FormControl>
+                            {/* Свичи для фильтров */}
+                            <FormGroup>
+                                <FormControlLabel
+                                    control={
+                                        <Switch
+                                            checked={showOnlyMy}
+                                            onChange={() => {
+                                                setShowOnlyMy(!showOnlyMy);
+                                                // Сбрасываем второй свич при выключении первого
+                                                if (showOnlyMy) setShowMentored(false);
+                                            }}
+                                        />
+                                    }
+                                    label="Отобразить только мои"
+                                />
+                                {showOnlyMy && (
+                                    <FormControlLabel
+                                        control={
+                                            <Switch
+                                                checked={showMentored}
+                                                onChange={() => setShowMentored(!showMentored)}
+                                            />
+                                        }
+                                        label="Под моим менторством"
+                                    />
+                                )}
+                            </FormGroup>
                             <Button
                                 variant="contained"
                                 color="primary"
@@ -120,16 +155,20 @@ const GradeTablePage = ({ isAuthenticated, setIsAuthenticated }) => {
                         </Box>
                     </Grid>
                     <Grid item xs={12} sm={9} md={10}>
-                        <Box sx={{
-                            overflowX: 'auto',
-                            width: '100%',
-                            mb: 4,
-                            pb: 4
-                        }}>
+                        <Box
+                            sx={{
+                                overflowX: 'auto',
+                                width: '100%',
+                                mb: 4,
+                                pb: 4,
+                            }}
+                        >
                             {grades ? (
-                                <GradeTable grades={grades} event={selectedEvent}/>
+                                <GradeTable grades={grades} event={selectedEvent} />
                             ) : (
-                                <Box sx={{ p: 2 }}>Здесь появятся оценки после выбора события.</Box>
+                                <Box sx={{ p: 2 }}>
+                                    Здесь появятся оценки после выбора события.
+                                </Box>
                             )}
                         </Box>
                     </Grid>

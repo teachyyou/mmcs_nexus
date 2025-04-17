@@ -54,7 +54,19 @@ public class GradeTableController {
             @RequestParam(value = "show", defaultValue = "all") String showParam)
     {
         //todo check for enum parsing exceptions
-        GradeTableEnums.ShowFilter show = GradeTableEnums.ShowFilter.valueOf(showParam.toUpperCase());
+
+        GradeTableEnums.ShowFilter show;
+
+        try {
+            show = GradeTableEnums.ShowFilter.valueOf(showParam.toUpperCase());
+
+        } catch (IllegalArgumentException e) {
+            Map<String, Object> errorResponse = Map.of(
+                    "error", "Incorrect filter parameter",
+                    "value", showParam
+            );
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
+        }
 
         if (userService.findByGithubLogin(authentication).isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
@@ -74,8 +86,8 @@ public class GradeTableController {
         Event event = eventOptional.get();
 
         //Находим в зависимости от параметра show, в случае all - все проекты привязанные к событию, иначе - только те, с которыми есть связь у отправителя запроса
-        List<Project> eventProjects = projectJuryEventService.findProjectsForEvent(eventId, show, user.getId());
-        List<UserDTO> eventJuries = projectJuryEventService.findJuriesForEvent(eventId, show, user.getId());
+        List<Project> eventProjects = projectJuryEventService.findProjectsForEvent(eventId, show, user.getId()).stream().sorted(Comparator.comparing(Project::getName)).toList();
+        List<UserDTO> eventJuries = projectJuryEventService.findJuriesForEvent(eventId, show, user.getId()).stream().sorted(Comparator.comparing(UserDTO::getLastName)).toList();
 
 //        List<UserDTO> eventJuries = projectJuryEventService.getJuriesByEvent(eventId);
 
