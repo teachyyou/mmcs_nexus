@@ -20,13 +20,13 @@ const ProjectJuryManagement = () => {
     useEffect(() => {
         const fetchInitialData = async () => {
             try {
-                const projectsResponse = await fetch('http://localhost:8080/api/v1/admin/projects', {
+                const projectsResponse = await fetch('http://localhost:8080/api/v1/admin/projects?sort=name', {
                     credentials: 'include',
                 });
                 const projectsData = await projectsResponse.json();
                 setProjects(Array.isArray(projectsData.content) ? projectsData.content : []);
 
-                const juriesResponse = await fetch('http://localhost:8080/api/v1/admin/users', {
+                const juriesResponse = await fetch('http://localhost:8080/api/v1/admin/users?sort=lastName', {
                     credentials: 'include',
                 });
                 const juriesData = await juriesResponse.json();
@@ -234,7 +234,7 @@ const ProjectJuryManagement = () => {
                     <Autocomplete
                         multiple
                         options={getFilteredJuryOptions('willing')}
-                        getOptionLabel={(option) => `${option.firstName} ${option.lastName}`}
+                        getOptionLabel={(option) => `${option.lastName} ${option.firstName} `}
                         isOptionEqualToValue={(option, value) => option.id === value.id}
                         value={willingJuries}
                         onChange={handleWillingJuriesChange}
@@ -245,7 +245,7 @@ const ProjectJuryManagement = () => {
                     <Autocomplete
                         multiple
                         options={getFilteredJuryOptions('obliged')}
-                        getOptionLabel={(option) => `${option.firstName} ${option.lastName}`}
+                        getOptionLabel={(option) => `${option.lastName} ${option.firstName} `}
                         isOptionEqualToValue={(option, value) => option.id === value.id}
                         value={obligedJuries}
                         onChange={handleObligedJuriesChange}
@@ -256,7 +256,7 @@ const ProjectJuryManagement = () => {
                     <Autocomplete
                         multiple
                         options={getFilteredJuryOptions('mentor')}
-                        getOptionLabel={(option) => `${option.firstName} ${option.lastName}`}
+                        getOptionLabel={(option) => `${option.lastName} ${option.firstName} `}
                         isOptionEqualToValue={(option, value) => option.id === value.id}
                         value={mentors}
                         onChange={handleMentorsChange}

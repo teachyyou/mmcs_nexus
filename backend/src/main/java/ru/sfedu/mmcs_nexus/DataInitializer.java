@@ -3,24 +3,23 @@ package ru.sfedu.mmcs_nexus;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
-import ru.sfedu.mmcs_nexus.data.event.Event;
-import ru.sfedu.mmcs_nexus.data.event.EventRepository;
-import ru.sfedu.mmcs_nexus.data.event.EventType;
-import ru.sfedu.mmcs_nexus.data.grade.Grade;
-import ru.sfedu.mmcs_nexus.data.grade.GradeKey;
-import ru.sfedu.mmcs_nexus.data.grade.GradeRepository;
-import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJuryEvent;
-import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJuryEventKey;
-import ru.sfedu.mmcs_nexus.data.jury_to_project.ProjectJuryEventRepository;
-import ru.sfedu.mmcs_nexus.data.project.Project;
-import ru.sfedu.mmcs_nexus.data.project.ProjectRepository;
-import ru.sfedu.mmcs_nexus.data.project_to_event.ProjectEvent;
-import ru.sfedu.mmcs_nexus.data.project_to_event.ProjectEventKey;
-import ru.sfedu.mmcs_nexus.data.project_to_event.ProjectEventRepository;
-import ru.sfedu.mmcs_nexus.data.user.User;
-import ru.sfedu.mmcs_nexus.data.user.UserRepository;
-import ru.sfedu.mmcs_nexus.data.user.UserRole;
-import ru.sfedu.mmcs_nexus.data.user.UserStatus;
+import ru.sfedu.mmcs_nexus.model.entity.Event;
+import ru.sfedu.mmcs_nexus.model.enums.entity.UserEnums;
+import ru.sfedu.mmcs_nexus.repository.EventRepository;
+import ru.sfedu.mmcs_nexus.model.enums.entity.EventType;
+import ru.sfedu.mmcs_nexus.model.entity.Grade;
+import ru.sfedu.mmcs_nexus.model.entity.keys.GradeKey;
+import ru.sfedu.mmcs_nexus.repository.GradeRepository;
+import ru.sfedu.mmcs_nexus.model.entity.ProjectJuryEvent;
+import ru.sfedu.mmcs_nexus.model.entity.keys.ProjectJuryEventKey;
+import ru.sfedu.mmcs_nexus.repository.ProjectJuryEventRepository;
+import ru.sfedu.mmcs_nexus.model.entity.Project;
+import ru.sfedu.mmcs_nexus.repository.ProjectRepository;
+import ru.sfedu.mmcs_nexus.model.entity.ProjectEvent;
+import ru.sfedu.mmcs_nexus.model.entity.keys.ProjectEventKey;
+import ru.sfedu.mmcs_nexus.repository.ProjectEventRepository;
+import ru.sfedu.mmcs_nexus.model.entity.User;
+import ru.sfedu.mmcs_nexus.repository.UserRepository;
 
 @Component
 public class DataInitializer implements CommandLineRunner {
@@ -50,37 +49,37 @@ public class DataInitializer implements CommandLineRunner {
     public void run(String... args) throws Exception {
 
         if (false) {
-            User user1 = new User("Алексей", "Сидоренко", "alexsidr", 2, 4, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user2 = new User("Иван", "Журавлёв", "ivanzoor", 3, 2, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user3 = new User("Дмитрий", "Смирнов", "dmsmir", 1, 1, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user4 = new User("Сергей", "Орлов", "sergorlov", 4, 3, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user5 = new User("Николай", "Белов", "nikbel", 5, 2, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user6 = new User("Михаил", "Тарасов", "mihtaras", 2, 4, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user7 = new User("Андрей", "Фомин", "andfom", 1, 3, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user8 = new User("Евгений", "Соловьёв", "eugsol", 3, 1, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user9 = new User("Константин", "Мартынов", "konmart", 4, 2, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user10 = new User("Олег", "Кириллов", "olegkir", 5, 4, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user11 = new User("Владимир", "Субботин", "vlsub", 2, 1, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user12 = new User("Александр", "Калинин", "alekalin", 3, 3, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user13 = new User("Павел", "Морозов", "pavmoroz", 1, 2, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user14 = new User("Юрий", "Гончаров", "yurgon", 4, 1, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user15 = new User("Максим", "Карпов", "maxkarp", 3, 4, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user1 = new User("Алексей", "Сидоренко", "alexsidr", 2, 4, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user2 = new User("Иван", "Журавлёв", "ivanzoor", 3, 2, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user3 = new User("Дмитрий", "Смирнов", "dmsmir", 1, 1, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user4 = new User("Сергей", "Орлов", "sergorlov", 4, 3, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user5 = new User("Николай", "Белов", "nikbel", 5, 2, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user6 = new User("Михаил", "Тарасов", "mihtaras", 2, 4, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user7 = new User("Андрей", "Фомин", "andfom", 1, 3, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user8 = new User("Евгений", "Соловьёв", "eugsol", 3, 1, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user9 = new User("Константин", "Мартынов", "konmart", 4, 2, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user10 = new User("Олег", "Кириллов", "olegkir", 5, 4, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user11 = new User("Владимир", "Субботин", "vlsub", 2, 1, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user12 = new User("Александр", "Калинин", "alekalin", 3, 3, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user13 = new User("Павел", "Морозов", "pavmoroz", 1, 2, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user14 = new User("Юрий", "Гончаров", "yurgon", 4, 1, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user15 = new User("Максим", "Карпов", "maxkarp", 3, 4, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
 
-            User user16 = new User("Анастасия", "Кузнецова", "nastiakuz", 1, 1, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user17 = new User("Екатерина", "Сорокина", "katiasorok", 2, 2, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user18 = new User("Мария", "Попова", "mariapop", 3, 3, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user19 = new User("Дарья", "Романова", "dasha_roma", 4, 4, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user20 = new User("Ольга", "Новикова", "olganov", 5, 1, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user21 = new User("Валерия", "Федорова", "valfed", 1, 2, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user22 = new User("Полина", "Литвинова", "polinalit", 2, 3, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user23 = new User("Елизавета", "Зайцева", "liza_zay", 3, 4, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user24 = new User("Ксения", "Миронова", "ksumiro", 4, 2, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user25 = new User("Татьяна", "Громова", "tatagrom", 5, 3, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user26 = new User("Вероника", "Павлова", "verapav", 1, 4, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user27 = new User("Светлана", "Егорова", "svetaego", 2, 1, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user28 = new User("Юлия", "Мельникова", "yulamel", 3, 2, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user29 = new User("Алёна", "Киселева", "alena_kis", 4, 1, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user30 = new User("Наталья", "Чернова", "natachern", 5, 4, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user16 = new User("Анастасия", "Кузнецова", "nastiakuz", 1, 1, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user17 = new User("Екатерина", "Сорокина", "katiasorok", 2, 2, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user18 = new User("Мария", "Попова", "mariapop", 3, 3, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user19 = new User("Дарья", "Романова", "dasha_roma", 4, 4, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user20 = new User("Ольга", "Новикова", "olganov", 5, 1, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user21 = new User("Валерия", "Федорова", "valfed", 1, 2, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user22 = new User("Полина", "Литвинова", "polinalit", 2, 3, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user23 = new User("Елизавета", "Зайцева", "liza_zay", 3, 4, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user24 = new User("Ксения", "Миронова", "ksumiro", 4, 2, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user25 = new User("Татьяна", "Громова", "tatagrom", 5, 3, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user26 = new User("Вероника", "Павлова", "verapav", 1, 4, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user27 = new User("Светлана", "Егорова", "svetaego", 2, 1, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user28 = new User("Юлия", "Мельникова", "yulamel", 3, 2, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user29 = new User("Алёна", "Киселева", "alena_kis", 4, 1, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user30 = new User("Наталья", "Чернова", "natachern", 5, 4, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
 
             userRepository.save(user1);
             userRepository.save(user2);
@@ -116,20 +115,20 @@ public class DataInitializer implements CommandLineRunner {
         // Проверяем, пусты ли таблицы, чтобы избежать дублирования
         if (false && userRepository.count() == 0 && projectRepository.count() == 0) {
             // Создаем пользователей
-            User user1 = new User("Алексей", "Сидоренко", "alexsidr", 2, 4, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user2 = new User("Jane", "Smith", "janesmith", 2, 3, UserStatus.NON_VERIFIED, UserRole.ROLE_ADMIN);
+            User user1 = new User("Алексей", "Сидоренко", "alexsidr", 2, 4, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user2 = new User("Jane", "Smith", "janesmith", 2, 3, UserEnums.UserStatus.NON_VERIFIED, UserEnums.UserRole.ROLE_ADMIN);
 
 // Создаем и добавляем еще подтвержденных пользователей
-            User user3 = new User("Alice", "Brown", "alicebrown", 3, 5, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user4 = new User("Bob", "White", "bobwhite", 4, 1, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user5 = new User("Carol", "Black", "carolblack", 5, 13, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user6 = new User("David", "Green", "davidgreen", 6, 4, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user7 = new User("Emma", "Blue", "emmablue", 7, 1, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user8 = new User("Frank", "Red", "frankred", 8, 2, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user9 = new User("Grace", "Yellow", "graceyellow", 9, 3, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user10 = new User("Hank", "Purple", "hankpurple", 10, 4, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user11 = new User("Ivy", "Gray", "ivygray", 11, 5, UserStatus.VERIFIED, UserRole.ROLE_USER);
-            User user12 = new User("Jack", "Orange", "jackorange", 12, 6, UserStatus.VERIFIED, UserRole.ROLE_USER);
+            User user3 = new User("Alice", "Brown", "alicebrown", 3, 5, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user4 = new User("Bob", "White", "bobwhite", 4, 1, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user5 = new User("Carol", "Black", "carolblack", 5, 13, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user6 = new User("David", "Green", "davidgreen", 6, 4, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user7 = new User("Emma", "Blue", "emmablue", 7, 1, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user8 = new User("Frank", "Red", "frankred", 8, 2, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user9 = new User("Grace", "Yellow", "graceyellow", 9, 3, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user10 = new User("Hank", "Purple", "hankpurple", 10, 4, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user11 = new User("Ivy", "Gray", "ivygray", 11, 5, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user12 = new User("Jack", "Orange", "jackorange", 12, 6, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
 
 // Сохраняем всех пользователей в базу данных
             userRepository.save(user1);

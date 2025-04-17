@@ -16,7 +16,7 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import ru.sfedu.mmcs_nexus.data.user.UserService;
+import ru.sfedu.mmcs_nexus.service.UserService;
 
 import java.util.List;
 
