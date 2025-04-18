@@ -9,19 +9,23 @@ public class GradeTableRowDTO {
 
     private UUID projectId;
 
+    private UUID mentorId;
+
     private String projectDisplayName;
 
     //maps jury to its grade in table
     private List<GradeDTO> tableRow;
 
-    public GradeTableRowDTO(UUID projectId, String projectDisplayName, List<GradeDTO> tableRow) {
+    public GradeTableRowDTO(UUID projectId, UUID mentorId, String projectDisplayName, List<GradeDTO> tableRow) {
         this.projectDisplayName=projectDisplayName;
+        this.mentorId=mentorId;
         this.projectId=projectId;
         this.tableRow=tableRow;
     }
 
-    public GradeTableRowDTO(UUID projectId, String projectDisplayName) {
+    public GradeTableRowDTO(UUID projectId, UUID mentorId, String projectDisplayName) {
         this.projectDisplayName=projectDisplayName;
+        this.mentorId=mentorId;
         this.projectId=projectId;
     }
 
@@ -47,5 +51,13 @@ public class GradeTableRowDTO {
 
     public void setTableRow(List<GradeDTO> tableRow) {
         this.tableRow = tableRow;
+    }
+
+    public UUID getMentorId() {
+        return mentorId;
+    }
+
+    public void setMentorId(UUID mentorId) {
+        this.mentorId = mentorId;
     }
 }

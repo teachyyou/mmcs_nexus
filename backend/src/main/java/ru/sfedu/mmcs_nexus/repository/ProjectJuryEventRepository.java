@@ -23,6 +23,9 @@ public interface ProjectJuryEventRepository extends JpaRepository<ProjectJuryEve
     @Query("SELECT DISTINCT pje.project FROM ProjectJuryEvent pje WHERE pje.event.id = :eventId")
     List<Project> findDistinctProjectByEventId(@Param("eventId") UUID eventId);
 
+    @Query("SELECT pje.jury FROM ProjectJuryEvent pje WHERE pje.event.id=:eventId AND pje.project.id=:projectId AND pje.relationType='MENTOR'")
+    List<User> findMentorsByProjectIdAndEventId(@Param("eventId") UUID eventId, @Param("projectId") UUID projectId);
+
     @Query("SELECT pje.project FROM ProjectJuryEvent pje WHERE pje.event.id = :eventId AND pje.jury.id = :juryId")
     List<Project> findProjectByEventAssignedToJury(@Param("eventId") UUID eventId, @Param("juryId") UUID juryId);
 

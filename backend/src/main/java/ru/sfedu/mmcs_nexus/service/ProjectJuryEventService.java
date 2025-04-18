@@ -49,13 +49,22 @@ public class ProjectJuryEventService {
         return relation.map(ProjectJuryEvent::getRelationType).orElse(null);
     }
 
-    //find all juries that are linked to a certain event
+    /*
+    Находит ментора (первого) для проекта и события
+     */
+    @Nullable
+    public UserDTO getMentor(UUID projectId, UUID eventId) {
+        Optional<User> mentor = projectJuryEventRepository.findMentorsByProjectIdAndEventId(eventId, projectId).stream().findFirst();
+        return mentor.map(UserDTO::new).orElse(null);
+    }
+
     public List<UserDTO> getJuriesByEvent(UUID eventId) {
         Event event = eventRepository.findById(eventId)
                 .orElseThrow(() -> new EntityNotFoundException("Event not found"));
 
         return projectJuryEventRepository.findJuriesByEventId(eventId).stream().map(UserDTO::new).toList();
     }
+
 
     public List<Project> findProjectsForEvent(UUID eventId, GradeTableEnums.ShowFilter showFilter, UUID userId) {
         return switch (showFilter) {

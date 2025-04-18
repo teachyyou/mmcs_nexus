@@ -1,10 +1,16 @@
 package ru.sfedu.mmcs_nexus.controller.v1.auth;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.web.bind.annotation.*;
 import ru.sfedu.mmcs_nexus.model.entity.User;
@@ -12,6 +18,7 @@ import ru.sfedu.mmcs_nexus.model.enums.entity.UserEnums;
 import ru.sfedu.mmcs_nexus.service.UserService;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -129,6 +136,25 @@ public class AuthController {
         userService.saveUser(existingUser);
 
         return ResponseEntity.ok().build();
+    }
+
+    //Очень полезная штука чтобы залогиниться под другим пользователем, не забыть убрать потом
+    @Profile("test")
+    @GetMapping("/api/v1/auth/test-login")
+    public void loginAs(@RequestParam String githubLogin, HttpServletRequest request, HttpServletResponse response) {
+        var userOpt = userService.findByGithubLogin(githubLogin);
+        if (userOpt.isPresent()) {
+            var user = userOpt.get();
+            var principal = new DefaultOAuth2User(
+                    List.of(new SimpleGrantedAuthority(user.getRole().name())),
+                    Map.of("login", user.getLogin()),
+                    "login"
+            );
+            Authentication auth = new OAuth2AuthenticationToken(principal, principal.getAuthorities(), "github");
+            SecurityContextHolder.getContext().setAuthentication(auth);
+            request.getSession();
+        }
+
     }
 
 }

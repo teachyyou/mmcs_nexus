@@ -13,8 +13,7 @@ import {
 import { Link } from 'react-router-dom';
 import GradeEditorModal from './GradeEditorModal';
 import InlineGradeEditor from './InlineGradeEditor';
-import {useAuth} from "../../AuthContext";
-
+import { useAuth } from "../../AuthContext";
 
 const cellSx = {
     border: '2px solid black',
@@ -30,7 +29,7 @@ const GradeTable = ({ grades, event }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedJuryId, setSelectedJuryId] = useState(null);
     const [selectedProjectId, setSelectedProjectId] = useState(null);
-    const {userId} = useAuth();
+    const { userId } = useAuth();
 
     useEffect(() => {
         setLocalGrades(grades);
@@ -71,15 +70,14 @@ const GradeTable = ({ grades, event }) => {
 
     const handleInlineUpdate = async (gradeItem, field, newValue) => {
         const oldValue = gradeItem[field];
-        const { juryId, ...gradeWithoutJuryId } = gradeItem;
-        const updatedGrade = { ...gradeWithoutJuryId, [field]: newValue };
+        const updatedGrade = { ...gradeItem, [field]: newValue };
 
         try {
             const response = await fetch('http://localhost:8080/api/v1/jury/grades', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
-                body: JSON.stringify(gradeWithoutJuryId)
+                body: JSON.stringify(updatedGrade)
             });
 
             if (!response.ok) {
@@ -94,6 +92,7 @@ const GradeTable = ({ grades, event }) => {
         return { success: true };
     };
 
+    // Словарь для быстрого доступа к оценкам по projectId и juryId
     const gradeMap = {};
     if (localGrades && localGrades.rows) {
         localGrades.rows.forEach((row) => {
@@ -106,7 +105,7 @@ const GradeTable = ({ grades, event }) => {
 
     return (
         <>
-            <TableContainer component={Card} sx={{ mt: 2 }} key={JSON.stringify(localGrades)}>
+            <TableContainer component={Card} sx={{ mt: 2 }}>
                 <Table sx={{ minWidth: 600, tableLayout: 'flexible', width: '100%' }}>
                     <TableHead>
                         <TableRow>
@@ -125,58 +124,75 @@ const GradeTable = ({ grades, event }) => {
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {localGrades.projects.map(project => (
-                            <TableRow key={project.id}>
-                                <TableCell sx={{ ...cellSx, fontWeight: 'bold' }}>
-                                    {project.name}
-                                </TableCell>
-                                {localGrades.juries.map(jury => {
-                                    const gradeItem = gradeMap[project.id]?.[jury.id];
-                                    const isOwner = jury.id === userId;
-                                    return (
-                                        <TableCell
-                                            key={`${project.id}-${jury.id}`} align="center" sx={cellSx}
-                                        >
-                                            {gradeItem ? (
-                                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                                                    <InlineGradeEditor
-                                                        gradeItem={gradeItem}
-                                                        onUpdate={(field, newValue) =>
-                                                            handleInlineUpdate(gradeItem, field, newValue)
-                                                        }
-                                                        maxBuild={event.maxBuildPoints}
-                                                        maxPres={event.maxPresPoints}
-                                                    />
-                                                    <MuiLink
-                                                        component={Link}
-                                                        to="#"
-                                                        onClick={() => handleCellClick(gradeItem, project.id, jury.id)}
-                                                        sx={{ fontSize: '0.75rem', color: 'blue' }}
-                                                    >
-                                                        Подробнее...
-                                                    </MuiLink>
-                                                </Box>
-                                            ) : (
-                                                isOwner ? (
-                                                    <MuiLink
-                                                        component={Link}
-                                                        to="#"
-                                                        onClick={() => handleCellClick(null, project.id, jury.id)}
-                                                        sx={{ fontSize: '0.75rem', color: 'blue' }}
-                                                    >
-                                                        Не оценено
-                                                    </MuiLink>
-                                                ) : (
-                                                    <Box sx={{ fontSize: '0.75rem', color: '#999' }}>
-                                                        Не оценено
+                        {localGrades.rows.map(rowData => {
+                            const { projectId, mentorId } = rowData;
+                            const project = localGrades.projects.find(p => p.id === projectId);
+                            return (
+                                <TableRow key={projectId}>
+                                    <TableCell sx={{ ...cellSx, fontWeight: 'bold' }}>
+                                        {project?.name}
+                                    </TableCell>
+                                    {localGrades.juries.map(jury => {
+                                        const gradeItem = gradeMap[projectId]?.[jury.id];
+                                        const isOwner = jury.id === userId;
+                                        const isMentorCell = mentorId === userId && jury.id === userId;
+
+                                        if (isMentorCell) {
+                                            return (
+                                                <TableCell
+                                                    key={`${projectId}-${jury.id}`} align="center" sx={cellSx}
+                                                >
+                                                    <Box sx={{ color: '#999' }}>Недоступно</Box>
+                                                </TableCell>
+                                            );
+                                        }
+
+                                        // Обычная логика для остальных пользователей
+                                        return (
+                                            <TableCell
+                                                key={`${projectId}-${jury.id}`} align="center" sx={cellSx}
+                                            >
+                                                {gradeItem ? (
+                                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                                                        <InlineGradeEditor
+                                                            gradeItem={gradeItem}
+                                                            maxBuild={event.maxBuildPoints}
+                                                            maxPres={event.maxPresPoints}
+                                                            onUpdate={(field, newValue) =>
+                                                                handleInlineUpdate(gradeItem, field, newValue)
+                                                            }
+                                                        />
+                                                        <MuiLink
+                                                            component={Link}
+                                                            to="#"
+                                                            onClick={() => handleCellClick(gradeItem, projectId, jury.id)}
+                                                            sx={{ fontSize: '0.75rem', color: 'blue' }}
+                                                        >
+                                                            Подробнее...
+                                                        </MuiLink>
                                                     </Box>
-                                                )
-                                            )}
-                                        </TableCell>
-                                    );
-                                })}
-                            </TableRow>
-                        ))}
+                                                ) : (
+                                                    isOwner ? (
+                                                        <MuiLink
+                                                            component={Link}
+                                                            to="#"
+                                                            onClick={() => handleCellClick(null, projectId, jury.id)}
+                                                            sx={{ fontSize: '0.75rem', color: 'blue' }}
+                                                        >
+                                                            Не оценено
+                                                        </MuiLink>
+                                                    ) : (
+                                                        <Box sx={{ fontSize: '0.75rem', color: '#999' }}>
+                                                            Не оценено
+                                                        </Box>
+                                                    )
+                                                )}
+                                            </TableCell>
+                                        );
+                                    })}
+                                </TableRow>
+                            );
+                        })}
                     </TableBody>
                 </Table>
             </TableContainer>
