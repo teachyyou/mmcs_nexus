@@ -105,7 +105,7 @@ const GradeTable = ({ grades, event }) => {
 
     return (
         <>
-            <TableContainer component={Card} sx={{ mt: 2 }}>
+            <TableContainer component={Card} sx={{ mt: 2 }} key={JSON.stringify(localGrades)}>
                 <Table sx={{ minWidth: 600, tableLayout: 'flexible', width: '100%' }}>
                     <TableHead>
                         <TableRow>
