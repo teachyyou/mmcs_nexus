@@ -53,8 +53,6 @@ public class GradeTableController {
             @PathVariable("eventId") UUID eventId,
             @RequestParam(value = "show", defaultValue = "all") String showParam)
     {
-        //todo check for enum parsing exceptions
-
         GradeTableEnums.ShowFilter show;
 
         try {
@@ -98,7 +96,8 @@ public class GradeTableController {
 
         //Создаем строки для объекта таблицы - каждому проекту ставим в соответствие несколько gradeDTO в формате Map
         for (Project project : eventProjects) {
-            GradeTableRowDTO row = new GradeTableRowDTO(project.getId(), project.getName());
+            UUID mentorId = Optional.ofNullable(projectJuryEventService.getMentor(project.getId(), eventId)).map(UserDTO::getId).orElse(null);
+            GradeTableRowDTO row = new GradeTableRowDTO(project.getId(), mentorId, project.getName());
             List<GradeDTO> grades = gradeService.findByEventAndProject(event.getId(), project.getId())
                     .stream().map(GradeDTO::new).toList();
             row.setTableRow(grades);

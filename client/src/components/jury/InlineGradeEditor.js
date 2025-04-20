@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Box, TextField, Typography, InputAdornment } from '@mui/material';
+import { useAuth } from "../../AuthContext";
 
 const InlineGradeEditor = ({ gradeItem, maxBuild, maxPres, onUpdate }) => {
     const [buildPoints, setBuildPoints] = useState(
@@ -9,10 +10,13 @@ const InlineGradeEditor = ({ gradeItem, maxBuild, maxPres, onUpdate }) => {
         gradeItem.presPoints !== undefined ? gradeItem.presPoints : ''
     );
 
+    const { userId } = useAuth();
+    // Проверяем, совпадает ли текущий userId с владельцем оценки
+    const isOwner = userId === gradeItem.juryId;
+
     const handleUpdate = async (field, value) => {
         const numericValue = value === '' ? '' : parseInt(value, 10);
         const result = await onUpdate(field, numericValue);
-
 
         if (result && !result.success) {
             if (field === 'buildPoints') {
@@ -33,9 +37,10 @@ const InlineGradeEditor = ({ gradeItem, maxBuild, maxPres, onUpdate }) => {
                     size="small"
                     value={presPoints}
                     onChange={(e) => setPresPoints(e.target.value)}
-                    onBlur={() => handleUpdate('presPoints', presPoints)}
+                    onBlur={() => isOwner && handleUpdate('presPoints', presPoints)}
+                    disabled={!isOwner}
                     InputProps={{
-                        style: { textAlign: 'center', fontSize: '0.75rem', padding: '2px' },
+                        style: { textAlign: 'center', fontSize: '1rem', padding: '2px' },
                         endAdornment: (
                             <InputAdornment position="end">
                                 /{maxPres}
@@ -53,9 +58,10 @@ const InlineGradeEditor = ({ gradeItem, maxBuild, maxPres, onUpdate }) => {
                     size="small"
                     value={buildPoints}
                     onChange={(e) => setBuildPoints(e.target.value)}
-                    onBlur={() => handleUpdate('buildPoints', buildPoints)}
+                    onBlur={() => isOwner && handleUpdate('buildPoints', buildPoints)}
+                    disabled={!isOwner}
                     InputProps={{
-                        style: { textAlign: 'center', fontSize: '0.75rem', padding: '2px' },
+                        style: { textAlign: 'center', fontSize: '1rem', padding: '2px' },
                         endAdornment: (
                             <InputAdornment position="end">
                                 /{maxBuild}
