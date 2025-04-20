@@ -35,13 +35,11 @@ const GradeEditorModal = ({
             setComment(grade.comment || '');
             setPresPoints(grade.presPoints !== null ? grade.presPoints : '');
             setBuildPoints(grade.buildPoints !== null ? grade.buildPoints : '');
-            console.log('we GOOOOOOO')
 
         } else {
             setComment('');
             setPresPoints('');
             setBuildPoints('');
-            console.log('we here')
         }
     }, [grade, open]);
 

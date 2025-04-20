@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
     Table,
     TableBody,
@@ -23,17 +23,12 @@ const cellSx = {
     overflow: 'hidden'
 };
 
-const GradeTable = ({ grades, event }) => {
-    const [localGrades, setLocalGrades] = useState(grades);
+const GradeTable = ({ grades, event, onGradeUpdated }) => {
     const [selectedGrade, setSelectedGrade] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedJuryId, setSelectedJuryId] = useState(null);
     const [selectedProjectId, setSelectedProjectId] = useState(null);
     const { userId } = useAuth();
-
-    useEffect(() => {
-        setLocalGrades(grades);
-    }, [grades]);
 
     const handleCellClick = (grade, projectId, juryId) => {
         setSelectedGrade(grade);
@@ -49,29 +44,9 @@ const GradeTable = ({ grades, event }) => {
         setSelectedProjectId(null);
     };
 
-    const handleGradeUpdated = (updatedGrade) => {
-        const projId = updatedGrade.projectId;
-        const jurId = updatedGrade.juryId;
-        const newRows = localGrades.rows.map((row) => {
-            if (row.projectId === projId) {
-                const newTableRow = row.tableRow.slice();
-                const idx = newTableRow.findIndex(item => item.juryId === jurId);
-                if (idx >= 0) {
-                    newTableRow[idx] = updatedGrade;
-                } else {
-                    newTableRow.push(updatedGrade);
-                }
-                return { ...row, tableRow: newTableRow };
-            }
-            return row;
-        });
-        setLocalGrades({ ...localGrades, rows: newRows });
-    };
-
     const handleInlineUpdate = async (gradeItem, field, newValue) => {
         const oldValue = gradeItem[field];
         const updatedGrade = { ...gradeItem, [field]: newValue };
-
         try {
             const response = await fetch('http://localhost:8080/api/v1/jury/grades', {
                 method: 'PUT',
@@ -79,79 +54,64 @@ const GradeTable = ({ grades, event }) => {
                 credentials: 'include',
                 body: JSON.stringify(updatedGrade)
             });
-
             if (!response.ok) {
                 const errorData = await response.json();
                 console.error('Ошибка при сохранении оценки:', errorData);
             }
             const updatedGradeFromServer = await response.json();
-            handleGradeUpdated(updatedGradeFromServer);
+            onGradeUpdated(updatedGradeFromServer);
         } catch (error) {
             return { success: false, oldValue };
         }
         return { success: true };
     };
 
-    // Словарь для быстрого доступа к оценкам по projectId и juryId
+    // Словарь для быстрого доступа к оценкам
     const gradeMap = {};
-    if (localGrades && localGrades.rows) {
-        localGrades.rows.forEach((row) => {
-            gradeMap[row.projectId] = {};
-            row.tableRow.forEach((item) => {
-                gradeMap[row.projectId][item.juryId] = { ...item };
-            });
+    grades.rows.forEach(row => {
+        gradeMap[row.projectId] = {};
+        row.tableRow.forEach(item => {
+            gradeMap[row.projectId][item.juryId] = item;
         });
-    }
+    });
 
     return (
         <>
-            <TableContainer component={Card} sx={{ mt: 2 }} key={JSON.stringify(localGrades)}>
+            <TableContainer component={Card} sx={{ mt: 2 }}>
                 <Table sx={{ minWidth: 600, tableLayout: 'flexible', width: '100%' }}>
                     <TableHead>
                         <TableRow>
                             <TableCell sx={{ ...cellSx, fontWeight: 'bold' }}>
                                 Проекты / Жюри
                             </TableCell>
-                            {localGrades.juries.map(jury => (
-                                <TableCell
-                                    key={jury.id}
-                                    align="center"
-                                    sx={{ ...cellSx, fontWeight: 'bold' }}
-                                >
+                            {grades.juries.map(jury => (
+                                <TableCell key={jury.id} align="center" sx={{ ...cellSx, fontWeight: 'bold' }}>
                                     {jury.firstName} {jury.lastName}
                                 </TableCell>
                             ))}
                         </TableRow>
                     </TableHead>
                     <TableBody>
-                        {localGrades.rows.map(rowData => {
-                            const { projectId, mentorId } = rowData;
-                            const project = localGrades.projects.find(p => p.id === projectId);
+                        {grades.rows.map(({ projectId, mentorId, tableRow }) => {
+                            const project = grades.projects.find(p => p.id === projectId);
                             return (
                                 <TableRow key={projectId}>
                                     <TableCell sx={{ ...cellSx, fontWeight: 'bold' }}>
                                         {project?.name}
                                     </TableCell>
-                                    {localGrades.juries.map(jury => {
+                                    {grades.juries.map(jury => {
                                         const gradeItem = gradeMap[projectId]?.[jury.id];
                                         const isOwner = jury.id === userId;
-                                        const isMentorCell = mentorId === userId && jury.id === userId;
-
+                                        const isMentorCell = jury.id === mentorId;
                                         if (isMentorCell) {
                                             return (
-                                                <TableCell
-                                                    key={`${projectId}-${jury.id}`} align="center" sx={cellSx}
-                                                >
+                                                <TableCell key={jury.id} align="center" sx={cellSx}>
                                                     <Box sx={{ color: '#999' }}>Недоступно</Box>
                                                 </TableCell>
                                             );
                                         }
-
-                                        // Обычная логика для остальных пользователей
                                         return (
-                                            <TableCell
-                                                key={`${projectId}-${jury.id}`} align="center" sx={cellSx}
-                                            >
+                                            <TableCell key={jury.id} align="center" sx={cellSx}>
                                                 {gradeItem ? (
                                                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
                                                         <InlineGradeEditor
@@ -202,8 +162,8 @@ const GradeTable = ({ grades, event }) => {
                 grade={selectedGrade}
                 projectId={selectedProjectId}
                 juryId={selectedJuryId}
-                grades={localGrades}
-                onGradeUpdated={handleGradeUpdated}
+                grades={grades}
+                onGradeUpdated={onGradeUpdated}
             />
         </>
     );
