@@ -50,7 +50,7 @@ const NavigationBar = ({ avatarUrl, userName, userEmail }) => {
                         <UserMenu open={menuOpen} onClose={handleMenuClose} user={user} onLogout={handleLogout} />
                     </>
                 ) : (
-                    <Button component={Link} to="/login" color="inherit">
+                    <Button component={Link} to='http://localhost:8080/oauth2/authorization/github' color="inherit">
                         Вход
                     </Button>
                 )}
