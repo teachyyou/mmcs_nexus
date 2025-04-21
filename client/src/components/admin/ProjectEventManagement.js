@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {Alert, Autocomplete, Button, Checkbox, FormControlLabel, Snackbar, TextField} from '@mui/material';
+import {Title} from "react-admin";
 
 const ProjectEventManagement = () => {
     const [events, setEvents] = useState([]);
@@ -71,15 +72,15 @@ const ProjectEventManagement = () => {
                 body: JSON.stringify(payload),
             });
             if (!response.ok) {
-                setSnackbarMessage('Failed to save');
+                setSnackbarMessage('Во время сохранения произошла ошибка');
                 setSnackbarSeverity('error');
             } else {
-                setSnackbarMessage('Saved successfully');
+                setSnackbarMessage('Успешно сохранено');
                 setSnackbarSeverity('success');
             }
         } catch (error) {
             console.error('Error saving changes:', error);
-            setSnackbarMessage('Failed to save');
+            setSnackbarMessage('Во время сохранения произошла ошибка');
             setSnackbarSeverity('error');
         } finally {
             setOpenSnackbar(true);
@@ -93,64 +94,66 @@ const ProjectEventManagement = () => {
     };
 
     return (
-        <div>
-            <h2>Manage Projects for Event</h2>
-
-            {/* Выбор события */}
-            <Autocomplete
-                options={events}
-                getOptionLabel={(option) => `${option.name} ${option.year}-${parseInt(option.year) + 1}`}
-                onChange={(event, newValue) => setSelectedEvent(newValue?.id || null)}
-                renderInput={(params) => <TextField {...params} label="Select Event" />}
-                style={{ marginBottom: '16px' }}
-            />
-
-            {/* Чекбокс "Link all projects for the same year" */}
-            {selectedEvent && (
-                <FormControlLabel
-                    control={
-                        <Checkbox
-                            checked={linkAllProjects}
-                            onChange={(e) => setLinkAllProjects(e.target.checked)}
-                        />
-                    }
-                    label="Link all projects for the same year"
-                />
-            )}
-
-            {/* Редактирование связанных проектов (если не выбрана опция "Link all" и событие выбрано) */}
-            {!linkAllProjects && selectedEvent && (
+        <>
+            <Title title="Этапы отчётности" />
+            <h2>Привязка проектов к этапам отчётности</h2>
+            <div>
+                {/* Выбор события */}
                 <Autocomplete
-                    multiple
-                    options={projects}
-                    getOptionLabel={(option) => option.name}
-                    isOptionEqualToValue={(option, value) => option.id === value.id}
-                    value={selectedProjects}
-                    onChange={(event, newValue) => setSelectedProjects(newValue)}
-                    renderInput={(params) => <TextField {...params} label="Linked Projects" />}
-                    style={{ marginTop: '16px', marginBottom: '16px' }}
+                    options={events}
+                    getOptionLabel={(option) => `${option.name} ${option.year}-${parseInt(option.year) + 1}`}
+                    onChange={(event, newValue) => setSelectedEvent(newValue?.id || null)}
+                    renderInput={(params) => <TextField {...params} label="Выберите этап отчётности"/>}
+                    style={{marginBottom: '16px'}}
                 />
-            )}
 
-            {/* Кнопка сохранения изменений */}
-            {selectedEvent && (
-                <Button onClick={handleSubmit} variant="contained" color="primary" disabled={loading}>
-                    {loading ? 'Saving...' : 'Save Changes'}
-                </Button>
-            )}
+                {/* Чекбокс "Link all projects for the same year" */}
+                {selectedEvent && (
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={linkAllProjects}
+                                onChange={(e) => setLinkAllProjects(e.target.checked)}
+                            />
+                        }
+                        label="Привязать всё проекты за текущий год"
+                    />
+                )}
 
-            {/* Snackbar для вывода сообщений */}
-            <Snackbar
-                open={openSnackbar}
-                autoHideDuration={3000}
-                onClose={handleSnackbarClose}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-            >
-                <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
-                    {snackbarMessage}
-                </Alert>
-            </Snackbar>
-        </div>
+                {/* Редактирование связанных проектов (если не выбрана опция "Link all" и событие выбрано) */}
+                {!linkAllProjects && selectedEvent && (
+                    <Autocomplete
+                        multiple
+                        options={projects}
+                        getOptionLabel={(option) => option.name}
+                        isOptionEqualToValue={(option, value) => option.id === value.id}
+                        value={selectedProjects}
+                        onChange={(event, newValue) => setSelectedProjects(newValue)}
+                        renderInput={(params) => <TextField {...params} label="Привязанные проекты"/>}
+                        style={{marginTop: '16px', marginBottom: '16px'}}
+                    />
+                )}
+
+                {/* Кнопка сохранения изменений */}
+                {selectedEvent && (
+                    <Button onClick={handleSubmit} variant="contained" color="primary" disabled={loading}>
+                        {loading ? 'Отправка' : 'Сохранить'}
+                    </Button>
+                )}
+
+                {/* Snackbar для вывода сообщений */}
+                <Snackbar
+                    open={openSnackbar}
+                    autoHideDuration={3000}
+                    onClose={handleSnackbarClose}
+                    anchorOrigin={{vertical: 'bottom', horizontal: 'center'}}
+                >
+                    <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{width: '100%'}}>
+                        {snackbarMessage}
+                    </Alert>
+                </Snackbar>
+            </div>
+        </>
     );
 };
 

@@ -17,10 +17,16 @@ import java.util.UUID;
 public interface ProjectEventRepository extends JpaRepository<ProjectEvent, ProjectEventKey> {
 
     @Query("SELECT pe.project FROM ProjectEvent pe WHERE pe.event.id = :eventId")
-    List<Project> findByEventId(@Param("eventId") UUID eventId);
+    List<Project> findProjectsByEventId(@Param("eventId") UUID eventId);
+
+    @Query("SELECT pe FROM ProjectEvent pe WHERE pe.event.id = :eventId")
+    List<ProjectEvent> findByEventId(@Param("eventId") UUID eventId);
+
+    @Query("SELECT pe.project FROM ProjectEvent pe WHERE pe.event.id = :eventId AND pe.defDay = :day")
+    List<Project> findByEventIdForDay(@Param("eventId") UUID eventId, @Param("day") Integer day);
 
     @Query("SELECT pe.event FROM ProjectEvent pe WHERE pe.project.id = :projectId")
-    List<Event> findByProjectId(@Param("projectId") UUID projectId);
+    List<Event> findEventsByProjectId(@Param("projectId") UUID projectId);
 
     @Modifying
     @Query("DELETE FROM ProjectEvent pe WHERE pe.event.id = :eventId")

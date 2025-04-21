@@ -3,20 +3,20 @@ package ru.sfedu.mmcs_nexus.controller.v1.admin;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import ru.sfedu.mmcs_nexus.model.dto.request.EventProjectDayRequestDTO;
 import ru.sfedu.mmcs_nexus.model.dto.request.EventProjectsRequestDTO;
 import ru.sfedu.mmcs_nexus.model.entity.Event;
-import ru.sfedu.mmcs_nexus.service.EventService;
 import ru.sfedu.mmcs_nexus.model.entity.Project;
-import ru.sfedu.mmcs_nexus.service.ProjectService;
+import ru.sfedu.mmcs_nexus.service.EventService;
 import ru.sfedu.mmcs_nexus.service.ProjectEventService;
+import ru.sfedu.mmcs_nexus.service.ProjectService;
+import ru.sfedu.mmcs_nexus.util.ResponseUtils;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 @RestController
 public class AdminEventController {
@@ -67,14 +67,32 @@ public class AdminEventController {
         return ResponseEntity.ok().body(response);
     }
 
+    @GetMapping(value = "/api/v1/admin/events/{id}/projects/days", produces = "application/json")
+    public ResponseEntity<Map<String, Object>> getEventProjectsByIdForDays(@PathVariable("id") UUID id, Authentication authentication) {
+
+        List<Project> firstDayProjects = projectEventService.findByEventIdForDay(id, 1).stream().sorted(Comparator.comparing(Project::getName)).toList();
+        List<Project> secondDayProjects = projectEventService.findByEventIdForDay(id, 2).stream().sorted(Comparator.comparing(Project::getName)).toList();
+
+        Map<String, List<Project>> content = new HashMap<>();
+        content.put("firstDayProjects", firstDayProjects);
+        content.put("secondDayProjects", secondDayProjects);
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("content", content);
+        response.put("totalElements", firstDayProjects.size()+secondDayProjects.size());
+
+        return ResponseEntity.ok().body(response);
+    }
+
     @PostMapping(value = "/api/v1/admin/events/{id}/projects", consumes = "application/json", produces = "application/json")
     public ResponseEntity<?> saveEventProjects(@PathVariable("id") UUID eventId,
                                                @RequestBody EventProjectsRequestDTO request,
                                                Authentication authentication) {
 
-        // Validate the event exists
-        Event event = eventService.findById(eventId)
-                .orElseThrow(() -> new EntityNotFoundException("Event with id " + eventId + " not found"));
+        if (!eventService.existsById(eventId)) {
+            return ResponseUtils.error(HttpStatus.NOT_FOUND, "Event not found", "eventId", eventId);
+        }
+        Event event = eventService.findById(eventId).get();
 
         List<Project> projects;
         if (request.isLinkAllProjects()) {
@@ -89,6 +107,15 @@ public class AdminEventController {
         projectEventService.setProjectsForEvent(event, projects);
 
         // Return a success response
+        return ResponseEntity.ok().build();
+    }
+
+    @PostMapping(value = "/api/v1/admin/events/{id}/days", consumes = "application/json", produces = "application/json")
+    public ResponseEntity<?> saveEventProjectDefDays(@PathVariable("id") UUID eventId,
+                                               @Valid @RequestBody EventProjectDayRequestDTO request,
+                                               Authentication authentication) {
+
+        projectEventService.setDaysForProjectAndEvent(eventId, request.getFirstDayProjects(), request.getSecondDayProjects());
         return ResponseEntity.ok().build();
     }
 

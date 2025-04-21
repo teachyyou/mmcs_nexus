@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-project_event-day-1
+      author: TeachYou
+      changes:
+        - addColumn:
+            tableName: project_event
+            columns:
+              - column:
+                  name: def_day
+                  type: int
+                  defaultValueNumeric: 1
+                  constraints:
+                    nullable: false

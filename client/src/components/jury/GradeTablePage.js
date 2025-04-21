@@ -10,10 +10,11 @@ import {
     MenuItem,
     Select,
     Switch,
-    FormGroup
+    FormGroup, Tooltip, IconButton
 } from '@mui/material';
 import GradeTable from './GradeTable';
 import NavigationBar from '../home/NavigationBar';
+import InfoIcon from '@mui/icons-material/Info';
 
 const GradeTablePage = ({ isAuthenticated, setIsAuthenticated }) => {
     const [year, setYear] = useState('');
@@ -129,14 +130,39 @@ const GradeTablePage = ({ isAuthenticated, setIsAuthenticated }) => {
                                                 }}
                                         />
                                     }
-                                    label="Отобразить только мои"
+                                    label={
+                                        <div style={{ display: 'flex', alignItems: 'center' }}>
+                                            <span>Отобразить только мои</span>
+                                            <Tooltip
+                                                title="Отобразить только те проекты, для которых вы назначены проверяющим"
+                                                arrow
+
+                                            >
+                                                <IconButton size="medium" style={{ padding: 0, marginLeft: 4 }}>
+                                                    <InfoIcon fontSize="medium" />
+                                                </IconButton>
+                                            </Tooltip>
+                                        </div>
+                                    }
                                 />
                                 {showOnlyMy && (
                                     <FormControlLabel
                                         control={
                                             <Switch checked={showMentored} onChange={() => setShowMentored(!showMentored)} />
                                         }
-                                        label="Под моим менторством"
+                                        label={
+                                            <div style={{ display: 'flex', alignItems: 'center' }}>
+                                                <span>Под моим менторством</span>
+                                                <Tooltip
+                                                    title="Отобразить только те проекты, для которых вы являетесь ментором"
+                                                    arrow
+                                                >
+                                                    <IconButton size="medium" style={{ padding: 0, marginLeft: 4 }}>
+                                                        <InfoIcon fontSize="medium" />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            </div>
+                                        }
                                     />
                                 )}
                             </FormGroup>

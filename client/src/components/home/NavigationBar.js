@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { AppBar, Toolbar, Button, IconButton, Avatar, Box } from '@mui/material';
-import { Link } from 'react-router-dom';
-import LoginButton from '../login/LoginButton';
+import { Link } from 'react-router-dom'
 import { useAuth, useIsAdmin, useIsJury } from '../../AuthContext';
 import UserMenu from './UserMenu';
 

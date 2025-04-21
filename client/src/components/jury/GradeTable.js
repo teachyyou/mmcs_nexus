@@ -8,7 +8,7 @@ import {
     TableRow,
     Box,
     Link as MuiLink,
-    Card
+    Card, Tooltip
 } from '@mui/material';
 import { Link } from 'react-router-dom';
 import GradeEditorModal from './GradeEditorModal';
@@ -106,7 +106,11 @@ const GradeTable = ({ grades, event, onGradeUpdated }) => {
                                         if (isMentorCell) {
                                             return (
                                                 <TableCell key={jury.id} align="center" sx={cellSx}>
-                                                    <Box sx={{ color: '#999' }}>Недоступно</Box>
+                                                    <Tooltip title="Ментор не имеет права оценивать свои проекты">
+                                                        <span>
+                                                        <   Box sx={{ color: '#999' }}>Недоступно</Box>
+                                                        </span>
+                                                    </Tooltip>
                                                 </TableCell>
                                             );
                                         }
