@@ -110,13 +110,14 @@ public class AdminEventController {
         return ResponseEntity.ok().build();
     }
 
+    //Распределение проектов по дням
     @PostMapping(value = "/api/v1/admin/events/{id}/days", consumes = "application/json", produces = "application/json")
     public ResponseEntity<?> saveEventProjectDefDays(@PathVariable("id") UUID eventId,
                                                @Valid @RequestBody EventProjectDayRequestDTO request,
                                                Authentication authentication) {
 
         projectEventService.setDaysForProjectAndEvent(eventId, request.getFirstDayProjects(), request.getSecondDayProjects());
-        return ResponseEntity.ok().build();
+        return ResponseUtils.success(HttpStatus.OK, "saved successfully");
     }
 
 

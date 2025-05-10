@@ -29,7 +29,7 @@ public class ProjectEventService {
     }
 
     public List<Project> findByEventId(UUID eventId) {
-        return projectEventRepository.findProjectsByEventId(eventId);
+        return projectEventRepository.findProjectsByEventId(eventId, null);
     }
 
     public List<Project> findByEventIdForDay(UUID eventId, int day) {
@@ -72,6 +72,23 @@ public class ProjectEventService {
                 throw new ResponseStatusException(
                         HttpStatus.BAD_REQUEST,
                         "Project lists for day 1 and day 2 must not overlap"
+                );
+            }
+        }
+
+        if (firstDayProjects != null) for (UUID uuid : firstDayProjects) {
+            if (!projectEventRepository.existsById(new ProjectEventKey(uuid, eventId))) {
+                throw new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        STR."Project \{uuid} is not linked to event \{eventId}"
+                );
+            }
+        }
+        if (secondDayProjects != null) for (UUID uuid : secondDayProjects) {
+            if (!projectEventRepository.existsById(new ProjectEventKey(uuid, eventId))) {
+                throw new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        STR."Project \{uuid} is not linked to event \{eventId}"
                 );
             }
         }

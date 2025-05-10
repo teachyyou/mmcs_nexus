@@ -26,38 +26,80 @@ public interface ProjectJuryEventRepository extends JpaRepository<ProjectJuryEve
     @Query("SELECT pje.jury FROM ProjectJuryEvent pje WHERE pje.event.id=:eventId AND pje.project.id=:projectId AND pje.relationType='MENTOR'")
     List<User> findMentorsByProjectIdAndEventId(@Param("eventId") UUID eventId, @Param("projectId") UUID projectId);
 
-    @Query("SELECT pje.project FROM ProjectJuryEvent pje WHERE pje.event.id = :eventId AND pje.jury.id = :juryId")
-    List<Project> findProjectByEventAssignedToJury(@Param("eventId") UUID eventId, @Param("juryId") UUID juryId);
+    //Достаем только те проекты, что связаны с данным жюри и проверяются в указанный день
+    @Query("SELECT pje.project FROM ProjectJuryEvent pje " +
+            "JOIN ProjectEvent pe ON pje.project.id = pe.project.id AND pje.event.id = pe.event.id " +
+            "WHERE pje.event.id = :eventId " +
+            "AND pje.jury.id = :juryId " +
+            "AND (:day IS NULL OR pe.defDay = :day)")
+    List<Project> findProjectByEventAssignedToJury(
+            @Param("eventId") UUID eventId,
+            @Param("juryId") UUID juryId,
+            @Param("day") Integer day);
 
-    @Query("SELECT pje.project FROM ProjectJuryEvent pje WHERE pje.event.id = :eventId AND pje.jury.id = :juryId AND pje.relationType = 'MENTOR'")
-    List<Project> findProjectByEventMentoredByJury(@Param("eventId") UUID eventId, @Param("juryId") UUID juryId);
+    //Достаем только те проекты, что связаны менторством с данным жюри и проверяются в указанный день
+    @Query("SELECT pje.project FROM ProjectJuryEvent pje " +
+            "JOIN ProjectEvent pe ON pje.project.id = pe.project.id AND pje.event.id = pe.event.id " +
+            "WHERE pje.event.id = :eventId " +
+            "AND pje.jury.id = :juryId " +
+            "AND pje.relationType = 'MENTOR' " +
+            "AND (:day IS NULL OR pe.defDay = :day)")
+    List<Project> findProjectByEventMentoredByJury(
+            @Param("eventId") UUID eventId,
+            @Param("juryId") UUID juryId,
+            @Param("day") Integer day);
 
+    //Достаем только тех жюри, что связаны с проектами, что связаны с данным жюри и проверяются в указанный день
     @Query("""
-    SELECT DISTINCT relatedPje.jury
+    SELECT DISTINCT pje.jury
     FROM ProjectJuryEvent pje
-    JOIN ProjectJuryEvent relatedPje ON pje.project = relatedPje.project
     WHERE pje.event.id = :eventId
-    AND pje.jury.id = :juryId
+    AND pje.project IN (
+        SELECT pe.project FROM ProjectEvent pe
+        JOIN ProjectJuryEvent j ON j.project = pe.project AND j.event = pe.event
+        WHERE pe.event.id = :eventId
+        AND j.jury.id = :juryId
+        AND (:day IS NULL OR pe.defDay = :day))
     """)
-    List<User> findJuriesForProjectsAssignedToJuryByEvent(@Param("eventId") UUID eventId, @Param("juryId") UUID juryId);
+    List<User> findJuriesForProjectsAssignedToJuryByEvent(
+            @Param("eventId") UUID eventId,
+            @Param("juryId") UUID juryId,
+            @Param("day") Integer day);
 
+    //Достаем только тех жюри, что связаны с проектами, что связаны менторством с данным жюри и проверяются в указанный день
     @Query("""
-    SELECT DISTINCT relatedPje.jury
+    SELECT DISTINCT pje.jury
     FROM ProjectJuryEvent pje
-    JOIN ProjectJuryEvent relatedPje ON pje.project = relatedPje.project
     WHERE pje.event.id = :eventId
-    AND pje.jury.id = :juryId
-    AND pje.relationType = 'MENTOR'
+    AND pje.project IN (
+        SELECT pe.project
+        FROM ProjectEvent pe
+        JOIN ProjectJuryEvent mentorPje ON
+            mentorPje.project = pe.project AND
+            mentorPje.event = pe.event
+        WHERE pe.event.id = :eventId
+        AND mentorPje.jury.id = :juryId
+        AND mentorPje.relationType = 'MENTOR'
+        AND (:day IS NULL OR pe.defDay = :day)
+    )
     """)
-    List<User> findJuriesForProjectsMentoredByJuryByEvent(@Param("eventId") UUID eventId, @Param("juryId") UUID juryId);
+    List<User> findJuriesForProjectsMentoredByJuryByEvent(
+            @Param("eventId") UUID eventId,
+            @Param("juryId") UUID juryId,
+            @Param("day") Integer day);
 
 
     List<ProjectJuryEvent> findByProjectIdAndEventId(UUID projectId, UUID eventId);
 
     Optional<ProjectJuryEvent> findByProjectIdAndEventIdAndJuryId(UUID projectId, UUID eventId, UUID juryId);
 
-    @Query("SELECT pje.jury FROM ProjectJuryEvent pje WHERE pje.event.id = :eventId")
-    List<User> findJuriesByEventId(UUID eventId);
+
+    //Достаем только тех жюри, что связаны с проектами, что проверяются в указанный день
+    @Query("SELECT pje.jury FROM ProjectJuryEvent pje " +
+            "JOIN ProjectEvent pe ON pje.project.id = pe.project.id AND pje.event.id = pe.event.id " +
+            "WHERE pje.event.id = :eventId " +
+            "AND (:day IS NULL OR pe.defDay = :day)")
+    List<User> findJuriesByEventId(@Param("eventId") UUID eventId, @Param("day") Integer day);
 
     @Modifying
     @Query("DELETE FROM ProjectJuryEvent pje WHERE pje.event.id = :eventId AND pje.project.id = :projectId")
