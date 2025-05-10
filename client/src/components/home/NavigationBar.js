@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { AppBar, Toolbar, Button, IconButton, Avatar, Box } from '@mui/material';
-import { Link } from 'react-router-dom';
-import LoginButton from '../login/LoginButton';
+import { Link } from 'react-router-dom'
 import { useAuth, useIsAdmin, useIsJury } from '../../AuthContext';
 import UserMenu from './UserMenu';
 
@@ -50,7 +49,7 @@ const NavigationBar = ({ avatarUrl, userName, userEmail }) => {
                         <UserMenu open={menuOpen} onClose={handleMenuClose} user={user} onLogout={handleLogout} />
                     </>
                 ) : (
-                    <Button component={Link} to="/login" color="inherit">
+                    <Button component={Link} to='http://localhost:8080/oauth2/authorization/github' color="inherit">
                         Вход
                     </Button>
                 )}

@@ -68,7 +68,7 @@ public class ProjectJuryEventService {
 
     public List<Project> findProjectsForEvent(UUID eventId, GradeTableEnums.ShowFilter showFilter, UUID userId) {
         return switch (showFilter) {
-            case ALL -> projectEventRepository.findByEventId(eventId);
+            case ALL -> projectEventRepository.findProjectsByEventId(eventId);
             case ASSIGNED -> projectJuryEventRepository.findProjectByEventAssignedToJury(eventId, userId);
             case MENTORED -> projectJuryEventRepository.findProjectByEventMentoredByJury(eventId, userId);
         };
@@ -129,7 +129,7 @@ public class ProjectJuryEventService {
 
     @Transactional
     public void clearProjectEventsJuries(Project project) {
-        List<Event> events = projectEventRepository.findByProjectId(project.getId());
+        List<Event> events = projectEventRepository.findEventsByProjectId(project.getId());
         for (Event event : events) {
             projectJuryEventRepository.deleteByProjectAndEvent(project.getId(), event.getId());
         }

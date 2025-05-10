@@ -1,5 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {Alert, Autocomplete, Button, Checkbox, FormControlLabel, Snackbar, TextField,} from '@mui/material';
+import {Title} from "react-admin";
 
 const ProjectJuryManagement = () => {
     const [projects, setProjects] = useState([]);
@@ -133,15 +134,15 @@ const ProjectJuryManagement = () => {
                 body: JSON.stringify(payload),
             });
             if (response.ok) {
-                setSnackbarMessage('Saved successfully');
+                setSnackbarMessage('Успешно сохранено');
                 setSnackbarSeverity('success');
             } else {
-                setSnackbarMessage('Failed to save');
+                setSnackbarMessage('Во время сохранения произошла ошибка');
                 setSnackbarSeverity('error');
             }
         } catch (error) {
             console.error('Error saving project juries:', error);
-            setSnackbarMessage('Failed to save');
+            setSnackbarMessage('Во время сохранения произошла ошибка');
             setSnackbarSeverity('error');
         } finally {
             setOpenSnackbar(true);
@@ -175,112 +176,114 @@ const ProjectJuryManagement = () => {
     };
 
     return (
-        <div>
-            <h2>Manage Project Juries</h2>
-
-            {/* Выбор проекта */}
-            <Autocomplete
-                options={projects}
-                getOptionLabel={(option) => `${option.name} ${option.year}-${parseInt(option.year) + 1}`}
-                onChange={(event, newValue) => {
-                    setSelectedProject(newValue?.id || null);
-                    setApplyToAllEvents(false);
-                    setWillingJuries([]);
-                    setObligedJuries([]);
-                    setMentors([]);
-                }}
-                renderInput={(params) => <TextField {...params} label="Select Project" />}
-                style={{ marginBottom: '16px' }}
-            />
-
-            {/* Галочка "Apply to all events" */}
-            {selectedProject && (
-                <FormControlLabel
-                    control={
-                        <Checkbox
-                            checked={applyToAllEvents}
-                            onChange={(e) => {
-                                setApplyToAllEvents(e.target.checked);
-                                if (e.target.checked) {
-                                    setSelectedEvent(null);
-                                }
-                            }}
-                        />
-                    }
-                    label="Apply to all events"
-                />
-            )}
-
-            {/* Выбор события */}
-            {!applyToAllEvents && selectedProject && (
+        <>
+            <Title title="Проверяющие и менторы" />
+            <h2>Распределение жюри и менторов по проектам</h2>
+            <div>
+                {/* Выбор проекта */}
                 <Autocomplete
-                    options={events}
-                    value={events.find(event => event.id === selectedEvent) || null}
-                    getOptionLabel={(option) => option.name}
+                    options={projects}
+                    getOptionLabel={(option) => `${option.name} ${option.year}-${parseInt(option.year) + 1}`}
                     onChange={(event, newValue) => {
-                        setSelectedEvent(newValue?.id || null);
+                        setSelectedProject(newValue?.id || null);
+                        setApplyToAllEvents(false);
                         setWillingJuries([]);
                         setObligedJuries([]);
                         setMentors([]);
                     }}
-                    renderInput={(params) => <TextField {...params} label="Select Event" />}
-                    style={{ marginBottom: '16px' }}
+                    renderInput={(params) => <TextField {...params} label="Выберите проект"/>}
+                    style={{marginBottom: '16px'}}
                 />
-            )}
 
-            {/* Выбор жюри */}
-            {selectedProject && ((selectedEvent && !applyToAllEvents) || applyToAllEvents) && (
-                <>
-                    <Autocomplete
-                        multiple
-                        options={getFilteredJuryOptions('willing')}
-                        getOptionLabel={(option) => `${option.lastName} ${option.firstName} `}
-                        isOptionEqualToValue={(option, value) => option.id === value.id}
-                        value={willingJuries}
-                        onChange={handleWillingJuriesChange}
-                        renderInput={(params) => <TextField {...params} label="Willing Juries" />}
-                        style={{ marginBottom: '16px' }}
+                {/* Галочка "Apply to all events" */}
+                {selectedProject && (
+                    <FormControlLabel
+                        control={
+                            <Checkbox
+                                checked={applyToAllEvents}
+                                onChange={(e) => {
+                                    setApplyToAllEvents(e.target.checked);
+                                    if (e.target.checked) {
+                                        setSelectedEvent(null);
+                                    }
+                                }}
+                            />
+                        }
+                        label="Принять для всех этапов отчётности"
                     />
+                )}
 
+                {/* Выбор события */}
+                {!applyToAllEvents && selectedProject && (
                     <Autocomplete
-                        multiple
-                        options={getFilteredJuryOptions('obliged')}
-                        getOptionLabel={(option) => `${option.lastName} ${option.firstName} `}
-                        isOptionEqualToValue={(option, value) => option.id === value.id}
-                        value={obligedJuries}
-                        onChange={handleObligedJuriesChange}
-                        renderInput={(params) => <TextField {...params} label="Obliged Juries" />}
-                        style={{ marginBottom: '16px' }}
+                        options={events}
+                        value={events.find(event => event.id === selectedEvent) || null}
+                        getOptionLabel={(option) => option.name}
+                        onChange={(event, newValue) => {
+                            setSelectedEvent(newValue?.id || null);
+                            setWillingJuries([]);
+                            setObligedJuries([]);
+                            setMentors([]);
+                        }}
+                        renderInput={(params) => <TextField {...params} label="Выберите этап отчётности"/>}
+                        style={{marginBottom: '16px'}}
                     />
+                )}
 
-                    <Autocomplete
-                        multiple
-                        options={getFilteredJuryOptions('mentor')}
-                        getOptionLabel={(option) => `${option.lastName} ${option.firstName} `}
-                        isOptionEqualToValue={(option, value) => option.id === value.id}
-                        value={mentors}
-                        onChange={handleMentorsChange}
-                        renderInput={(params) => <TextField {...params} label="Mentors" />}
-                        style={{ marginBottom: '16px' }}
-                    />
+                {/* Выбор жюри */}
+                {selectedProject && ((selectedEvent && !applyToAllEvents) || applyToAllEvents) && (
+                    <>
+                        <Autocomplete
+                            multiple
+                            options={getFilteredJuryOptions('willing')}
+                            getOptionLabel={(option) => `${option.lastName} ${option.firstName} `}
+                            isOptionEqualToValue={(option, value) => option.id === value.id}
+                            value={willingJuries}
+                            onChange={handleWillingJuriesChange}
+                            renderInput={(params) => <TextField {...params} label="Желают проверить"/>}
+                            style={{marginBottom: '16px'}}
+                        />
 
-                    <Button onClick={handleSubmit} variant="contained" color="primary" disabled={loading}>
-                        {loading ? 'Saving...' : 'Save Changes'}
-                    </Button>
-                </>
-            )}
+                        <Autocomplete
+                            multiple
+                            options={getFilteredJuryOptions('obliged')}
+                            getOptionLabel={(option) => `${option.lastName} ${option.firstName} `}
+                            isOptionEqualToValue={(option, value) => option.id === value.id}
+                            value={obligedJuries}
+                            onChange={handleObligedJuriesChange}
+                            renderInput={(params) => <TextField {...params} label="Обязаны проверить"/>}
+                            style={{marginBottom: '16px'}}
+                        />
 
-            <Snackbar
-                open={openSnackbar}
-                autoHideDuration={3000}
-                onClose={handleSnackbarClose}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
-            >
-                <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{ width: '100%' }}>
-                    {snackbarMessage}
-                </Alert>
-            </Snackbar>
-        </div>
+                        <Autocomplete
+                            multiple
+                            options={getFilteredJuryOptions('mentor')}
+                            getOptionLabel={(option) => `${option.lastName} ${option.firstName} `}
+                            isOptionEqualToValue={(option, value) => option.id === value.id}
+                            value={mentors}
+                            onChange={handleMentorsChange}
+                            renderInput={(params) => <TextField {...params} label="Менторы"/>}
+                            style={{marginBottom: '16px'}}
+                        />
+
+                        <Button onClick={handleSubmit} variant="contained" color="primary" disabled={loading}>
+                            {loading ? 'Отправка...' : 'Сохранить'}
+                        </Button>
+                    </>
+                )}
+
+                <Snackbar
+                    open={openSnackbar}
+                    autoHideDuration={3000}
+                    onClose={handleSnackbarClose}
+                    anchorOrigin={{vertical: 'bottom', horizontal: 'center'}}
+                >
+                    <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{width: '100%'}}>
+                        {snackbarMessage}
+                    </Alert>
+                </Snackbar>
+            </div>
+        </>
     );
 };
 

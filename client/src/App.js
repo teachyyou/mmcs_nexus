@@ -18,6 +18,8 @@ import EventList from "./components/admin/event/EventList";
 import {EventCreate, EventEdit} from "./components/admin/event/EventCE";
 import ProjectJuryManagement from "./components/admin/ProjectJuryManagement";
 import ProjectEventManagement from "./components/admin/ProjectEventManagement";
+import ProjectEventDayManagement from "./components/admin/ProjectEventDayManagement";
+
 import GradeTablePage from "./components/jury/GradeTablePage";
 import AdminLayout from "./components/admin/AdminLayout";
 
@@ -52,7 +54,7 @@ function AppContent() {
 
                 setIsLoading(false);
             });
-    }, [setIsAuthenticated, setUserStatus, setUserRole]);
+    }, [setIsAuthenticated, setUserStatus, setUserRole, setUserId, setUser]);
 
     if (isLoading) {
         return <div>Loading...</div>;
@@ -83,6 +85,8 @@ function AppContent() {
                                       create={ProjectJuryManagement}/>
                             <Resource name="project_event" options={{label: 'Этапы отчётности'}} list={ProjectEventManagement} edit={ProjectEventManagement}
                                       create={ProjectEventManagement}/>
+                            <Resource name="project_event_days" options={{label: 'Дни защиты'}} list={ProjectEventDayManagement} edit={ProjectEventDayManagement}
+                                      create={ProjectEventDayManagement}/>
                         </Admin>
                     }/>
 

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Box, TextField, Typography, InputAdornment } from '@mui/material';
 import { useAuth } from "../../AuthContext";
 
@@ -10,20 +10,20 @@ const InlineGradeEditor = ({ gradeItem, maxBuild, maxPres, onUpdate }) => {
         gradeItem.presPoints !== undefined ? gradeItem.presPoints : ''
     );
 
+    useEffect(() => {
+        setBuildPoints(gradeItem.buildPoints !== null ? gradeItem.buildPoints : '');
+        setPresPoints(gradeItem.presPoints !== null ? gradeItem.presPoints : '');
+    }, [gradeItem]);
+
     const { userId } = useAuth();
-    // Проверяем, совпадает ли текущий userId с владельцем оценки
     const isOwner = userId === gradeItem.juryId;
 
     const handleUpdate = async (field, value) => {
         const numericValue = value === '' ? '' : parseInt(value, 10);
         const result = await onUpdate(field, numericValue);
-
         if (result && !result.success) {
-            if (field === 'buildPoints') {
-                setBuildPoints(result.oldValue);
-            } else if (field === 'presPoints') {
-                setPresPoints(result.oldValue);
-            }
+            if (field === 'buildPoints') setBuildPoints(result.oldValue);
+            if (field === 'presPoints') setPresPoints(result.oldValue);
         }
     };
 
@@ -41,11 +41,7 @@ const InlineGradeEditor = ({ gradeItem, maxBuild, maxPres, onUpdate }) => {
                     disabled={!isOwner}
                     InputProps={{
                         style: { textAlign: 'center', fontSize: '1rem', padding: '2px' },
-                        endAdornment: (
-                            <InputAdornment position="end">
-                                /{maxPres}
-                            </InputAdornment>
-                        )
+                        endAdornment: <InputAdornment position="end">/{maxPres}</InputAdornment>
                     }}
                     sx={{ width: '100%' }}
                 />
@@ -62,11 +58,7 @@ const InlineGradeEditor = ({ gradeItem, maxBuild, maxPres, onUpdate }) => {
                     disabled={!isOwner}
                     InputProps={{
                         style: { textAlign: 'center', fontSize: '1rem', padding: '2px' },
-                        endAdornment: (
-                            <InputAdornment position="end">
-                                /{maxBuild}
-                            </InputAdornment>
-                        )
+                        endAdornment: <InputAdornment position="end">/{maxBuild}</InputAdornment>
                     }}
                     sx={{ width: '100%' }}
                 />

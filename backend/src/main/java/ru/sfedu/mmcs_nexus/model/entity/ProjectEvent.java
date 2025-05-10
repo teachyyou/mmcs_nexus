@@ -18,6 +18,7 @@ public class ProjectEvent {
     @MapsId("projectId")
     @JoinColumn(name = "project_id")
     private Project project;
+    private Integer defDay;
 
     public ProjectEvent() {
     }
@@ -26,6 +27,13 @@ public class ProjectEvent {
         this.id = id;
         this.event = event;
         this.project = project;
+    }
+
+    public ProjectEvent(ProjectEventKey id, Event event, Project project, Integer day) {
+        this.id = id;
+        this.event = event;
+        this.project = project;
+        this.defDay = day;
     }
 
     public Event getEvent() {
@@ -50,5 +58,13 @@ public class ProjectEvent {
 
     public void setId(ProjectEventKey id) {
         this.id = id;
+    }
+
+    public Integer getDefDay() {
+        return defDay;
+    }
+
+    public void setDefDay(Integer defDay) {
+        this.defDay = defDay;
     }
 }

@@ -5,12 +5,12 @@ const UserList = (props) => {
     return (
         <List {...props}>
             <Datagrid>
-                <TextField source="firstName" label="First Name" />
-                <TextField source="lastName" label="Last Name" />
-                <TextField source="login" label="Login" />
-                <TextField source="userGroup" label="User Group" />
-                <TextField source="status" label="Status" />
-                <TextField source="role" label="Role" />
+                <TextField source="firstName" label="Имя" />
+                <TextField source="lastName" label="Фамилия" />
+                <TextField source="login" label="Логин" />
+                <TextField source="userGroup" label="Группа" />
+                <TextField source="status" label="Статус" />
+                <TextField source="role" label="Роль" />
             </Datagrid>
         </List>
     );
