@@ -21,13 +21,13 @@ const ProjectJuryManagement = () => {
     useEffect(() => {
         const fetchInitialData = async () => {
             try {
-                const projectsResponse = await fetch('http://localhost:8080/api/v1/admin/projects?sort=name', {
+                const projectsResponse = await fetch('/api/v1/admin/projects?sort=name', {
                     credentials: 'include',
                 });
                 const projectsData = await projectsResponse.json();
                 setProjects(Array.isArray(projectsData.content) ? projectsData.content : []);
 
-                const juriesResponse = await fetch('http://localhost:8080/api/v1/admin/users?sort=lastName', {
+                const juriesResponse = await fetch('/api/v1/admin/users?sort=lastName', {
                     credentials: 'include',
                 });
                 const juriesData = await juriesResponse.json();
@@ -45,7 +45,7 @@ const ProjectJuryManagement = () => {
         const fetchEvents = async () => {
             if (selectedProject && !applyToAllEvents) {
                 try {
-                    const response = await fetch(`http://localhost:8080/api/v1/admin/projects/${selectedProject}/events`, {
+                    const response = await fetch(`/api/v1/admin/projects/${selectedProject}/events`, {
                         credentials: 'include',
                     });
                     const data = await response.json();
@@ -79,7 +79,7 @@ const ProjectJuryManagement = () => {
         const fetchAssignedJuries = async () => {
             if (selectedProject && selectedEvent) {
                 try {
-                    const url = `http://localhost:8080/api/v1/admin/projects/${selectedProject}/juries/${selectedEvent}`;
+                    const url = `/api/v1/admin/projects/${selectedProject}/juries/${selectedEvent}`;
                     const response = await fetch(url, { credentials: 'include' });
                     const data = await response.json();
                     setWillingJuries(data.willingJuries || []);
@@ -127,7 +127,7 @@ const ProjectJuryManagement = () => {
         };
 
         try {
-            const response = await fetch(`http://localhost:8080/api/v1/admin/projects/${selectedProject}/juries`, {
+            const response = await fetch(`/api/v1/admin/projects/${selectedProject}/juries`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',

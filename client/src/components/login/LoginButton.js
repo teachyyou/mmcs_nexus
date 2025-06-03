@@ -17,7 +17,7 @@ const LoginButton = () => {
     };
 
     const handleLogout = () => {
-        fetch('http://localhost:8080/api/v1/auth/logout', {
+        fetch('/api/v1/auth/logout', {
             method: 'POST',
             credentials: 'include'
         })

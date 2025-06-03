@@ -3,9 +3,9 @@ spring:
     name: MMCS Nexus
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/mmcsnexus
-    username: postgres
-    password: mypassword
+    url: jdbc:postgresql://${POSTGRES_URL}/${POSTGRES_DATABASE}
+    username: ${POSTGRES_USER}
+    password: ${POSTGRES_PASSWORD}
 
   jpa:
     hibernate:

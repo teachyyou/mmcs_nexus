@@ -50,7 +50,7 @@ const GradeTablePage = ({ isAuthenticated, setIsAuthenticated }) => {
     useEffect(() => {
         const fetchYears = async () => {
             try {
-                const response = await fetch('http://localhost:8080/api/v1/public/events/years', { credentials: 'include' });
+                const response = await fetch('/api/v1/public/events/years', { credentials: 'include' });
                 if (!response.ok) throw new Error('Ошибка при загрузке годов');
                 const data = await response.json();
                 const yearsData = data.content || [];
@@ -69,7 +69,7 @@ const GradeTablePage = ({ isAuthenticated, setIsAuthenticated }) => {
         const fetchEvents = async () => {
             if (!year) return;
             try {
-                const response = await fetch(`http://localhost:8080/api/v1/public/events?year=${year}`, { credentials: 'include' });
+                const response = await fetch(`/api/v1/public/events?year=${year}`, { credentials: 'include' });
                 if (!response.ok) throw new Error('Ошибка при загрузке событий');
                 const data = await response.json();
                 setEvents(Array.isArray(data.content) ? data.content : []);
@@ -91,7 +91,7 @@ const GradeTablePage = ({ isAuthenticated, setIsAuthenticated }) => {
         let showParam = 'ALL';
         if (showOnlyMy) showParam = showMentored ? 'MENTORED' : 'ASSIGNED';
 
-        let url = `http://localhost:8080/api/v1/jury/table/${selectedEvent.id}?show=${showParam}`;
+        let url = `/api/v1/jury/table/${selectedEvent.id}?show=${showParam}`;
         if (selectedDay !== 'all') {
             url += `&day=${selectedDay}`;
         }

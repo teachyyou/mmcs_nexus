@@ -17,7 +17,7 @@ const EventProjectDayAssignment = () => {
     useEffect(() => {
         const fetchEvents = async () => {
             try {
-                const res = await fetch('http://localhost:8080/api/v1/admin/events', { credentials: 'include' });
+                const res = await fetch('/api/v1/admin/events', { credentials: 'include' });
                 const data = await res.json();
                 setEvents(Array.isArray(data.content) ? data.content : []);
             } catch (err) {
@@ -41,7 +41,7 @@ const EventProjectDayAssignment = () => {
                 setLoading(true);
                 // all projects for event
                 const resAll = await fetch(
-                    `http://localhost:8080/api/v1/admin/events/${selectedEvent}/projects`,
+                    `/api/v1/admin/events/${selectedEvent}/projects`,
                     { credentials: 'include' }
                 );
                 const dataAll = await resAll.json();
@@ -49,7 +49,7 @@ const EventProjectDayAssignment = () => {
 
                 // assigned by day
                 const resDays = await fetch(
-                    `http://localhost:8080/api/v1/admin/events/${selectedEvent}/projects/days`,
+                    `/api/v1/admin/events/${selectedEvent}/projects/days`,
                     { credentials: 'include' }
                 );
                 const dataDays = await resDays.json();
@@ -80,7 +80,7 @@ const EventProjectDayAssignment = () => {
         };
         try {
             const response = await fetch(
-                `http://localhost:8080/api/v1/admin/events/${selectedEvent}/days`,
+                `/api/v1/admin/events/${selectedEvent}/days`,
                 {
                     method: 'POST',
                     headers: {

@@ -54,7 +54,7 @@ const GradeEditorModal = ({
         try {
             const method = grade ? 'PUT' : 'POST';
             const response = await fetch(
-                'http://localhost:8080/api/v1/jury/grades',
+                '/api/v1/jury/grades',
                 {
                     method,
                     headers: { 'Content-Type': 'application/json' },

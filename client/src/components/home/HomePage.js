@@ -12,7 +12,7 @@ const HomePage = () => {
 
     useEffect(() => {
         if (isAuthenticated) {
-            fetch('http://localhost:8080/api/v1/auth/user', {
+            fetch('/api/v1/auth/user', {
                 credentials: 'include'
             })
                 .then(

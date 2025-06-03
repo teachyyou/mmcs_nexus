@@ -17,11 +17,11 @@ const ProjectEventManagement = () => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const eventsResponse = await fetch('http://localhost:8080/api/v1/admin/events', { credentials: 'include' });
+                const eventsResponse = await fetch('/api/v1/admin/events', { credentials: 'include' });
                 const eventsData = await eventsResponse.json();
                 setEvents(Array.isArray(eventsData.content) ? eventsData.content : []);
 
-                const projectsResponse = await fetch('http://localhost:8080/api/v1/admin/projects', { credentials: 'include' });
+                const projectsResponse = await fetch('/api/v1/admin/projects', { credentials: 'include' });
                 const projectsData = await projectsResponse.json();
                 setProjects(Array.isArray(projectsData.content) ? projectsData.content : []);
             } catch (error) {
@@ -37,7 +37,7 @@ const ProjectEventManagement = () => {
         const fetchLinkedProjects = async () => {
             if (selectedEvent && !linkAllProjects) {
                 try {
-                    const response = await fetch(`http://localhost:8080/api/v1/admin/events/${selectedEvent}/projects`, { credentials: 'include' });
+                    const response = await fetch(`/api/v1/admin/events/${selectedEvent}/projects`, { credentials: 'include' });
                     const data = await response.json();
                     setSelectedProjects(Array.isArray(data.content) ? data.content : []);
                 } catch (error) {
@@ -63,7 +63,7 @@ const ProjectEventManagement = () => {
         };
 
         try {
-            const response = await fetch(`http://localhost:8080/api/v1/admin/events/${selectedEvent}/projects`, {
+            const response = await fetch(`/api/v1/admin/events/${selectedEvent}/projects`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
