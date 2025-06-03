@@ -18,7 +18,7 @@ services:
       context: "./client"
     container_name: nexus_client
     ports:
-      - 3000:8080
+      - $PORT:8080
 
   postgres:
     image: 'postgres:alpine3.16'
