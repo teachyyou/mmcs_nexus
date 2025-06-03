@@ -17,4 +17,21 @@ public final class ResponseUtils {
         }
         return ResponseEntity.status(status).body(body);
     }
+
+    public static ResponseEntity<Map<String, Object>> success(HttpStatus status, String message, Object... extraPairs) {
+        Map<String, Object> body = new LinkedHashMap<>();
+        body.put("message", message);
+        for (int i = 0; i < extraPairs.length - 1; i += 2) {
+            body.put(String.valueOf(extraPairs[i]), extraPairs[i+1]);
+        }
+        return ResponseEntity.status(status).body(body);
+    }
+
+    public static Map<String, Object> buildResponse(Object content, int totalElements) {
+        return Map.of(
+                "content", content,
+                "totalElements", totalElements
+        );
+    }
+
 }

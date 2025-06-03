@@ -16,8 +16,9 @@ import java.util.UUID;
 @Repository
 public interface ProjectEventRepository extends JpaRepository<ProjectEvent, ProjectEventKey> {
 
-    @Query("SELECT pe.project FROM ProjectEvent pe WHERE pe.event.id = :eventId")
-    List<Project> findProjectsByEventId(@Param("eventId") UUID eventId);
+    @Query("SELECT pe.project FROM ProjectEvent pe WHERE pe.event.id = :eventId " +
+            "AND (:day IS NULL OR pe.defDay = :day)")
+    List<Project> findProjectsByEventId(@Param("eventId") UUID eventId, @Param("day") Integer day);
 
     @Query("SELECT pe FROM ProjectEvent pe WHERE pe.event.id = :eventId")
     List<ProjectEvent> findByEventId(@Param("eventId") UUID eventId);

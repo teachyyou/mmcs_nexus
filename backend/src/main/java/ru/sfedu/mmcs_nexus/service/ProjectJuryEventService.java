@@ -58,27 +58,22 @@ public class ProjectJuryEventService {
         return mentor.map(UserDTO::new).orElse(null);
     }
 
-    public List<UserDTO> getJuriesByEvent(UUID eventId) {
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new EntityNotFoundException("Event not found"));
 
-        return projectJuryEventRepository.findJuriesByEventId(eventId).stream().map(UserDTO::new).toList();
-    }
-
-
-    public List<Project> findProjectsForEvent(UUID eventId, GradeTableEnums.ShowFilter showFilter, UUID userId) {
+    //Это для таблицы оценок, с фильтрацией по типу связи и дню защиты
+    public List<Project> findProjectsForEvent(UUID eventId, GradeTableEnums.ShowFilter showFilter, UUID userId, Integer day) {
         return switch (showFilter) {
-            case ALL -> projectEventRepository.findProjectsByEventId(eventId);
-            case ASSIGNED -> projectJuryEventRepository.findProjectByEventAssignedToJury(eventId, userId);
-            case MENTORED -> projectJuryEventRepository.findProjectByEventMentoredByJury(eventId, userId);
+            case ALL -> projectEventRepository.findProjectsByEventId(eventId, day);
+            case ASSIGNED -> projectJuryEventRepository.findProjectByEventAssignedToJury(eventId, userId, day);
+            case MENTORED -> projectJuryEventRepository.findProjectByEventMentoredByJury(eventId, userId, day);
         };
     }
 
-    public List<UserDTO> findJuriesForEvent(UUID eventId, GradeTableEnums.ShowFilter showFilter, UUID userId) {
+    //Это для таблицы оценок, с фильтрацией по типу связи и дню защиты
+    public List<UserDTO> findJuriesForEvent(UUID eventId, GradeTableEnums.ShowFilter showFilter, UUID userId, Integer day) {
         return switch (showFilter) {
-            case ALL -> projectJuryEventRepository.findJuriesByEventId(eventId).stream().map(UserDTO::new).toList();
-            case ASSIGNED -> projectJuryEventRepository.findJuriesForProjectsAssignedToJuryByEvent(eventId, userId).stream().map(UserDTO::new).toList();
-            case MENTORED -> projectJuryEventRepository.findJuriesForProjectsMentoredByJuryByEvent(eventId, userId).stream().map(UserDTO::new).toList();
+            case ALL -> projectJuryEventRepository.findJuriesByEventId(eventId, day).stream().map(UserDTO::new).toList();
+            case ASSIGNED -> projectJuryEventRepository.findJuriesForProjectsAssignedToJuryByEvent(eventId, userId, day).stream().map(UserDTO::new).toList();
+            case MENTORED -> projectJuryEventRepository.findJuriesForProjectsMentoredByJuryByEvent(eventId, userId, day).stream().map(UserDTO::new).toList();
         };
 
     }

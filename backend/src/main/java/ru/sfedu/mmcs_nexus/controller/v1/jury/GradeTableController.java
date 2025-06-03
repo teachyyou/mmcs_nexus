@@ -1,5 +1,7 @@
 package ru.sfedu.mmcs_nexus.controller.v1.jury;
 
+import jakarta.annotation.Nullable;
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -8,6 +10,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 import ru.sfedu.mmcs_nexus.model.dto.entity.GradeDTO;
 import ru.sfedu.mmcs_nexus.model.dto.entity.UserDTO;
 import ru.sfedu.mmcs_nexus.model.dto.response.GradeTableDTO;
@@ -17,6 +20,7 @@ import ru.sfedu.mmcs_nexus.model.entity.Project;
 import ru.sfedu.mmcs_nexus.model.entity.User;
 import ru.sfedu.mmcs_nexus.model.enums.controller.jury.GradeTableEnums;
 import ru.sfedu.mmcs_nexus.service.*;
+import ru.sfedu.mmcs_nexus.util.ResponseUtils;
 
 import java.util.*;
 
@@ -35,15 +39,18 @@ public class GradeTableController {
 
     private final UserService userService;
 
+    private final GradeTableService gradeTableService;
+
 
     @Autowired
-    public GradeTableController(ProjectService projectService, ProjectEventService projectEventService, ProjectJuryEventService projectJuryEventService, EventService eventService, GradeService gradeService, UserService userService) {
+    public GradeTableController(ProjectService projectService, ProjectEventService projectEventService, ProjectJuryEventService projectJuryEventService, EventService eventService, GradeService gradeService, UserService userService, GradeTableService gradeTableService) {
         this.projectService = projectService;
         this.projectEventService = projectEventService;
         this.projectJuryEventService = projectJuryEventService;
         this.eventService = eventService;
         this.gradeService = gradeService;
         this.userService = userService;
+        this.gradeTableService  = gradeTableService;
     }
 
 
@@ -51,7 +58,8 @@ public class GradeTableController {
     public ResponseEntity<Map<String, Object>> getGradesTable(
             Authentication authentication,
             @PathVariable("eventId") UUID eventId,
-            @RequestParam(value = "show", defaultValue = "all") String showParam)
+            @RequestParam(value = "show", defaultValue = "all") String showParam,
+            @Nullable @RequestParam(value = "day") Integer day)
     {
         GradeTableEnums.ShowFilter show;
 
@@ -59,56 +67,18 @@ public class GradeTableController {
             show = GradeTableEnums.ShowFilter.valueOf(showParam.toUpperCase());
 
         } catch (IllegalArgumentException e) {
-            Map<String, Object> errorResponse = Map.of(
-                    "error", "Incorrect filter parameter",
+            return ResponseUtils.error(HttpStatus.BAD_REQUEST,
+                    "Incorrect filter parameter",
                     "value", showParam
             );
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errorResponse);
         }
 
-        if (userService.findByGithubLogin(authentication).isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        }
+        User user = userService.findByGithubLogin(authentication)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
-        User user = userService.findByGithubLogin(authentication).get();
+        GradeTableDTO table = gradeTableService.getGradeTable(eventId, show, day, user);
 
-        Optional<Event> eventOptional = eventService.findById(eventId);
-
-        if (eventOptional.isEmpty()) {
-            Map<String, Object> errorResponse = Map.of(
-                    "error", "Event not found",
-                    "eventId", eventId
-            );
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
-        }
-        Event event = eventOptional.get();
-
-        //Находим в зависимости от параметра show, в случае all - все проекты привязанные к событию, иначе - только те, с которыми есть связь у отправителя запроса
-        List<Project> eventProjects = projectJuryEventService.findProjectsForEvent(eventId, show, user.getId()).stream().sorted(Comparator.comparing(Project::getName)).toList();
-        List<UserDTO> eventJuries = projectJuryEventService.findJuriesForEvent(eventId, show, user.getId()).stream().sorted(Comparator.comparing(UserDTO::getLastName)).toList();
-
-//        List<UserDTO> eventJuries = projectJuryEventService.getJuriesByEvent(eventId);
-
-        GradeTableDTO table = new GradeTableDTO();
-        table.setEvent(event);
-        table.setJuries(eventJuries);
-        table.setProjects(eventProjects);
-
-        //Создаем строки для объекта таблицы - каждому проекту ставим в соответствие несколько gradeDTO в формате Map
-        for (Project project : eventProjects) {
-            UUID mentorId = Optional.ofNullable(projectJuryEventService.getMentor(project.getId(), eventId)).map(UserDTO::getId).orElse(null);
-            GradeTableRowDTO row = new GradeTableRowDTO(project.getId(), mentorId, project.getName());
-            List<GradeDTO> grades = gradeService.findByEventAndProject(event.getId(), project.getId())
-                    .stream().map(GradeDTO::new).toList();
-            row.setTableRow(grades);
-            table.addGradeRow(row);
-        }
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("content", table);
-        response.put("totalElements", table.getProjectsCount());
-
-        return ResponseEntity.ok().body(response);
+        return ResponseEntity.ok().body(ResponseUtils.buildResponse(table, table.getProjectsCount()));
     }
 
 

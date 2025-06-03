@@ -2,6 +2,7 @@ package ru.sfedu.mmcs_nexus.controller.v1.auth;
 
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
@@ -141,20 +142,40 @@ public class AuthController {
     //Очень полезная штука чтобы залогиниться под другим пользователем, не забыть убрать потом
     @Profile("test")
     @GetMapping("/api/v1/auth/test-login")
-    public void loginAs(@RequestParam String githubLogin, HttpServletRequest request, HttpServletResponse response) {
-        var userOpt = userService.findByGithubLogin(githubLogin);
-        if (userOpt.isPresent()) {
-            var user = userOpt.get();
-            var principal = new DefaultOAuth2User(
-                    List.of(new SimpleGrantedAuthority(user.getRole().name())),
-                    Map.of("login", user.getLogin()),
-                    "login"
-            );
-            Authentication auth = new OAuth2AuthenticationToken(principal, principal.getAuthorities(), "github");
-            SecurityContextHolder.getContext().setAuthentication(auth);
-            request.getSession();
-        }
+    public ResponseEntity<String> loginAs(
+            @RequestParam String githubLogin,
+            HttpServletRequest request) {
 
+        return userService.findByGithubLogin(githubLogin)
+                .map(user -> {
+                    // Создаем аутентификацию
+                    var principal = new DefaultOAuth2User(
+                            List.of(new SimpleGrantedAuthority(user.getRole().name())),
+                            Map.of(
+                                    "login", user.getLogin(),
+                                    "id", user.getId().toString()
+                            ),
+                            "login"
+                    );
+
+                    Authentication auth = new OAuth2AuthenticationToken(
+                            principal,
+                            principal.getAuthorities(),
+                            "github"
+                    );
+
+                    // Устанавливаем в SecurityContext
+                    SecurityContextHolder.getContext().setAuthentication(auth);
+
+                    // Создаем сессию, если нужно
+                    HttpSession session = request.getSession(true);
+                    session.setAttribute("SPRING_SECURITY_CONTEXT", SecurityContextHolder.getContext());
+
+                    return ResponseEntity.ok()
+                            .body("Successfully logged in as: " + user.getLogin());
+                })
+                .orElse(ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body("User not found with login: " + githubLogin));
     }
 
 }
