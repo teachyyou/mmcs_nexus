@@ -1,0 +1,38 @@
+version: '3'
+services:
+  backend:
+    build:
+      context: "./backend"
+    container_name: nexus_backend
+    hostname: backend
+    environment:
+      POSTGRES_URL: postgres:5432
+      POSTGRES_DATABASE: mmcsnexus
+      POSTGRES_USER: $POSTGRES_USER
+      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+      GITHUB_CLIENT_ID: $GITHUB_CLIENT_ID
+      GITHUB_CLIENT_SECRET: $GITHUB_CLIENT_SECRET
+  
+  client:
+    build:
+      context: "./client"
+    container_name: nexus_client
+    ports:
+      - 3000:8080
+
+  postgres:
+    image: 'postgres:alpine3.16'
+    container_name: nexus_postgres
+    hostname: postgres
+    environment:
+      POSTGRES_USER: $POSTGRES_USER
+      POSTGRES_PASSWORD: $POSTGRES_PASSWORD
+      POSTGRES_DB: mmcsnexus
+    ports:
+      - 5432:5432
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+volumes:
+  db-data:
+    driver: local

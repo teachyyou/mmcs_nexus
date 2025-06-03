@@ -23,14 +23,14 @@ import ProjectEventDayManagement from "./components/admin/ProjectEventDayManagem
 import GradeTablePage from "./components/jury/GradeTablePage";
 import AdminLayout from "./components/admin/AdminLayout";
 
-const dataProvider = springBootRestProvider('http://localhost:8080/api/v1/admin');
+const dataProvider = springBootRestProvider('/api/v1/admin');
 
 function AppContent() {
     const { setIsAuthenticated, setUserStatus, setUserRole, setUserId, setUser } = useAuth();
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        fetch('http://localhost:8080/api/v1/auth/status', {
+        fetch('/api/v1/auth/status', {
             credentials: 'include'
         })
             .then(response => response.json())

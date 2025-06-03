@@ -4,7 +4,7 @@ import Button from '@mui/material/Button';
 //сейчас не используется, войти можно сразу с панели навигации
 const LoginPage = () => {
     const handleLogin = (provider) => {
-        window.location.href = `http://localhost:8080/oauth2/authorization/${provider}`;
+        window.location.href = `/oauth2/authorization/${provider}`;
     };
 
     return (

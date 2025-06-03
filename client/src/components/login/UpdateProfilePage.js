@@ -15,7 +15,7 @@ const UpdateProfilePage = () => {
     useEffect(() => {
         const fetchUserInfo = async () => {
             try {
-                const response = await fetch('http://localhost:8080/api/v1/auth/user', {
+                const response = await fetch('/api/v1/auth/user', {
                     credentials: 'include',
                 });
                 if (response.ok) {
@@ -38,7 +38,7 @@ const UpdateProfilePage = () => {
     const handleSubmit = async (event) => {
         event.preventDefault();
 
-        const response = await fetch('http://localhost:8080/api/v1/auth/update_profile', {
+        const response = await fetch('/api/v1/auth/update_profile', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -61,7 +61,7 @@ const UpdateProfilePage = () => {
     };
 
     const handleLogout = () => {
-        fetch('http://localhost:8080/api/v1/auth/logout', {
+        fetch('/api/v1/auth/logout', {
             method: 'POST',
             credentials: 'include'
         })

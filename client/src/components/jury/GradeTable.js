@@ -48,7 +48,7 @@ const GradeTable = ({ grades, event, onGradeUpdated }) => {
         const oldValue = gradeItem[field];
         const updatedGrade = { ...gradeItem, [field]: newValue };
         try {
-            const response = await fetch('http://localhost:8080/api/v1/jury/grades', {
+            const response = await fetch('/api/v1/jury/grades', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',

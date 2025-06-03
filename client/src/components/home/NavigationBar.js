@@ -20,7 +20,7 @@ const NavigationBar = ({ avatarUrl, userName, userEmail }) => {
     };
 
     const handleLogout = async () => {
-        await fetch('http://localhost:8080/api/v1/auth/logout', {
+        await fetch('/api/v1/auth/logout', {
             method: 'POST',
             credentials: 'include'
         });
@@ -49,7 +49,7 @@ const NavigationBar = ({ avatarUrl, userName, userEmail }) => {
                         <UserMenu open={menuOpen} onClose={handleMenuClose} user={user} onLogout={handleLogout} />
                     </>
                 ) : (
-                    <Button component={Link} to='http://localhost:8080/oauth2/authorization/github' color="inherit">
+                    <Button component={Link} to='/oauth2/authorization/github' color="inherit">
                         Вход
                     </Button>
                 )}
