@@ -1,0 +1,21 @@
+databaseChangeLog:
+  - include:
+      file: db/changelog/changeset/add-uuid-extension.yaml
+  - include:
+      file: db/changelog/changeset/create-users-table.yaml
+  - include:
+      file: db/changelog/changeset/create-projects-table.yaml
+  - include:
+      file: db/changelog/changeset/create-events-table.yaml
+  - include:
+      file: db/changelog/changeset/create-project_event-table.yaml
+  - include:
+      file: db/changelog/changeset/create-project_jury_event-table.yaml
+  - include:
+      file: db/changelog/changeset/create-grades-table.yaml
+  - include:
+      file: db/changelog/changeset/add-grade-points-maximum.yaml
+  - include:
+      file: db/changelog/changeset/add-project_event-day.yaml
+  - include:
+      file: db/changelog/changeset/allow-null-def.yaml

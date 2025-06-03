@@ -1,17 +1,59 @@
-import React from 'react';
-import {AppBar} from '@mui/material';
-import LoginButton from '../login/LoginButton';
+import React, { useState } from 'react';
+import { AppBar, Toolbar, Button, IconButton, Avatar, Box } from '@mui/material';
+import { Link } from 'react-router-dom'
+import { useAuth, useIsAdmin, useIsJury } from '../../AuthContext';
+import UserMenu from './UserMenu';
 
-const NavigationBar = ({ isAuthenticated, setIsAuthenticated }) => {
+const NavigationBar = ({ avatarUrl, userName, userEmail }) => {
+    const { isAuthenticated, setIsAuthenticated, user } = useAuth();
+    const isAdmin = useIsAdmin();
+    const isJury = useIsJury();
+
+    const [menuOpen, setMenuOpen] = useState(false);
+
+    const handleAvatarClick = () => {
+        setMenuOpen(true);
+    };
+
+    const handleMenuClose = () => {
+        setMenuOpen(false);
+    };
+
+    const handleLogout = async () => {
+        await fetch('http://localhost:8080/api/v1/auth/logout', {
+            method: 'POST',
+            credentials: 'include'
+        });
+        setIsAuthenticated(false);
+    };
+
     return (
-        <AppBar position='static' sx={{
-            height: 75,
-        }}>
-            <LoginButton
-                className='login-button'
-                isAuthenticated={isAuthenticated}
-                setIsAuthenticated={setIsAuthenticated}
-            />
+        <AppBar position="static" sx={{ height: 75 }}>
+            <Toolbar>
+                {isAdmin && (
+                    <Button component={Link} to="/admin" color="inherit">
+                        Админка
+                    </Button>
+                )}
+                {isJury && (
+                    <Button component={Link} to="/grades" color="inherit">
+                        Оценки
+                    </Button>
+                )}
+                <Box sx={{ flexGrow: 1 }} />
+                {isAuthenticated ? (
+                    <>
+                        <IconButton onClick={handleAvatarClick} sx={{ p: 0 }}>
+                            <Avatar src={user.avatarUrl} alt={user.name} />
+                        </IconButton>
+                        <UserMenu open={menuOpen} onClose={handleMenuClose} user={user} onLogout={handleLogout} />
+                    </>
+                ) : (
+                    <Button component={Link} to='http://localhost:8080/oauth2/authorization/github' color="inherit">
+                        Вход
+                    </Button>
+                )}
+            </Toolbar>
         </AppBar>
     );
 };

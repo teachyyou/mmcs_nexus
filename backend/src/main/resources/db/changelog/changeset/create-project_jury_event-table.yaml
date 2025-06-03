@@ -1,0 +1,50 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-project-jury-event-1
+      author: TeachYou
+      changes:
+        - createTable:
+            tableName: project_jury_event
+            columns:
+              - column:
+                  name: jury_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: project_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: event_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: relation_type
+                  type: varchar(50)
+                  constraints:
+                    nullable: false
+        - addPrimaryKey:
+            tableName: project_jury_event
+            columnNames: jury_id, project_id, event_id
+            constraintName: pk_project_jury_event
+        - addForeignKeyConstraint:
+            constraintName: fk_project_jury_event_jury
+            baseTableName: project_jury_event
+            baseColumnNames: jury_id
+            referencedTableName: users
+            referencedColumnNames: id
+        - addForeignKeyConstraint:
+            constraintName: fk_project_jury_event_project
+            baseTableName: project_jury_event
+            baseColumnNames: project_id
+            referencedTableName: projects
+            referencedColumnNames: id
+        - addForeignKeyConstraint:
+            constraintName: fk_project_jury_event_event
+            baseTableName: project_jury_event
+            baseColumnNames: event_id
+            referencedTableName: events
+            referencedColumnNames: id

@@ -1,0 +1,42 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-grades-1
+      author: TeachYou
+      changes:
+        - createTable:
+            tableName: grades
+            columns:
+              - column:
+                  name: event_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: project_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: jury_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: comment
+                  type: varchar(1024)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: pres_points
+                  type: int
+                  constraints:
+                    nullable: true
+              - column:
+                  name: build_points
+                  type: int
+                  constraints:
+                    nullable: true
+        - addPrimaryKey:
+            columnNames: event_id, project_id, jury_id
+            constraintName: pk_grades
+            tableName: grades

@@ -1,0 +1,9 @@
+databaseChangeLog:
+  - changeSet:
+      id: allow-null-def_day
+      author: TeachYou
+      changes:
+        - dropNotNullConstraint:
+            tableName: project_event
+            columnName: def_day
+            columnDataType: int

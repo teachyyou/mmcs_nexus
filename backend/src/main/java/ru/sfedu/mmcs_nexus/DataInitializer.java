@@ -1,0 +1,270 @@
+package ru.sfedu.mmcs_nexus;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.stereotype.Component;
+import ru.sfedu.mmcs_nexus.model.entity.Event;
+import ru.sfedu.mmcs_nexus.model.enums.entity.UserEnums;
+import ru.sfedu.mmcs_nexus.repository.EventRepository;
+import ru.sfedu.mmcs_nexus.model.enums.entity.EventType;
+import ru.sfedu.mmcs_nexus.model.entity.Grade;
+import ru.sfedu.mmcs_nexus.model.entity.keys.GradeKey;
+import ru.sfedu.mmcs_nexus.repository.GradeRepository;
+import ru.sfedu.mmcs_nexus.model.entity.ProjectJuryEvent;
+import ru.sfedu.mmcs_nexus.model.entity.keys.ProjectJuryEventKey;
+import ru.sfedu.mmcs_nexus.repository.ProjectJuryEventRepository;
+import ru.sfedu.mmcs_nexus.model.entity.Project;
+import ru.sfedu.mmcs_nexus.repository.ProjectRepository;
+import ru.sfedu.mmcs_nexus.model.entity.ProjectEvent;
+import ru.sfedu.mmcs_nexus.model.entity.keys.ProjectEventKey;
+import ru.sfedu.mmcs_nexus.repository.ProjectEventRepository;
+import ru.sfedu.mmcs_nexus.model.entity.User;
+import ru.sfedu.mmcs_nexus.repository.UserRepository;
+
+@Component
+public class DataInitializer implements CommandLineRunner {
+
+    private final UserRepository userRepository;
+    private final ProjectRepository projectRepository;
+    private final ProjectJuryEventRepository projectJuryEventRepository;
+
+    private final ProjectEventRepository projectEventRepository;
+
+    private final EventRepository eventRepository;
+    private final GradeRepository gradeRepository;
+    @Autowired
+    public DataInitializer(UserRepository userRepository,
+                           ProjectRepository projectRepository,
+                           ProjectJuryEventRepository projectJuryEventRepository, ProjectEventRepository projectEventRepository,
+                           EventRepository eventRepository, GradeRepository gradeRepository) {
+        this.userRepository = userRepository;
+        this.projectRepository = projectRepository;
+        this.projectJuryEventRepository = projectJuryEventRepository;
+        this.projectEventRepository = projectEventRepository;
+        this.eventRepository = eventRepository;
+        this.gradeRepository = gradeRepository;
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
+
+        if (false) {
+            User user1 = new User("Алексей", "Сидоренко", "alexsidr", 2, 4, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user2 = new User("Иван", "Журавлёв", "ivanzoor", 3, 2, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user3 = new User("Дмитрий", "Смирнов", "dmsmir", 1, 1, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user4 = new User("Сергей", "Орлов", "sergorlov", 4, 3, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user5 = new User("Николай", "Белов", "nikbel", 5, 2, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user6 = new User("Михаил", "Тарасов", "mihtaras", 2, 4, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user7 = new User("Андрей", "Фомин", "andfom", 1, 3, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user8 = new User("Евгений", "Соловьёв", "eugsol", 3, 1, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user9 = new User("Константин", "Мартынов", "konmart", 4, 2, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user10 = new User("Олег", "Кириллов", "olegkir", 5, 4, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user11 = new User("Владимир", "Субботин", "vlsub", 2, 1, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user12 = new User("Александр", "Калинин", "alekalin", 3, 3, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user13 = new User("Павел", "Морозов", "pavmoroz", 1, 2, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user14 = new User("Юрий", "Гончаров", "yurgon", 4, 1, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user15 = new User("Максим", "Карпов", "maxkarp", 3, 4, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+
+            User user16 = new User("Анастасия", "Кузнецова", "nastiakuz", 1, 1, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user17 = new User("Екатерина", "Сорокина", "katiasorok", 2, 2, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user18 = new User("Мария", "Попова", "mariapop", 3, 3, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user19 = new User("Дарья", "Романова", "dasha_roma", 4, 4, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user20 = new User("Ольга", "Новикова", "olganov", 5, 1, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user21 = new User("Валерия", "Федорова", "valfed", 1, 2, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user22 = new User("Полина", "Литвинова", "polinalit", 2, 3, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user23 = new User("Елизавета", "Зайцева", "liza_zay", 3, 4, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user24 = new User("Ксения", "Миронова", "ksumiro", 4, 2, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user25 = new User("Татьяна", "Громова", "tatagrom", 5, 3, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user26 = new User("Вероника", "Павлова", "verapav", 1, 4, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user27 = new User("Светлана", "Егорова", "svetaego", 2, 1, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user28 = new User("Юлия", "Мельникова", "yulamel", 3, 2, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user29 = new User("Алёна", "Киселева", "alena_kis", 4, 1, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user30 = new User("Наталья", "Чернова", "natachern", 5, 4, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+
+            userRepository.save(user1);
+            userRepository.save(user2);
+            userRepository.save(user3);
+            userRepository.save(user4);
+            userRepository.save(user5);
+            userRepository.save(user6);
+            userRepository.save(user7);
+            userRepository.save(user8);
+            userRepository.save(user9);
+            userRepository.save(user10);
+            userRepository.save(user11);
+            userRepository.save(user12);
+            userRepository.save(user13);
+            userRepository.save(user14);
+            userRepository.save(user15);
+            userRepository.save(user16);
+            userRepository.save(user17);
+            userRepository.save(user18);
+            userRepository.save(user19);
+            userRepository.save(user20);
+            userRepository.save(user21);
+            userRepository.save(user23);
+            userRepository.save(user23);
+            userRepository.save(user24);
+            userRepository.save(user25);
+            userRepository.save(user26);
+            userRepository.save(user27);
+            userRepository.save(user28);
+            userRepository.save(user29);
+            userRepository.save(user30);
+        }
+        // Проверяем, пусты ли таблицы, чтобы избежать дублирования
+        if (false && userRepository.count() == 0 && projectRepository.count() == 0) {
+            // Создаем пользователей
+            User user1 = new User("Алексей", "Сидоренко", "alexsidr", 2, 4, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user2 = new User("Jane", "Smith", "janesmith", 2, 3, UserEnums.UserStatus.NON_VERIFIED, UserEnums.UserRole.ROLE_ADMIN);
+
+// Создаем и добавляем еще подтвержденных пользователей
+            User user3 = new User("Alice", "Brown", "alicebrown", 3, 5, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user4 = new User("Bob", "White", "bobwhite", 4, 1, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user5 = new User("Carol", "Black", "carolblack", 5, 13, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user6 = new User("David", "Green", "davidgreen", 6, 4, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user7 = new User("Emma", "Blue", "emmablue", 7, 1, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user8 = new User("Frank", "Red", "frankred", 8, 2, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user9 = new User("Grace", "Yellow", "graceyellow", 9, 3, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user10 = new User("Hank", "Purple", "hankpurple", 10, 4, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user11 = new User("Ivy", "Gray", "ivygray", 11, 5, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+            User user12 = new User("Jack", "Orange", "jackorange", 12, 6, UserEnums.UserStatus.VERIFIED, UserEnums.UserRole.ROLE_USER);
+
+// Сохраняем всех пользователей в базу данных
+            userRepository.save(user1);
+            userRepository.save(user2);
+            userRepository.save(user3);
+            userRepository.save(user4);
+            userRepository.save(user5);
+            userRepository.save(user6);
+            userRepository.save(user7);
+            userRepository.save(user8);
+            userRepository.save(user9);
+            userRepository.save(user10);
+            userRepository.save(user11);
+            userRepository.save(user12);
+
+            // Сохраняем остальных пользователей
+
+            // Создаем Projectы
+            Project project1 = new Project("Project A", "Description Project A", "WEB_APP", 2024);
+            Project project2 = new Project("Project B", "Description Project B", "WEB_APP", 2024);
+            Project project3 = new Project("Project C", "Description Project C", "GAME", 2024);
+            Project project4 = new Project("Project D", "Description Project D", "DESKTOP-APP", 2024);
+
+            // Сохраняем Projectы в базу данных
+            projectRepository.save(project1);
+            projectRepository.save(project2);
+            projectRepository.save(project3);
+            projectRepository.save(project4);
+
+
+
+            // Добавляем остальные связи жюри
+
+            // Создаем события для 2024 года
+            Event ideaEvent = new Event("Idea", EventType.IDEA, 2024, 0, 15);
+            Event zeroVersionEvent = new Event("Zero Version", EventType.ZERO_VERSION, 2024, 10, 15);
+            Event preReleaseEvent = new Event("Pre-Release", EventType.PRE_RELEASE, 2024, 10, 15);
+            Event releaseEvent = new Event("Release", EventType.RELEASE, 2024,10, 15);
+
+            // Сохраняем события в базу данных
+            eventRepository.save(ideaEvent);
+            eventRepository.save(zeroVersionEvent);
+            eventRepository.save(preReleaseEvent);
+            eventRepository.save(releaseEvent);
+
+            // Создаем связи между пользователями и Projectами (жюри)
+            ProjectJuryEventKey key1 = new ProjectJuryEventKey(project1.getId(), user1.getId(), ideaEvent.getId());
+            ProjectJuryEvent projectJuryEvent1 = new ProjectJuryEvent(key1, user1, project1, ideaEvent, ProjectJuryEvent.RelationType.MENTOR);
+            projectJuryEventRepository.save(projectJuryEvent1);
+
+            // Связываем проекты и события через ProjectEvent
+
+            // Проект 1 связан с 1 событием
+            ProjectEventKey projectEventKey1 = new ProjectEventKey(project1.getId(), ideaEvent.getId());
+            ProjectEvent projectEvent1 = new ProjectEvent(projectEventKey1, ideaEvent, project1);
+            projectEventRepository.save(projectEvent1);
+
+            // Проект 2 связан с 2 событиями
+            ProjectEventKey projectEventKey2a = new ProjectEventKey(project2.getId(), ideaEvent.getId());
+            ProjectEvent projectEvent2a = new ProjectEvent(projectEventKey2a, ideaEvent, project2);
+            projectEventRepository.save(projectEvent2a);
+
+            ProjectEventKey projectEventKey2b = new ProjectEventKey(project2.getId(), zeroVersionEvent.getId());
+            ProjectEvent projectEvent2b = new ProjectEvent(projectEventKey2b, zeroVersionEvent, project2);
+            projectEventRepository.save(projectEvent2b);
+
+            // Проект 3 связан с 3 событиями
+            ProjectEventKey projectEventKey3a = new ProjectEventKey(project3.getId(), ideaEvent.getId());
+            ProjectEvent projectEvent3a = new ProjectEvent(projectEventKey3a, ideaEvent, project3);
+            projectEventRepository.save(projectEvent3a);
+
+            ProjectEventKey projectEventKey3b = new ProjectEventKey(project3.getId(), zeroVersionEvent.getId());
+            ProjectEvent projectEvent3b = new ProjectEvent(projectEventKey3b, zeroVersionEvent, project3);
+            projectEventRepository.save(projectEvent3b);
+
+            ProjectEventKey projectEventKey3c = new ProjectEventKey(project3.getId(), preReleaseEvent.getId());
+            ProjectEvent projectEvent3c = new ProjectEvent(projectEventKey3c, preReleaseEvent, project3);
+            projectEventRepository.save(projectEvent3c);
+
+            // Проект 4 связан с 4 событиями
+            ProjectEventKey projectEventKey4a = new ProjectEventKey(project4.getId(), ideaEvent.getId());
+            ProjectEvent projectEvent4a = new ProjectEvent(projectEventKey4a, ideaEvent, project4);
+            projectEventRepository.save(projectEvent4a);
+
+            ProjectEventKey projectEventKey4b = new ProjectEventKey(project4.getId(), zeroVersionEvent.getId());
+            ProjectEvent projectEvent4b = new ProjectEvent(projectEventKey4b, zeroVersionEvent, project4);
+            projectEventRepository.save(projectEvent4b);
+
+            ProjectEventKey projectEventKey4c = new ProjectEventKey(project4.getId(), preReleaseEvent.getId());
+            ProjectEvent projectEvent4c = new ProjectEvent(projectEventKey4c, preReleaseEvent, project4);
+            projectEventRepository.save(projectEvent4c);
+
+            ProjectEventKey projectEventKey4d = new ProjectEventKey(project4.getId(), releaseEvent.getId());
+            ProjectEvent projectEvent4d = new ProjectEvent(projectEventKey4d, releaseEvent, project4);
+            projectEventRepository.save(projectEvent4d);
+
+            Grade grade1 = new Grade();
+            grade1.setId(new GradeKey(project1.getId(), user1.getId(), ideaEvent.getId()));
+            grade1.setProject(project1);
+            grade1.setJury(user1);
+            grade1.setEvent(ideaEvent);
+            grade1.setComment("Отличная презентация");
+            grade1.setPresPoints(8);
+            grade1.setBuildPoints(9);
+            gradeRepository.save(grade1);
+
+            Grade grade2 = new Grade();
+            grade2.setId(new GradeKey(project2.getId(), user2.getId(), zeroVersionEvent.getId()));
+            grade2.setProject(project2);
+            grade2.setJury(user2);
+            grade2.setEvent(zeroVersionEvent);
+            grade2.setComment("Хорошее развитие проекта");
+            grade2.setPresPoints(7);
+            grade2.setBuildPoints(8);
+            gradeRepository.save(grade2);
+
+            Grade grade3 = new Grade();
+            grade3.setId(new GradeKey(project3.getId(), user1.getId(), preReleaseEvent.getId()));
+            grade3.setProject(project3);
+            grade3.setJury(user1);
+            grade3.setEvent(preReleaseEvent);
+            grade3.setComment("Проект близок к завершению");
+            grade3.setPresPoints(9);
+            grade3.setBuildPoints(9);
+            gradeRepository.save(grade3);
+
+            Grade grade4 = new Grade();
+            grade4.setId(new GradeKey(project4.getId(), user2.getId(), releaseEvent.getId()));
+            grade4.setProject(project4);
+            grade4.setJury(user2);
+            grade4.setEvent(releaseEvent);
+            grade4.setComment("Полностью готовый продукт");
+            grade4.setPresPoints(10);
+            grade4.setBuildPoints(10);
+            gradeRepository.save(grade4);
+        }
+    }
+
+}

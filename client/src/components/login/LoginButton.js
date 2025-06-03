@@ -3,16 +3,21 @@ import Button from '@mui/material/Button';
 import './LoginButton.css';
 import {useNavigate} from 'react-router-dom';
 import {StyledEngineProvider} from "@mui/material";
+import { useAuth } from '../../AuthContext';
 
-const LoginButton = ({ isAuthenticated, setIsAuthenticated }) => {
+
+
+const LoginButton = () => {
     const navigate = useNavigate();
+    const {isAuthenticated, setIsAuthenticated} = useAuth();
+
 
     const handleLogin = () => {
         navigate('/login');
     };
 
     const handleLogout = () => {
-        fetch('http://localhost:8080/logout', {
+        fetch('http://localhost:8080/api/v1/auth/logout', {
             method: 'POST',
             credentials: 'include'
         })
