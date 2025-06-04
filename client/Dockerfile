@@ -1,14 +1,13 @@
-FROM node:lts-alpine as build
+FROM node:20-alpine as build
 
 WORKDIR /app
 COPY package.json package-lock.json ./
-RUN yarn install --production
+RUN npm install
 
 COPY public ./public
 COPY src ./src
-RUN yarn build
 
-# CMD [ "ls", "./" ]
+RUN npm run build
 
 FROM nginx:1.25.2-alpine
 
