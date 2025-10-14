@@ -49,7 +49,10 @@ const NavigationBar = ({ avatarUrl, userName, userEmail }) => {
                         <UserMenu open={menuOpen} onClose={handleMenuClose} user={user} onLogout={handleLogout} />
                     </>
                 ) : (
-                    <Button component={Link} to='/oauth2/authorization/github' color="inherit">
+                    <Button
+                        color="inherit"
+                        onClick={() => window.location.assign('/oauth2/authorization/github')}
+                    >
                         Вход
                     </Button>
                 )}
