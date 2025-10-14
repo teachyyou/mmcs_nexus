@@ -1,32 +1,25 @@
+/* client/src/index.css */
+:root {
+  --appbar-h: 64px;
+}
+
 body {
   margin: 0;
-  width: 100vw;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
-    sans-serif;
+  'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  padding-top: var(--appbar-h);
 }
 
-header {
-  width: 100vw;
+html {
+  scrollbar-gutter: stable;
 }
 
-header:not(.modal-open){
-  padding-right: 0 !important;
-}
-
-body:not(.modal-open){
-  padding-right: 0 !important;
-}
-
-header:not(.modal-open){
-  padding-right: 0 !important;
-}
+/* Поднимаем Drawer при анимациях, если нужно перекрытие */
+.RaSidebar-fixed .MuiDrawer-paper { z-index: 1200; }
 
 code {
-  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
-    monospace;
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
-

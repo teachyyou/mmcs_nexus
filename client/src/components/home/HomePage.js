@@ -1,22 +1,14 @@
 import React, {useEffect, useState} from 'react';
-import NavigationBar from './NavigationBar';
-import {StyledEngineProvider} from "@mui/material";
 import { useAuth } from '../../AuthContext';
 
-
 const HomePage = () => {
-
     const [isLoading, setIsLoading] = useState(true);
-
-    const {isAuthenticated,setUser, user} = useAuth();
+    const {isAuthenticated, setUser} = useAuth();
 
     useEffect(() => {
         if (isAuthenticated) {
-            fetch('/api/v1/auth/user', {
-                credentials: 'include'
-            })
-                .then(
-                    response => response.json())
+            fetch('/api/v1/auth/user', { credentials: 'include' })
+                .then(response => response.json())
                 .then(data => {
                     if (data.user) {
                         setUser({
@@ -31,18 +23,17 @@ const HomePage = () => {
                         });
                     }
                     setIsLoading(false);
-                })
+                });
+        } else {
+            setIsLoading(false);
         }
-        else {
-            setIsLoading(false)
-        }
-    }, [isAuthenticated]);
+    }, [isAuthenticated, setUser]);
 
-    if (!isLoading) return (
+    if (isLoading) return null;
+
+    return (
         <div className="App">
-            <header className="App-header">
-                <NavigationBar className='navigation-bar'/>
-            </header>
+            {/* контент домашней без шапки — шапка рендерится глобально в AppContent */}
         </div>
     );
 };

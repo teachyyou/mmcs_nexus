@@ -7,21 +7,14 @@ import {
     TableHead,
     TableRow,
     Box,
-    Link as MuiLink,
-    Card, Tooltip
+    Paper,
+    Tooltip,
+    Button,
 } from '@mui/material';
 import { Link } from 'react-router-dom';
 import GradeEditorModal from './GradeEditorModal';
 import InlineGradeEditor from './InlineGradeEditor';
 import { useAuth } from "../../AuthContext";
-
-const cellSx = {
-    border: '2px solid black',
-    p: 0.5,
-    maxWidth: 120,
-    minHeight: 60,
-    overflow: 'hidden'
-};
 
 const GradeTable = ({ grades, event, onGradeUpdated }) => {
     const [selectedGrade, setSelectedGrade] = useState(null);
@@ -39,6 +32,9 @@ const GradeTable = ({ grades, event, onGradeUpdated }) => {
 
     const handleCloseModal = () => {
         setIsModalOpen(false);
+    };
+
+    const handleDialogExited = () => {
         setSelectedGrade(null);
         setSelectedJuryId(null);
         setSelectedProjectId(null);
@@ -52,7 +48,7 @@ const GradeTable = ({ grades, event, onGradeUpdated }) => {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
-                body: JSON.stringify(updatedGrade)
+                body: JSON.stringify(updatedGrade),
             });
             if (!response.ok) {
                 const errorData = await response.json();
@@ -66,7 +62,7 @@ const GradeTable = ({ grades, event, onGradeUpdated }) => {
         return { success: true };
     };
 
-    // Словарь для быстрого доступа к оценкам
+    // Ускоряем доступ к оценкам
     const gradeMap = {};
     grades.rows.forEach(row => {
         gradeMap[row.projectId] = {};
@@ -77,47 +73,103 @@ const GradeTable = ({ grades, event, onGradeUpdated }) => {
 
     return (
         <>
-            <TableContainer component={Card} sx={{ mt: 2 }}>
-                <Table sx={{ minWidth: 600, tableLayout: 'flexible', width: '100%' }}>
+            <TableContainer
+                component={Paper}
+                elevation={1}
+                sx={{
+                    mt: 2,
+                    borderRadius: 2,
+                    overflow: 'auto',
+                    border: theme => `1px solid ${theme.palette.divider}`,
+                }}
+            >
+                <Table size="small" sx={{ minWidth: 900 }}>
                     <TableHead>
-                        <TableRow>
-                            <TableCell sx={{ ...cellSx, fontWeight: 'bold' }}>
+                        <TableRow
+                            sx={{
+                                '& th': {
+                                    borderColor: theme => theme.palette.divider,
+                                },
+                            }}
+                        >
+                            <TableCell
+                                sx={{
+                                    fontWeight: 700,
+                                    position: 'sticky',
+                                    left: 0,
+                                    zIndex: theme => theme.zIndex.appBar,
+                                    background: theme => theme.palette.background.paper,
+                                    minWidth: 240,
+                                }}
+                            >
                                 Проекты / Жюри
                             </TableCell>
+
                             {grades.juries.map(jury => (
-                                <TableCell key={jury.id} align="center" sx={{ ...cellSx, fontWeight: 'bold' }}>
+                                <TableCell
+                                    key={jury.id}
+                                    align="center"
+                                    sx={{
+                                        fontWeight: 700,
+                                        whiteSpace: 'nowrap',
+                                    }}
+                                >
                                     {jury.firstName} {jury.lastName}
                                 </TableCell>
                             ))}
                         </TableRow>
                     </TableHead>
-                    <TableBody>
-                        {grades.rows.map(({ projectId, mentorId, tableRow }) => {
+
+                    <TableBody
+                        sx={{
+                            '& td': { borderColor: theme => theme.palette.divider },
+                            '& tr:nth-of-type(odd)': {
+                                backgroundColor: theme => theme.palette.action.hover,
+                            },
+                            '& tr:hover': {
+                                backgroundColor: theme => theme.palette.action.selected,
+                                transition: 'background-color 160ms ease',
+                            },
+                        }}
+                    >
+                        {grades.rows.map(({ projectId, mentorId }) => {
                             const project = grades.projects.find(p => p.id === projectId);
+
                             return (
                                 <TableRow key={projectId}>
-                                    <TableCell sx={{ ...cellSx, fontWeight: 'bold' }}>
+                                    <TableCell
+                                        sx={{
+                                            fontWeight: 600,
+                                            position: 'sticky',
+                                            left: 0,
+                                            zIndex: theme => theme.zIndex.appBar,
+                                            background: theme => theme.palette.background.paper,
+                                            minWidth: 240,
+                                            whiteSpace: 'nowrap',
+                                        }}
+                                    >
                                         {project?.name}
                                     </TableCell>
+
                                     {grades.juries.map(jury => {
                                         const gradeItem = gradeMap[projectId]?.[jury.id];
                                         const isOwner = jury.id === userId;
                                         const isMentorCell = jury.id === mentorId;
+
                                         if (isMentorCell) {
                                             return (
-                                                <TableCell key={jury.id} align="center" sx={cellSx}>
+                                                <TableCell key={jury.id} align="center" sx={{ color: 'text.disabled', verticalAlign: 'middle' }}>
                                                     <Tooltip title="Ментор не имеет права оценивать свои проекты">
-                                                        <span>
-                                                        <   Box sx={{ color: '#999' }}>Недоступно</Box>
-                                                        </span>
+                                                        <span>Недоступно</span>
                                                     </Tooltip>
                                                 </TableCell>
                                             );
                                         }
+
                                         return (
-                                            <TableCell key={jury.id} align="center" sx={cellSx}>
+                                            <TableCell key={jury.id} align="center" sx={{ verticalAlign: 'middle' }}>
                                                 {gradeItem ? (
-                                                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
+                                                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 0.5 }}>
                                                         <InlineGradeEditor
                                                             gradeItem={gradeItem}
                                                             maxBuild={event.maxBuildPoints}
@@ -126,29 +178,49 @@ const GradeTable = ({ grades, event, onGradeUpdated }) => {
                                                                 handleInlineUpdate(gradeItem, field, newValue)
                                                             }
                                                         />
-                                                        <MuiLink
+
+                                                        <Button
                                                             component={Link}
                                                             to="#"
                                                             onClick={() => handleCellClick(gradeItem, projectId, jury.id)}
-                                                            sx={{ fontSize: '0.75rem', color: 'blue' }}
+                                                            size="small"
+                                                            variant="text"
+                                                            sx={{ mt: 0.25, display: 'inline-flex', mx: 'auto' }}
                                                         >
-                                                            Подробнее...
-                                                        </MuiLink>
+                                                            Подробнее
+                                                        </Button>
                                                     </Box>
                                                 ) : (
                                                     isOwner ? (
-                                                        <MuiLink
+                                                        <Button
                                                             component={Link}
                                                             to="#"
                                                             onClick={() => handleCellClick(null, projectId, jury.id)}
-                                                            sx={{ fontSize: '0.75rem', color: 'blue' }}
+                                                            size="small"
+                                                            variant="text"
+                                                            sx={{ display: 'inline-flex', mx: 'auto' }}
                                                         >
-                                                            Не оценено
-                                                        </MuiLink>
+                                                            <Tooltip title="Проект ещё не был оценён">
+                                                                <span>Не оценено</span>
+                                                            </Tooltip>
+                                                        </Button>
                                                     ) : (
-                                                        <Box sx={{ fontSize: '0.75rem', color: '#999' }}>
-                                                            Не оценено
-                                                        </Box>
+                                                        <Tooltip title="Проект ещё не был оценён">
+                                                            <Box
+                                                                component="span"
+                                                                sx={{
+                                                                    display: 'inline-flex',
+                                                                    alignItems: 'center',
+                                                                    justifyContent: 'center',
+                                                                    minHeight: 24,
+                                                                    px: 0.5,
+                                                                    fontSize: '0.8rem',
+                                                                    color: 'text.disabled',
+                                                                }}
+                                                            >
+                                                                Не оценено
+                                                            </Box>
+                                                        </Tooltip>
                                                     )
                                                 )}
                                             </TableCell>
@@ -160,9 +232,11 @@ const GradeTable = ({ grades, event, onGradeUpdated }) => {
                     </TableBody>
                 </Table>
             </TableContainer>
+
             <GradeEditorModal
                 open={isModalOpen}
                 onClose={handleCloseModal}
+                onExited={handleDialogExited}
                 grade={selectedGrade}
                 projectId={selectedProjectId}
                 juryId={selectedJuryId}
