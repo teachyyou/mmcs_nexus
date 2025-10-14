@@ -16,6 +16,7 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
+import org.springframework.beans.factory.annotation.Value;
 import ru.sfedu.mmcs_nexus.service.UserService;
 
 import java.util.List;
@@ -27,6 +28,8 @@ public class SecurityConfig {
     @Autowired
     private UserService userService;
 
+    @Value("${BASE_URL}")
+    private String baseUrl;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -89,7 +92,7 @@ public class SecurityConfig {
             Authentication newAuthentication = new OAuth2AuthenticationToken(newUser, List.of(new SimpleGrantedAuthority(roleName)),"github");
             SecurityContextHolder.getContext().setAuthentication(newAuthentication);
 
-            response.sendRedirect(ApplicationConfig.CLIENT_URL);
+            response.sendRedirect(baseUrl);
 
         });
     }

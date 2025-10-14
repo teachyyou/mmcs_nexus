@@ -1,4 +1,4 @@
-FROM eclipse-temurin:22-jdk-jammy as build
+FROM eclipse-temurin:22-jdk-jammy AS build
 
 WORKDIR /build
 
@@ -25,6 +25,6 @@ COPY --from=build build/target/extracted/application/ ./
 
 EXPOSE 8080
 
-ENTRYPOINT [ "java", "--enable-preview", "org.springframework.boot.loader.launch.JarLauncher" ]
+CMD [ "java", "--enable-preview", "org.springframework.boot.loader.launch.JarLauncher" ]
 
 LABEL name="nexus_backend"
