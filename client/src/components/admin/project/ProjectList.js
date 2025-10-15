@@ -13,7 +13,7 @@ const ProjectList = (props) => {
                 return 'Предзащита';
             case 'GAME':
                 return 'Игра';
-            case 'MOD':
+            case 'GAME_MOD':
                 return 'Мод';
             case 'TELEGRAM_BOT':
                 return 'Телеграм-бот';
