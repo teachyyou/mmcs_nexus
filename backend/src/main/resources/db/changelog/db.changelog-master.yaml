@@ -19,3 +19,7 @@ databaseChangeLog:
       file: db/changelog/changeset/add-project_event-day.yaml
   - include:
       file: db/changelog/changeset/allow-null-def.yaml
+  - include:
+      file: db/changelog/changeset/drop-user-group-and-course.yaml
+  - include:
+      file: db/changelog/changeset/add-user-email.yaml

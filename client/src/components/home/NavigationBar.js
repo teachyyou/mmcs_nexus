@@ -159,6 +159,13 @@ export default function NavigationBar() {
                                     <Box sx={{ opacity: 0.7, fontSize: 12 }}>{user?.email}</Box>
                                 </Box>
                                 <Divider />
+                                <MenuItem
+                                    component={Link}
+                                    to="/update_profile"
+                                    onClick={handleMenuClose}
+                                >
+                                    Профиль
+                                </MenuItem>
                                 <MenuItem onClick={handleLogout}>Выйти</MenuItem>
                             </Menu>
                         </>

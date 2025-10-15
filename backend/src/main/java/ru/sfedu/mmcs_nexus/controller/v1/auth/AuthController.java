@@ -1,19 +1,22 @@
 package ru.sfedu.mmcs_nexus.controller.v1.auth;
 
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Profile;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
+import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
+import ru.sfedu.mmcs_nexus.model.dto.request.UpdateUserInfoDTO;
 import ru.sfedu.mmcs_nexus.model.entity.User;
 import ru.sfedu.mmcs_nexus.model.enums.entity.UserEnums;
 import ru.sfedu.mmcs_nexus.service.UserService;
@@ -65,8 +68,7 @@ public class AuthController {
             userMap.put("github_name", githubUser.getAttribute("name"));
             userMap.put("firstname", user.getFirstName());
             userMap.put("lastname", user.getLastName());
-            userMap.put("group", user.getUserGroup());
-            userMap.put("course", user.getUserCourse());
+            userMap.put("email", user.getEmail());
             userMap.put("avatar_url", githubUser.getAttribute("avatar_url"));
 
             response.put("userId", user.getId());
@@ -105,8 +107,7 @@ public class AuthController {
             response.put("github_name", github_user.getAttribute("name"));
             response.put("firstname", existingUser.getFirstName());
             response.put("lastname", existingUser.getLastName());
-            response.put("group", existingUser.getUserGroup());
-            response.put("course", existingUser.getUserCourse());
+            response.put("email", existingUser.getEmail());
             response.put("avatar_url", github_user.getAttribute("avatar_url"));
 
             return ResponseEntity.ok(response);
@@ -117,24 +118,12 @@ public class AuthController {
     }
 
     //todo сделать нормальное обновление инфы через POST/PUT
-    @PostMapping("api/v1/auth/update_profile")
-    public ResponseEntity<?> updateProfile(Authentication authentication, @RequestBody User user) {
-        if (authentication == null || authentication instanceof AnonymousAuthenticationToken || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized");
-        }
+    @PutMapping("api/v1/auth/update_profile")
+    public ResponseEntity<?> updateProfile(@AuthenticationPrincipal OAuth2User oauthUser, @Valid @RequestBody UpdateUserInfoDTO userDTO) {
 
-        DefaultOAuth2User oauthUser = (DefaultOAuth2User) authentication.getPrincipal();
         String githubLogin = oauthUser.getAttribute("login");
 
-        Optional<User> optionalUser = userService.findByGithubLogin(githubLogin);
-        if (optionalUser.isEmpty()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(STR."User with GitHub login \{githubLogin} not found");
-        }
-
-        User existingUser = optionalUser.get();
-        existingUser.verifyExistingUser(user);
-        userService.saveUser(existingUser);
+        userService.updateUserInfo(githubLogin, userDTO.getEmail(), userDTO.getFirstName(), userDTO.getLastName());
 
         return ResponseEntity.ok().build();
     }
