@@ -1,6 +1,9 @@
 package ru.sfedu.mmcs_nexus.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -11,7 +14,6 @@ import ru.sfedu.mmcs_nexus.model.entity.User;
 import ru.sfedu.mmcs_nexus.model.enums.entity.UserEnums;
 import ru.sfedu.mmcs_nexus.repository.UserRepository;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -25,14 +27,15 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-
-    public List<User> getUsers() {
-        return userRepository.findAll();
-    }
-
-    public List<User> getUsers(String sort, String order) {
+    public Page<User> getUsers(String sort, String order, Integer limit, Integer offset) {
         Sort.Direction direction = order.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-        return userRepository.findAll(Sort.by(direction, sort));
+
+        //todo позже убрать необходимость кратности
+        int page = offset / limit;
+
+        Pageable pageable = PageRequest.of(page, limit, Sort.by(direction, sort));
+
+        return userRepository.findAll(pageable);
     }
 
 
@@ -52,13 +55,18 @@ public class UserService {
                 () -> new UsernameNotFoundException(STR."User \{login} is not found")
         );
 
-        if (userRepository.findByEmail(email).size() > 1) {
+        //Проверка на то, что данная почта уже занята другим пользователем
+        if (userRepository.existsByEmailAndIdNot(email, user.getId())) {
             throw new EmailAlreadyTakenException(email);
         }
 
         user.setEmail(email);
         user.setFirstName(firstName);
         user.setLastName(lastName);
+
+        if (user.getStatus() == UserEnums.UserStatus.NON_VERIFIED) {
+            user.setStatus(UserEnums.UserStatus.VERIFIED);
+        }
 
         userRepository.save(user);
     }

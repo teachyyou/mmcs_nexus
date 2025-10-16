@@ -24,6 +24,7 @@ import LoadingCard from "./components/common/LoadingCard";
 import {useTheme} from "@mui/material/styles";
 import { Box } from "@mui/material";
 import NavigationBar from "./components/home/NavigationBar";
+import i18nProvider from './components/admin/i18nProvider';
 
 const dataProvider = springBootRestProvider('/api/v1/admin');
 const APPBAR_H = 64;
@@ -86,9 +87,9 @@ export default function AppContent() {
                                     dataProvider={dataProvider}
                                     basename="/admin"
                                     layout={AdminLayout}
-                                    // важно: одна и та же тема внутрь RA
                                     theme={outerTheme}
                                     darkTheme={outerTheme}
+                                    i18nProvider={i18nProvider}
                                 >
                                     <Resource name="users" options={{label: 'Пользователи'}} list={UserList} edit={UserEdit}/>
                                     <Resource name="projects" options={{label: 'Проекты'}} list={ProjectList} edit={ProjectEdit} create={ProjectCreate}/>

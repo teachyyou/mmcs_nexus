@@ -1,17 +1,9 @@
 // client/src/components/login/UpdateProfilePage.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
-    Container,
-    TextField,
-    Button,
-    Typography,
-    Box,
-    Paper,
-    Stack,
-    Divider,
-    CircularProgress,
-    useTheme,
+    Container, TextField, Button, Typography, Box,
+    Paper, Stack, Divider, CircularProgress, useTheme,
 } from '@mui/material';
 import { useAuth } from '../../AuthContext';
 
@@ -22,9 +14,15 @@ const UpdateProfilePage = () => {
 
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName]   = useState('');
-    const [email, setEmail]   = useState('');
+    const [email, setEmail]         = useState('');
     const [loading, setLoading]     = useState(true);
     const [saving, setSaving]       = useState(false);
+
+    const [emailTouched, setEmailTouched] = useState(false);
+
+    const isSfeduEmail = (val) => /^[^\s@]+@sfedu\.ru$/i.test(val.trim());
+
+    const emailInvalid = useMemo(() => !isSfeduEmail(email), [email]);
 
     useEffect(() => {
         const fetchUserInfo = async () => {
@@ -34,7 +32,7 @@ const UpdateProfilePage = () => {
                     const data = await res.json();
                     if (data.firstname) setFirstName(data.firstname);
                     if (data.lastname)  setLastName(data.lastname);
-                    if (data.email)  setEmail(data.email);
+                    if (data.email)     setEmail(data.email);
                 } else {
                     console.error('Failed to fetch user info');
                 }
@@ -49,13 +47,19 @@ const UpdateProfilePage = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+
+        if (emailInvalid) {
+            setEmailTouched(true);
+            return;
+        }
+
         setSaving(true);
         try {
             const res = await fetch('/api/v1/auth/update_profile', {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
-                body: JSON.stringify({ firstName, lastName, email }),
+                body: JSON.stringify({ firstName, lastName, email: email.trim() }),
             });
 
             if (res.ok) {
@@ -90,31 +94,18 @@ const UpdateProfilePage = () => {
             <Paper
                 elevation={0}
                 sx={{
-                    mt: 4,
-                    p: 3,
-                    borderRadius: 3,
+                    mt: 4, p: 3, borderRadius: 3,
                     border: `1px solid ${theme.palette.divider}`,
-                    background:
-                        theme.palette.mode === 'dark'
-                            ? theme.palette.background.paper
-                            : '#fff',
+                    background: theme.palette.mode === 'dark'
+                        ? theme.palette.background.paper
+                        : '#fff',
                 }}
             >
-                <Box
-                    sx={{
-                        mb: 2,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 1,
-                    }}
-                >
+                <Box sx={{ mb: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
                     <Typography variant="h5" sx={{ fontWeight: 700 }}>
                         Профиль
                     </Typography>
-                    <Typography
-                        variant="body2"
-                        sx={{ opacity: 0.75, ml: 'auto' }}
-                    >
+                    <Typography variant="body2" sx={{ opacity: 0.75, ml: 'auto' }}>
                         {theme.palette.mode === 'dark' ? 'Тёмная тема' : 'Светлая тема'}
                     </Typography>
                 </Box>
@@ -126,7 +117,7 @@ const UpdateProfilePage = () => {
                         <CircularProgress />
                     </Box>
                 ) : (
-                    <Box component="form" onSubmit={handleSubmit}>
+                    <Box component="form" onSubmit={handleSubmit} noValidate>
                         <Stack spacing={2}>
                             <TextField
                                 label="Имя"
@@ -143,11 +134,21 @@ const UpdateProfilePage = () => {
                                 required
                             />
                             <TextField
-                                label="Почта"
+                                // NEW: тип, паттерн, ошибка и подсказка
+                                type="email"
+                                label="Почта (@sfedu.ru)"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
+                                onBlur={() => setEmailTouched(true)}
                                 fullWidth
                                 required
+                                inputProps={{ pattern: '^[^\\s@]+@sfedu\\.ru$' }}
+                                error={emailTouched && emailInvalid}
+                                helperText={
+                                    emailTouched && emailInvalid
+                                        ? 'Используйте корпоративную почту, оканчивающуюся на @sfedu.ru'
+                                        : ' '
+                                }
                             />
                         </Stack>
 
@@ -160,7 +161,7 @@ const UpdateProfilePage = () => {
                                 type="submit"
                                 variant="contained"
                                 color="primary"
-                                disabled={saving}
+                                disabled={saving || emailInvalid}
                             >
                                 {saving ? 'Сохранение…' : 'Сохранить'}
                             </Button>

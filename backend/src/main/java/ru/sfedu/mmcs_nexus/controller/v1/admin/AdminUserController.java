@@ -1,6 +1,7 @@
 package ru.sfedu.mmcs_nexus.controller.v1.admin;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -9,7 +10,6 @@ import ru.sfedu.mmcs_nexus.model.entity.User;
 import ru.sfedu.mmcs_nexus.service.UserService;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
@@ -27,13 +27,14 @@ public class AdminUserController {
     public ResponseEntity<Map<String, Object>> getUsersList(
             @RequestParam(defaultValue = "id") String sort,
             @RequestParam(defaultValue = "asc") String order,
-            Authentication authentication) {
+            @RequestParam(defaultValue = "limit") Integer limit,
+            @RequestParam(defaultValue = "offset") Integer offset) {
 
-        List<User> users = userService.getUsers(sort, order);
+        Page<User> users = userService.getUsers(sort, order, limit, offset);
 
         Map<String, Object> response = new HashMap<>();
-        response.put("content", users);
-        response.put("totalElements", users.size());
+        response.put("content", users.getContent());
+        response.put("totalElements", users.getTotalElements());
 
         return ResponseEntity.ok().body(response);
     }
