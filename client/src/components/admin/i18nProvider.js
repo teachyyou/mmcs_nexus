@@ -25,6 +25,7 @@ const ru = {
             select_row: 'Выбрать',
             unselect: 'Снять выделение',
             unselect_row: 'Снять выделение',
+            confirm: 'Подтвердить',
             bulk_actions: 'Выбрано: %{smart_count}',
         },
         boolean: {
@@ -58,6 +59,8 @@ const ru = {
             email: 'Неверный адрес почты',
         },
         message: {
+            delete_title: 'Подтвердите удаление',
+            delete_content: 'Это действие отменить нельзя',
             yes: 'Да',
             invalid_form: 'Произошла ошибка, проверьте введенные данные',
             no: 'Нет',

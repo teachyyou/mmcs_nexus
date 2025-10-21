@@ -56,9 +56,22 @@ const UserEdit = (props) => {
             title={false}
             actions={<EditActions />}
             mutationMode='pessimistic'
+
             {...props}
         >
-            <SimpleForm toolbar={<UserEditToolbar />}>
+            <SimpleForm toolbar={<UserEditToolbar />}
+                        sx={{
+                            maxWidth: 900,
+                            width: '100%',
+                            '& .MuiFormControl-root': {
+                                width: '100%',
+                            },
+                            '& .RaInput-root': {
+                                width: '100%',
+                            },
+                            gap: 2,
+                        }}
+            >
                 {/* READ-ONLY логин с аккуратным фоном для светлой/тёмной темы */}
                 <TextInput
                     source="login"

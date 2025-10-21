@@ -71,7 +71,6 @@ public class EventService {
     }
 
     public List<Integer> getEventsYears(String sort, String order) {
-        Sort.Direction direction = order.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
         return eventRepository.findAllEventsYears();
     }
 

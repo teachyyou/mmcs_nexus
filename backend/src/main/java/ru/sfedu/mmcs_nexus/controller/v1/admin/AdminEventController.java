@@ -26,7 +26,6 @@ import java.util.Map;
 
 @RestController
 public class AdminEventController {
-
     private final EventService eventService;
     private final ProjectEventService projectEventService;
 
@@ -62,6 +61,34 @@ public class AdminEventController {
         return ResponseEntity.ok(event);
     }
 
+    @PostMapping(value = "/api/v1/admin/events", produces = "application/json")
+    public ResponseEntity<?> createEvent(@Valid @RequestBody CreateEventRequestPayload payload) {
+        eventService.createEvent(payload);
+
+        return ResponseUtils.success(HttpStatus.OK, "saved successfully");
+    }
+
+    @PutMapping(value = "/api/v1/admin/events/{id}", produces = "application/json")
+    public ResponseEntity<Event> editEventById(@PathVariable("id") @UUID String id, @Valid @RequestBody CreateEventRequestPayload payload) {
+        Event event = eventService.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException(STR."Event with id \{id} not found"));
+
+        event = eventService.editEvent(event, payload);
+
+        return ResponseEntity.ok(event);
+    }
+
+    @DeleteMapping(value = "/api/v1/admin/events/{id}")
+    public ResponseEntity<Void> deleteEventById(@PathVariable("id") @UUID String id) {
+        if (!eventService.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+
+        eventService.deleteEventById(id);
+
+        return ResponseEntity.noContent().build();
+    }
+
     @GetMapping(value = "/api/v1/admin/events/{id}/projects", produces = "application/json")
     public ResponseEntity<Map<String, Object>> getEventProjectsById(
             @PathVariable("id") @UUID String eventId,
@@ -69,7 +96,6 @@ public class AdminEventController {
             @RequestParam(defaultValue = ApplicationConfig.DEFAULT_OFFSET) Integer offset,
             @RequestParam(required = false) Integer day
     ) {
-
         PaginationPayload paginationPayload = new PaginationPayload(limit, offset);
 
         Page<Project> projects = projectEventService.findProjectsByEvent(eventId, day, paginationPayload);
@@ -116,37 +142,10 @@ public class AdminEventController {
             @Valid @RequestBody SetDefenceDayRequestPayload request
     ) {
 
-        projectEventService.setDaysForProjectAndEvent(eventId, request.getFirstDayProjects(), request.getSecondDayProjects());
+        Event event = eventService.findById(eventId)
+                .orElseThrow(() -> new EntityNotFoundException(STR."Event with id \{eventId} not found"));
+
+        projectEventService.setDaysForProjectAndEvent(event, request.getFirstDayProjects(), request.getSecondDayProjects());
         return ResponseUtils.success(HttpStatus.OK, "saved successfully");
-    }
-
-
-
-    @PutMapping(value = "/api/v1/admin/events/{id}", produces = "application/json")
-    public ResponseEntity<Event> editEventById(@PathVariable("id") @UUID String id, @Valid @RequestBody CreateEventRequestPayload payload) {
-        Event event = eventService.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(STR."Event with id \{id} not found"));
-
-        event = eventService.editEvent(event, payload);
-
-        return ResponseEntity.ok(event);
-    }
-
-    @PostMapping(value = "/api/v1/admin/events", produces = "application/json")
-    public ResponseEntity<?> createEvent(@Valid @RequestBody CreateEventRequestPayload payload) {
-        eventService.createEvent(payload);
-
-        return ResponseUtils.success(HttpStatus.OK, "saved successfully");
-    }
-
-    @DeleteMapping(value = "/api/v1/admin/events/{id}")
-    public ResponseEntity<Void> deleteEventById(@PathVariable("id") @UUID String id) {
-        if (!eventService.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
-
-        eventService.deleteEventById(id);
-
-        return ResponseEntity.noContent().build();
     }
 }
