@@ -12,6 +12,11 @@ const common = {
         MuiAppBar: { styleOverrides: { root: { boxShadow: 'none' } } },
         MuiPaper: { defaultProps: { elevation: 0 } },
         MuiButton: { defaultProps: { disableElevation: true } },
+        MuiModal: {
+            defaultProps: {
+                disableScrollLock: true,
+            },
+        },
         MuiMenu: {
             defaultProps: {
                 disableScrollLock: true,

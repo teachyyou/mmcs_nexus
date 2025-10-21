@@ -1,3 +1,5 @@
+// EventAdminForm.js
+import React from 'react';
 import {
     NumberInput,
     required,
@@ -6,51 +8,68 @@ import {
     TextInput,
     useNotify,
     useRecordContext,
-    useRedirect
-} from "react-admin";
-import AdminToolbar from "../AdminToolbar";
-import React from "react";
+    useRedirect,
+    Toolbar,
+    SaveButton,
+    DeleteButton,
+} from 'react-admin';
+import { Box } from '@mui/material';
+
+const EventFormToolbar = () => {
+    const record = useRecordContext(); // есть только в Edit
+
+    return (
+        <Toolbar
+            sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: 1,
+                px: 0,
+            }}
+        >
+            {/* Сохранить — слева */}
+            <SaveButton />
+
+            {/* Заполнитель пространства */}
+            <Box sx={{ flex: 1 }} />
+
+            {/* Удалить — справа, только в режиме редактирования */}
+            {record?.id && (
+                <DeleteButton
+                    mutationMode="pessimistic"
+                    redirect="list"
+                />
+            )}
+        </Toolbar>
+    );
+};
 
 const EventAdminForm = (props) => {
-
     const { requestMethod } = props;
     const notify = useNotify();
     const redirect = useRedirect();
     const record = useRecordContext();
 
-
-    const handleKeyDown = (event) => {
-        if (event.key === '-' || event.key === 'e' || event.key === 'E') {
-            event.preventDefault();
-        }
+    const handleKeyDown = (e) => {
+        if (e.key === '-' || e.key === 'e' || e.key === 'E') e.preventDefault();
     };
-
-    const handlePaste = (event) => {
-        const pasteData = event.clipboardData.getData('text');
-        if (/[-eE]/.test(pasteData)) {
-            event.preventDefault();
-        }
+    const handlePaste = (e) => {
+        const paste = e.clipboardData.getData('text');
+        if (/[-eE]/.test(paste)) e.preventDefault();
     };
-
-    const handleChange = (event) => {
-        const originalValue = event.target.value;
-        const cleanedValue = originalValue.replace(/[eE-]/g, '');
-        if (originalValue !== cleanedValue) {
-            event.target.value = cleanedValue;
-        }
-        else if (cleanedValue.length > 2) {
-            event.target.value = cleanedValue.slice(0, 2);
-        }
+    const handleChange = (e) => {
+        const orig = e.target.value;
+        const cleaned = orig.replace(/[eE-]/g, '');
+        if (orig !== cleaned) e.target.value = cleaned;
+        else if (cleaned.length > 2) e.target.value = cleaned.slice(0, 2);
     };
 
     const year = new Date().getFullYear();
+    const requiredMsg = required('Обязательное поле');
 
-    const requiredWithMessage = required("Обязательное поле");
-
-    const handleSubmit =  async (data) => {
-
-        const { id, ...dataWithoutId } = data;
-        const params = record?.id ? { id: record.id, data: dataWithoutId } : { data: dataWithoutId };
+    const handleSubmit = async (data) => {
+        const { id, ...dto } = data;
+        const params = record?.id ? { id: record.id, data: dto } : { data: dto };
 
         requestMethod('events', params)
             .then(() => {
@@ -67,27 +86,36 @@ const EventAdminForm = (props) => {
     };
 
     return (
-        <SimpleForm onSubmit={handleSubmit} toolbar={<AdminToolbar />}>
+        <SimpleForm onSubmit={handleSubmit} toolbar={<EventFormToolbar />}
+                    sx={{
+                        maxWidth: 900,
+                        width: '100%',
+                        '& .MuiFormControl-root': {
+                            width: '100%',
+                        },
+                        '& .RaInput-root': {
+                            width: '100%',
+                        },
+                        gap: 2,
+                    }}
+        >
             <TextInput
                 source="name"
-                name="name"
                 label="Название"
-                validate={requiredWithMessage}
+                validate={requiredMsg}
                 inputProps={{ maxLength: 32 }}
             />
             <NumberInput
                 source="year"
-                name="year"
                 label="Год"
-                min={year-5}
-                max={year+5}
+                min={year - 5}
+                max={year + 5}
                 defaultValue={year}
-                validate={requiredWithMessage}
+                validate={requiredMsg}
                 inputProps={{ maxLength: 4 }}
             />
             <SelectInput
                 source="eventType"
-                name="eventType"
                 label="Тип события"
                 choices={[
                     { id: 'IDEA', name: 'Защита идеи' },
@@ -95,30 +123,32 @@ const EventAdminForm = (props) => {
                     { id: 'PRE_RELEASE', name: 'Предзащита' },
                     { id: 'RELEASE', name: 'Итоговая защита' },
                 ]}
-                validate={requiredWithMessage}
+                validate={requiredMsg}
             />
             <NumberInput
                 source="maxBuildPoints"
-                name="maxBuildPoints"
                 label="Максимальная оценка за билд"
-                validate={requiredWithMessage}
+                validate={requiredMsg}
+                min={0}
+                max={35}
                 inputProps={{
                     onKeyDown: handleKeyDown,
                     onPaste: handlePaste,
                     onChange: handleChange,
-                    maxLength: 2
+                    maxLength: 2,
                 }}
             />
             <NumberInput
                 source="maxPresPoints"
-                name="maxPresPoints"
                 label="Максимальная оценка за презентацию"
-                validate={requiredWithMessage}
+                validate={requiredMsg}
+                min={0}
+                max={15}
                 inputProps={{
                     onKeyDown: handleKeyDown,
                     onPaste: handlePaste,
                     onChange: handleChange,
-                    maxLength: 2
+                    maxLength: 2,
                 }}
             />
         </SimpleForm>
