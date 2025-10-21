@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
-import ru.sfedu.mmcs_nexus.model.dto.request.ProjectEventJuryAssignmentRequestDTO;
+import ru.sfedu.mmcs_nexus.model.payload.admin.AssignJuriesRequestPayload;
 import ru.sfedu.mmcs_nexus.model.dto.entity.UserDTO;
 import ru.sfedu.mmcs_nexus.model.entity.Event;
 import ru.sfedu.mmcs_nexus.service.EventService;
@@ -94,7 +94,7 @@ public class AdminProjectController {
     }
 
     @PostMapping(value = "api/v1/admin/projects/{id}/juries", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<?> saveProjectEventJuries(@PathVariable("id") UUID id, Authentication authentication, @RequestBody ProjectEventJuryAssignmentRequestDTO request) {
+    public ResponseEntity<?> saveProjectEventJuries(@PathVariable("id") UUID id, Authentication authentication, @RequestBody AssignJuriesRequestPayload request) {
 
         Project project = projectService.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(STR."Project with id \{id} not found"));
@@ -109,7 +109,7 @@ public class AdminProjectController {
             }
 
         } else {
-            Event event = eventService.findById(request.getEventId()).orElseThrow(() -> new EntityNotFoundException(STR."Event with id \{id} not found"));
+            Event event = eventService.findById(request.getEventId().toString()).orElseThrow(() -> new EntityNotFoundException(STR."Event with id \{id} not found"));
             projectJuryEventService.clearProjectEventJuries(project, event);
 
             projectJuryEventService.saveJuriesToProjectEvent(project, event, request.getMentors(), ProjectJuryEvent.RelationType.MENTOR);

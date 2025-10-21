@@ -1,10 +1,17 @@
-package ru.sfedu.mmcs_nexus.model.dto.request;
+package ru.sfedu.mmcs_nexus.model.payload.user;
 
-public class UpdateUserInfoDTO {
+import ru.sfedu.mmcs_nexus.validators.UserEmail;
+import ru.sfedu.mmcs_nexus.validators.UserName;
+
+public class UpdateProfileRequestPayload {
+    @UserName
     private String firstName;
-    private String lastName;
-    private String email;
 
+    @UserName
+    private String lastName;
+
+    @UserEmail
+    private String email;
 
     public String getFirstName() {
         return firstName;

@@ -16,10 +16,11 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
-import ru.sfedu.mmcs_nexus.model.dto.request.UpdateUserInfoDTO;
+import ru.sfedu.mmcs_nexus.model.payload.user.UpdateProfileRequestPayload;
 import ru.sfedu.mmcs_nexus.model.entity.User;
 import ru.sfedu.mmcs_nexus.model.enums.entity.UserEnums;
 import ru.sfedu.mmcs_nexus.service.UserService;
+import ru.sfedu.mmcs_nexus.util.ResponseUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -119,13 +120,12 @@ public class AuthController {
 
     //todo сделать нормальное обновление инфы через POST/PUT
     @PutMapping("api/v1/auth/update_profile")
-    public ResponseEntity<?> updateProfile(@AuthenticationPrincipal OAuth2User oauthUser, @Valid @RequestBody UpdateUserInfoDTO userDTO) {
-
+    public ResponseEntity<?> updateProfile(@AuthenticationPrincipal OAuth2User oauthUser, @Valid @RequestBody UpdateProfileRequestPayload userDTO) {
         String githubLogin = oauthUser.getAttribute("login");
 
         userService.updateUserInfo(githubLogin, userDTO.getEmail(), userDTO.getFirstName(), userDTO.getLastName());
 
-        return ResponseEntity.ok().build();
+        return ResponseUtils.success(HttpStatus.OK, "success");
     }
 
     //Очень полезная штука чтобы залогиниться под другим пользователем, не забыть убрать потом

@@ -2,9 +2,7 @@ package ru.sfedu.mmcs_nexus.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
@@ -12,6 +10,8 @@ import org.springframework.stereotype.Service;
 import ru.sfedu.mmcs_nexus.exceptions.EmailAlreadyTakenException;
 import ru.sfedu.mmcs_nexus.model.entity.User;
 import ru.sfedu.mmcs_nexus.model.enums.entity.UserEnums;
+import ru.sfedu.mmcs_nexus.model.internal.PaginationPayload;
+import ru.sfedu.mmcs_nexus.model.payload.admin.EditUserRequestPayload;
 import ru.sfedu.mmcs_nexus.repository.UserRepository;
 
 import java.util.Optional;
@@ -27,23 +27,13 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public Page<User> getUsers(String sort, String order, Integer limit, Integer offset) {
-        Sort.Direction direction = order.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-
-        //todo позже убрать необходимость кратности
-        int page = offset / limit;
-
-        Pageable pageable = PageRequest.of(page, limit, Sort.by(direction, sort));
+    public Page<User> getUsers(PaginationPayload paginationPayload) {
+        Pageable pageable = paginationPayload.getPageable();
 
         return userRepository.findAll(pageable);
     }
 
-
-    public void saveUser(User user) {
-        userRepository.saveAndFlush(user);
-    }
-
-    //for creating non-verified user with just github login
+    //Для первого сохранения в БД чисто по логину
     public void saveUser(String githubLogin) {
         if (findByGithubLogin(githubLogin).isEmpty()) {
             saveUser(new User(githubLogin));
@@ -55,36 +45,36 @@ public class UserService {
                 () -> new UsernameNotFoundException(STR."User \{login} is not found")
         );
 
-        //Проверка на то, что данная почта уже занята другим пользователем
-        if (userRepository.existsByEmailAndIdNot(email, user.getId())) {
-            throw new EmailAlreadyTakenException(email);
-        }
-
-        user.setEmail(email);
-        user.setFirstName(firstName);
-        user.setLastName(lastName);
+        partialUserUpdate(user, firstName, lastName,email, null, null);
 
         if (user.getStatus() == UserEnums.UserStatus.NON_VERIFIED) {
             user.setStatus(UserEnums.UserStatus.VERIFIED);
         }
 
-        userRepository.save(user);
+        saveUser(user);
     }
 
-    public void deleteUserById(UUID id) {
-        userRepository.deleteById(id);
+    public User editUser(User user, EditUserRequestPayload payload) {
+        partialUserUpdate(user, payload.getFirstName(), payload.getLastName(), payload.getEmail(), payload.getRole(), payload.getStatus());
+
+        saveUser(user);
+
+        return user;
     }
 
-    public boolean existsById(UUID id) {
-        return userRepository.existsById(id);
+    public void blockUser(User user) {
+        user.setStatus(UserEnums.UserStatus.BLOCKED);
+        user.setRole(UserEnums.UserRole.ROLE_USER);
+
+        saveUser(user);
     }
 
     public Optional<User> findByGithubLogin(String githubLogin) {
         return userRepository.findByLogin(githubLogin).stream().findFirst();
     }
 
-    public Optional<User> findById(UUID id) {
-        return userRepository.findById(id);
+    public Optional<User> findById(String id) {
+        return userRepository.findById(UUID.fromString(id));
     }
 
     public Optional<User> findByGithubLogin(Authentication authentication) {
@@ -96,6 +86,23 @@ public class UserService {
     public boolean isNotFoundOrVerified(String githubLogin) {
         Optional<User> optionalUser = findByGithubLogin(githubLogin);
         return optionalUser.isEmpty() || optionalUser.get().getStatus() == UserEnums.UserStatus.NON_VERIFIED;
+    }
+
+    private void saveUser(User user) {
+        userRepository.saveAndFlush(user);
+    }
+
+    private void partialUserUpdate(User user, String firstName, String lastName, String email, UserEnums.UserRole role, UserEnums.UserStatus status) {
+
+        if (userRepository.existsByEmailAndIdNot(email, user.getId())) {
+            throw new EmailAlreadyTakenException(email);
+        }
+
+        user.setFirstName(firstName);
+        user.setLastName(lastName);
+        user.setEmail(email);
+        if (role!=null) user.setRole(role);
+        if (status!=null) user.setStatus(status);
     }
 
 }

@@ -54,8 +54,12 @@ const ru = {
         notification: {
             deleted: 'Запрос отправлен',
         },
+        validation: {
+            email: 'Неверный адрес почты',
+        },
         message: {
             yes: 'Да',
+            invalid_form: 'Произошла ошибка, проверьте введенные данные',
             no: 'Нет',
             are_you_sure: 'Вы уверены?',
             bulk_delete_title: 'Удалить %{name}',

@@ -1,7 +1,6 @@
 package ru.sfedu.mmcs_nexus.controller.v1.jury;
 
 import jakarta.annotation.Nullable;
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,12 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
-import ru.sfedu.mmcs_nexus.model.dto.entity.GradeDTO;
-import ru.sfedu.mmcs_nexus.model.dto.entity.UserDTO;
-import ru.sfedu.mmcs_nexus.model.dto.response.GradeTableDTO;
-import ru.sfedu.mmcs_nexus.model.dto.response.GradeTableRowDTO;
-import ru.sfedu.mmcs_nexus.model.entity.Event;
-import ru.sfedu.mmcs_nexus.model.entity.Project;
+import ru.sfedu.mmcs_nexus.model.payload.jury.GetGradeTableResponsePayload;
 import ru.sfedu.mmcs_nexus.model.entity.User;
 import ru.sfedu.mmcs_nexus.model.enums.controller.jury.GradeTableEnums;
 import ru.sfedu.mmcs_nexus.service.*;
@@ -76,7 +70,7 @@ public class GradeTableController {
         User user = userService.findByGithubLogin(authentication)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
-        GradeTableDTO table = gradeTableService.getGradeTable(eventId, show, day, user);
+        GetGradeTableResponsePayload table = gradeTableService.getGradeTable(eventId, show, day, user);
 
         return ResponseEntity.ok().body(ResponseUtils.buildResponse(table, table.getProjectsCount()));
     }

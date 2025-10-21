@@ -11,7 +11,7 @@ const STATUS_LABELS = {
 const ROLE_LABELS = {
     ROLE_USER: 'Пользователь',
     ROLE_ADMIN: 'Администратор',
-    ROLE_JURY: 'Жюри',
+    ROLE_JURY: 'Жюри',  
 };
 
 const UserList = (props) => (

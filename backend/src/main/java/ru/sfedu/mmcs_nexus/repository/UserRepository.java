@@ -12,6 +12,8 @@ public interface UserRepository extends JpaRepository<User, UUID> {
 
     List<User> findByLogin(String login);
     List<User> findByEmail(String email);
+
+    //Для проверки того, есть ли пользователь с другим id, у которого установлен данный email
     boolean existsByEmailAndIdNot(String email, UUID id);
 
 

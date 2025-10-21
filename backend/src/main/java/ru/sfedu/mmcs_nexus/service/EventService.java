@@ -1,9 +1,13 @@
 package ru.sfedu.mmcs_nexus.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.sfedu.mmcs_nexus.model.entity.Event;
+import ru.sfedu.mmcs_nexus.model.internal.PaginationPayload;
+import ru.sfedu.mmcs_nexus.model.payload.admin.CreateEventRequestPayload;
 import ru.sfedu.mmcs_nexus.repository.EventRepository;
 
 import java.util.List;
@@ -20,35 +24,59 @@ public class EventService {
         this.eventRepository = eventRepository;
     }
 
-    public List<Event> getEvents(String sort, String order) {
-        Sort.Direction direction = order.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-        return eventRepository.findAll(Sort.by(direction, sort));
+    public Page<Event> getEvents(Integer year, PaginationPayload paginationPayload) {
+        Pageable pageable = paginationPayload.getPageable();
+
+        if (year != null) {
+            return eventRepository.findByYear(year, pageable);
+        }
+
+        return eventRepository.findAll(pageable);
     }
 
-    public List<Event> getEventsByYear(String sort, String order, int year) {
-        Sort.Direction direction = order.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-        return eventRepository.findAll(Sort.by(direction, sort)).stream().filter(x->x.getYear()==year).toList();
+    public Optional<Event> findById(String id) {
+        return eventRepository.findById(UUID.fromString(id));
     }
 
-    public Optional<Event> findById(UUID id) {
-        return eventRepository.findById(id);
+
+    public void createEvent(CreateEventRequestPayload payload) {
+        Event event = new Event(
+                payload.getName().trim(),
+                payload.getEventType(),
+                payload.getYear(),
+                payload.getMaxPresPoints(),
+                payload.getMaxBuildPoints()
+        );
+        saveEvent(event);
     }
 
-    public void saveEvent(Event event) {
-        eventRepository.saveAndFlush(event);
+    public Event editEvent(Event event, CreateEventRequestPayload payload) {
+        event.setName(payload.getName());
+        event.setEventType(payload.getEventType());
+        event.setYear(payload.getYear());
+        event.setMaxPresPoints(payload.getMaxPresPoints());
+        event.setMaxBuildPoints(payload.getMaxBuildPoints());
+
+        saveEvent(event);
+
+        return event;
     }
 
-    public boolean existsById(UUID id) {
-        return eventRepository.existsById(id);
+    public boolean existsById(String id) {
+        return eventRepository.existsById(UUID.fromString(id));
     }
 
-    public void deleteEventById(UUID id) {
-        eventRepository.deleteById(id);
+    public void deleteEventById(String id) {
+        eventRepository.deleteById(UUID.fromString(id));
     }
 
     public List<Integer> getEventsYears(String sort, String order) {
         Sort.Direction direction = order.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
         return eventRepository.findAllEventsYears();
+    }
+
+    private void saveEvent(Event event) {
+        eventRepository.saveAndFlush(event);
     }
 
 }

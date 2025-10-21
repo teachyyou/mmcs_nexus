@@ -10,10 +10,13 @@ import {
     DeleteButton,
     TopToolbar,
     useRedirect,
-    useResourceContext,
+    useResourceContext, regex, email
 } from 'react-admin';
 import { Box, IconButton, Tooltip } from '@mui/material';
 import ArrowBackIosNewIcon from '@mui/icons-material/ArrowBackIosNew';
+
+const sfeduDomain = regex(/@sfedu\.ru$/i, 'Email должен оканчиваться на @sfedu.ru');
+
 
 const EditActions = () => {
     const redirect = useRedirect();
@@ -43,8 +46,6 @@ const EditActions = () => {
 const UserEditToolbar = () => (
     <Toolbar sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
         <SaveButton />
-        <Box sx={{ flex: 1 }} />
-        <DeleteButton label="Заблокировать" />
     </Toolbar>
 );
 
@@ -54,6 +55,7 @@ const UserEdit = (props) => {
             // title рендерится в AppBar, которого нет — отключаем
             title={false}
             actions={<EditActions />}
+            mutationMode='pessimistic'
             {...props}
         >
             <SimpleForm toolbar={<UserEditToolbar />}>
@@ -89,7 +91,13 @@ const UserEdit = (props) => {
 
                 <TextInput source="firstName" name="firstName" label="Имя" />
                 <TextInput source="lastName"  name="lastName"  label="Фамилия" />
-                <TextInput source="email"     name="email"     label="Почта" />
+                <TextInput
+                    source="email"
+                    name="email"
+                    label="Почта (sfedu.ru)"
+                    parse={(v) => v?.trim()}
+                    validate={[required(), email(), sfeduDomain]}
+                />
 
                 <SelectInput
                     source="status"

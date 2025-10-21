@@ -1,9 +1,9 @@
-package ru.sfedu.mmcs_nexus.model.dto.request;
+package ru.sfedu.mmcs_nexus.model.payload.admin;
 
 import java.util.List;
 import java.util.UUID;
 
-public class ProjectEventJuryAssignmentRequestDTO {
+public class AssignJuriesRequestPayload {
 
     private UUID projectId;
     private UUID eventId;

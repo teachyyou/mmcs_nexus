@@ -23,6 +23,11 @@ public class    ProjectEventKey implements Serializable {
         this.eventId = eventId;
     }
 
+    public ProjectEventKey(String projectId, String eventId) {
+        this.projectId =  UUID.fromString(projectId);
+        this.eventId =  UUID.fromString(eventId);
+    }
+
 
     public UUID getProjectId() {
         return projectId;

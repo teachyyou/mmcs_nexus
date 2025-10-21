@@ -90,7 +90,7 @@ public class GradeController {
         } else if (projectService.findById(gradeDTO.getProjectId()).isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("Project not found");
-        } else if (eventService.findById(gradeDTO.getEventId()).isEmpty()) {
+        } else if (eventService.findById(gradeDTO.getEventId().toString()).isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("Event not found");
         } else if (projectEventService.findById(new ProjectEventKey(gradeDTO.getProjectId(), gradeDTO.getEventId())).isEmpty()) {
@@ -98,7 +98,7 @@ public class GradeController {
                     .body("Project and event are not linked");
         }
 
-        Event event = eventService.findById(gradeDTO.getEventId()).get();
+        Event event = eventService.findById(gradeDTO.getEventId().toString()).get();
         Project project = projectService.findById(gradeDTO.getProjectId()).get();
         User creator = userService.findByGithubLogin(authentication).get();
 
@@ -188,7 +188,7 @@ public class GradeController {
         } else if (projectService.findById(gradeDTO.getProjectId()).isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("Project not found");
-        } else if (eventService.findById(gradeDTO.getEventId()).isEmpty()) {
+        } else if (eventService.findById(gradeDTO.getEventId().toString()).isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("Event not found");
         } else if (projectEventService.findById(new ProjectEventKey(gradeDTO.getProjectId(), gradeDTO.getEventId())).isEmpty()) {
@@ -205,7 +205,7 @@ public class GradeController {
 //        }
 
         Grade existingGrade = gradeService.findById(key).get();
-        Event event = eventService.findById(gradeDTO.getEventId()).get();
+        Event event = eventService.findById(gradeDTO.getEventId().toString()).get();
 
         if (gradeDTO.getPresPoints() != null && gradeDTO.getPresPoints() > event.getMaxPresPoints()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)
