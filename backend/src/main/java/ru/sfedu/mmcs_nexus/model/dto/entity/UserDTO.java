@@ -10,29 +10,15 @@ public class UserDTO {
     private String firstName;
     private String lastName;
     private String login;
-    private int userGroup;
-    private int userCourse;
+    private String email;
     private UserEnums.UserRole role;
-
-    public UserDTO() {}
-
-    public UserDTO(UUID id, String firstName, String lastName, String login, int group, int course, UserEnums.UserRole role) {
-        this.id = id;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.login = login;
-        this.userGroup = group;
-        this.userCourse = course;
-        this.role = role;
-    }
 
     public UserDTO(User user) {
         this.id = user.getId();
         this.firstName = user.getFirstName();
         this.lastName = user.getLastName();
         this.login = user.getLogin();
-        this.userGroup = user.getUserGroup();
-        this.userCourse = user.getUserCourse();
+        this.email = user.getEmail();
         this.role = user.getRole();
     }
 
@@ -68,14 +54,6 @@ public class UserDTO {
         this.login = login;
     }
 
-    public int getUserGroup() {
-        return userGroup;
-    }
-
-    public void setUserGroup(int userGroup) {
-        this.userGroup = userGroup;
-    }
-
     public UserEnums.UserRole getRole() {
         return role;
     }
@@ -84,11 +62,11 @@ public class UserDTO {
         this.role = role;
     }
 
-    public int getUserCourse() {
-        return userCourse;
+    public String getEmail() {
+        return email;
     }
 
-    public void setUserCourse(int userCourse) {
-        this.userCourse = userCourse;
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

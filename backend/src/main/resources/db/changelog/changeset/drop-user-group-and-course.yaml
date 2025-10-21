@@ -1,0 +1,24 @@
+databaseChangeLog:
+  - changeSet:
+      id: drop-user-group-and-course-1
+      author: TeachYou
+      preConditions:
+        onFail: MARK_RAN
+        onError: HALT
+        and:
+          - tableExists:
+              tableName: users
+          - or:
+              - columnExists:
+                  tableName: users
+                  columnName: user_group
+              - columnExists:
+                  tableName: users
+                  columnName: user_course
+      changes:
+        - dropColumn:
+            tableName: users
+            columnName: user_group
+        - dropColumn:
+            tableName: users
+            columnName: user_course

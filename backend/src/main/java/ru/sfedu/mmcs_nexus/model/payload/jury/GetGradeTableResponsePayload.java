@@ -1,12 +1,13 @@
-package ru.sfedu.mmcs_nexus.model.dto.response;
+package ru.sfedu.mmcs_nexus.model.payload.jury;
 
+import ru.sfedu.mmcs_nexus.model.internal.GradeTableRow;
 import ru.sfedu.mmcs_nexus.model.entity.Event;
 import ru.sfedu.mmcs_nexus.model.entity.Project;
 import ru.sfedu.mmcs_nexus.model.dto.entity.UserDTO;
 
 import java.util.*;
 
-public class GradeTableDTO {
+public class GetGradeTableResponsePayload {
 
     private int juriesCount;
 
@@ -19,9 +20,9 @@ public class GradeTableDTO {
     private List<UserDTO> juries;
 
     //table rows for every project in the table
-    private List<GradeTableRowDTO> rows;
+    private List<GradeTableRow> rows;
 
-    public GradeTableDTO() {
+    public GetGradeTableResponsePayload() {
         this.rows = new ArrayList<>();
     }
 
@@ -68,15 +69,15 @@ public class GradeTableDTO {
         this.juriesCount=juries.size();
     }
 
-    public List<GradeTableRowDTO> getRows() {
+    public List<GradeTableRow> getRows() {
         return rows;
     }
 
-    public void setRows(List<GradeTableRowDTO> rows) {
+    public void setRows(List<GradeTableRow> rows) {
         this.rows = rows;
     }
 
-    public void addGradeRow(GradeTableRowDTO row) {
+    public void addGradeRow(GradeTableRow row) {
         this.rows.add(row);
     }
 

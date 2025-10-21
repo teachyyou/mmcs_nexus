@@ -1,11 +1,11 @@
-package ru.sfedu.mmcs_nexus.model.dto.response;
+package ru.sfedu.mmcs_nexus.model.internal;
 
 import ru.sfedu.mmcs_nexus.model.dto.entity.GradeDTO;
 
 import java.util.List;
 import java.util.UUID;
 
-public class GradeTableRowDTO {
+public class GradeTableRow {
 
     private UUID projectId;
 
@@ -16,14 +16,14 @@ public class GradeTableRowDTO {
     //maps jury to its grade in table
     private List<GradeDTO> tableRow;
 
-    public GradeTableRowDTO(UUID projectId, UUID mentorId, String projectDisplayName, List<GradeDTO> tableRow) {
+    public GradeTableRow(UUID projectId, UUID mentorId, String projectDisplayName, List<GradeDTO> tableRow) {
         this.projectDisplayName=projectDisplayName;
         this.mentorId=mentorId;
         this.projectId=projectId;
         this.tableRow=tableRow;
     }
 
-    public GradeTableRowDTO(UUID projectId, UUID mentorId, String projectDisplayName) {
+    public GradeTableRow(UUID projectId, UUID mentorId, String projectDisplayName) {
         this.projectDisplayName=projectDisplayName;
         this.mentorId=mentorId;
         this.projectId=projectId;

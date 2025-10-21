@@ -16,13 +16,10 @@ public class User {
             strategy = GenerationType.UUID
     )
     private UUID id;
-
     private String firstName;
     private String lastName;
     private String login;
-    private int userGroup;
-    
-    private int userCourse;
+    private String email;
     
     @Enumerated(EnumType.STRING)
     private UserEnums.UserStatus status;
@@ -35,23 +32,21 @@ public class User {
         this.status = UserEnums.UserStatus.NON_VERIFIED;
     }
 
-    public User(UUID id, String firstName, String lastName, String login, int group, int course, UserEnums.UserStatus status, UserEnums.UserRole role) {
+    public User(UUID id, String firstName, String lastName, String login, String email, UserEnums.UserStatus status, UserEnums.UserRole role) {
         this.id = id;
         this.firstName = firstName;
         this.lastName = lastName;
         this.login = login;
-        this.userGroup = group;
-        this.userCourse = course;
+        this.email = email;
         this.status = status;
         this.role = role;
     }
 
-    public User(String firstName, String lastName, String login, int group, int course, UserEnums.UserStatus status, UserEnums.UserRole role) {
+    public User(String firstName, String lastName, String login, String email, UserEnums.UserStatus status, UserEnums.UserRole role) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.login = login;
-        this.userGroup = group;
-        this.userCourse = course;
+        this.email = email;
         this.status = status;
         this.role = role;
     }
@@ -82,10 +77,6 @@ public class User {
         return lastName;
     }
 
-    public String getFullName() {
-        return STR."\{this.firstName} \{this.lastName}";
-    }
-
     public void setLastName(String lastName) {
         this.lastName = lastName;
     }
@@ -96,22 +87,6 @@ public class User {
 
     public void setLogin(String login) {
         this.login = login;
-    }
-
-    public int getUserGroup() {
-        return userGroup;
-    }
-
-    public void setUserGroup(int userGroup) {
-        this.userGroup = userGroup;
-    }
-
-    public int getUserCourse() {
-        return userCourse;
-    }
-
-    public void setUserCourse(int userCourse) {
-        this.userCourse = userCourse;
     }
 
     public UserEnums.UserStatus getStatus() {
@@ -133,18 +108,23 @@ public class User {
     public void verifyExistingUser(User user) {
         setFirstName(user.getFirstName());
         setLastName(user.getLastName());
-        setUserGroup(user.getUserGroup());
-        setUserCourse(user.getUserCourse());
+        setEmail(user.getEmail());
         setStatus(UserEnums.UserStatus.VERIFIED);
     }
 
     public void editExistingUser(User user) {
         setFirstName(user.getFirstName());
         setLastName(user.getLastName());
-        setUserGroup(user.getUserGroup());
-        setUserCourse(user.getUserCourse());
+        setEmail(user.getEmail());
         setStatus(user.getStatus());
         setRole(user.getRole());
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
 }

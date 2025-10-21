@@ -1,11 +1,11 @@
-package ru.sfedu.mmcs_nexus.model.dto.request;
+package ru.sfedu.mmcs_nexus.model.payload.admin;
 
 import jakarta.validation.constraints.NotNull;
 
 import java.util.List;
 import java.util.UUID;
 
-public class EventProjectDayRequestDTO {
+public class SetDefenceDayRequestPayload {
 
     @NotNull(message = "firstDayProjects cannot be null")
     private List<UUID> firstDayProjects;
@@ -14,7 +14,7 @@ public class EventProjectDayRequestDTO {
     private List<UUID> secondDayProjects;
 
 
-    public EventProjectDayRequestDTO(List<UUID> firstDayProjects, List<UUID> secondDayProjects) {
+    public SetDefenceDayRequestPayload(List<UUID> firstDayProjects, List<UUID> secondDayProjects) {
         this.firstDayProjects = firstDayProjects;
         this.secondDayProjects = secondDayProjects;
     }

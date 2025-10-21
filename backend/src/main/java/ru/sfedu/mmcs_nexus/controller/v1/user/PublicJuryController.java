@@ -1,4 +1,4 @@
-package ru.sfedu.mmcs_nexus.controller.v1.publiсapi;
+package ru.sfedu.mmcs_nexus.controller.v1.user;
 
 import org.springframework.web.bind.annotation.RestController;
 

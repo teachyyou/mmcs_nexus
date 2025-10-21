@@ -3,11 +3,9 @@ package ru.sfedu.mmcs_nexus.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import ru.sfedu.mmcs_nexus.model.entity.ProjectJuryEvent;
-import ru.sfedu.mmcs_nexus.repository.ProjectJuryEventRepository;
 import ru.sfedu.mmcs_nexus.model.entity.Project;
+import ru.sfedu.mmcs_nexus.repository.ProjectJuryEventRepository;
 import ru.sfedu.mmcs_nexus.repository.ProjectRepository;
-import ru.sfedu.mmcs_nexus.model.entity.User;
 import ru.sfedu.mmcs_nexus.repository.UserRepository;
 
 import java.util.List;
@@ -31,12 +29,6 @@ public class ProjectService {
         this.projectJuryEventRepository = projectJuryEventRepository;
     }
 
-    public List<Project> findByFirstname(String firstname) {
-        User user = userRepository.findByFirstName(firstname);
-        List<ProjectJuryEvent> projectJuryEventList = projectJuryEventRepository.findByJury(user);
-
-        return projectJuryEventList.stream().map(ProjectJuryEvent::getProject).toList();
-    }
 
     public Optional<Project> findById(UUID id) {
         return projectRepository.findById(id);
