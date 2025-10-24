@@ -3,12 +3,15 @@ package ru.sfedu.mmcs_nexus.model.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.UUID;
 
 @Entity
 @Table(name = "projects")
-@Data
+@Getter
+@Setter
 public class Project {
 
     @Id
@@ -16,6 +19,13 @@ public class Project {
             strategy = GenerationType.UUID
     )
     private UUID id;
+
+    private Integer externalId;
+    private Integer quantityOfStudents;
+    private String captainName;
+    private boolean isFull;
+    private String track;
+    private String technologies;
 
     private String name;
     private String description;
@@ -31,54 +41,25 @@ public class Project {
         this.year = year;
     }
 
-    // Getters and Setters
-    public UUID getId() {
-        return id;
+    public Project(
+            Integer externalId,
+            Integer quantityOfStudents,
+            String captainName,
+            boolean isFull,
+            String track,
+            String technologies,
+            String name,
+            String description,
+            String type,
+            int year
+    ) {
+        this(name, description, type, year);
+        this.externalId = externalId;
+        this.quantityOfStudents = quantityOfStudents;
+        this.captainName = captainName;
+        this.isFull = isFull;
+        this.track = track;
+        this.technologies = technologies;
     }
-
-    public void setId(UUID id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
-
-    public int getYear() {
-        return year;
-    }
-
-    public void setYear(int year) {
-        this.year = year;
-    }
-
-    public void editExistingProject(Project project) {
-        setName(project.getName());
-        setDescription(project.getDescription());
-        setType(project.getType());
-        setYear(project.getYear());
-    }
-
-
 
 }

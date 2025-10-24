@@ -45,7 +45,7 @@ public class PublicProjectController {
     ) {
         PaginationPayload paginationPayload = new PaginationPayload(limit, offset, sort, order, EntitySort.PROJECT_SORT);
 
-        Page<Project> projects = projectEventService.findProjectsByEvent(eventId, day, paginationPayload);
+        Page<Project> projects = projectEventService.findProjectsByEventId(eventId, day, paginationPayload);
 
         return ResponseEntity.ok().body(
                 ResponseUtils.buildResponse(projects.getContent(), projects.getTotalElements())

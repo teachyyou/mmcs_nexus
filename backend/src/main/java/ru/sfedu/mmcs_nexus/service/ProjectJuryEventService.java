@@ -78,18 +78,18 @@ public class ProjectJuryEventService {
 
     }
 
-    public Map<String, List<UserDTO>> getJuriesByProjectAndEvent(UUID projectId, UUID eventId) {
+    public Map<String, List<UserDTO>> getJuriesByProjectAndEvent(String projectId, String eventId) {
 
         // Verify that the project exists
-        Project project = projectRepository.findById(projectId)
+        Project project = projectRepository.findById(UUID.fromString(projectId))
                 .orElseThrow(() -> new EntityNotFoundException("Project not found"));
 
         // Verify that the event exists
-        Event event = eventRepository.findById(eventId)
+        Event event = eventRepository.findById(UUID.fromString(eventId))
                 .orElseThrow(() -> new EntityNotFoundException("Event not found"));
 
         // Retrieve ProjectJuryEvent entries
-        List<ProjectJuryEvent> projectJuryEvents = projectJuryEventRepository.findByProjectIdAndEventId(projectId, eventId);
+        List<ProjectJuryEvent> projectJuryEvents = projectJuryEventRepository.findByProjectIdAndEventId(UUID.fromString(projectId), UUID.fromString(eventId));
 
         // Group juries by relation type
         Map<String, List<UserDTO>> juriesByRelationType = new HashMap<>();
@@ -124,7 +124,7 @@ public class ProjectJuryEventService {
 
     @Transactional
     public void clearProjectEventsJuries(Project project) {
-        List<Event> events = projectEventRepository.findEventsByProjectId(project.getId());
+        List<Event> events = projectEventRepository.findEventsByProjectId(project.getId(), null);
         for (Event event : events) {
             projectJuryEventRepository.deleteByProjectAndEvent(project.getId(), event.getId());
         }

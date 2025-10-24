@@ -18,6 +18,8 @@ import ru.sfedu.mmcs_nexus.util.ResponseUtils;
 
 import java.util.Map;
 
+import static ru.sfedu.mmcs_nexus.util.ResponseUtils.buildPageResponse;
+
 @Validated
 @RestController
 public class AdminUserController {
@@ -40,9 +42,8 @@ public class AdminUserController {
 
         Page<User> users = userService.getUsers(paginationPayload);
 
-        return ResponseEntity.ok().body(
-                ResponseUtils.buildResponse(users.getContent(), users.getTotalElements())
-        );
+        return buildPageResponse(users);
+
     }
 
     @GetMapping(value = "/api/v1/admin/users/{id}", produces = "application/json")

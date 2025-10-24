@@ -26,7 +26,6 @@ import java.util.*;
 
 @RestController
 public class GradeController {
-
     private final GradeService gradeService;
     private final UserService userService;
     private final ProjectService projectService;
@@ -43,9 +42,6 @@ public class GradeController {
         this.eventService = eventService;
         this.projectJuryEventService = projectJuryEventService;
     }
-
-
-
 
     //todo вынести эти методы по другим контроллерам
 
@@ -87,19 +83,13 @@ public class GradeController {
         // Получаем пользователя (проверяющего) из аутентификации
         if (userService.findByGithubLogin(authentication).isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        } else if (projectService.findById(gradeDTO.getProjectId()).isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Project not found");
-        } else if (eventService.findById(gradeDTO.getEventId().toString()).isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Event not found");
-        } else if (projectEventService.findById(new ProjectEventKey(gradeDTO.getProjectId(), gradeDTO.getEventId())).isEmpty()) {
+        }  else if (projectEventService.findById(new ProjectEventKey(gradeDTO.getProjectId(), gradeDTO.getEventId())).isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("Project and event are not linked");
         }
 
-        Event event = eventService.findById(gradeDTO.getEventId().toString()).get();
-        Project project = projectService.findById(gradeDTO.getProjectId()).get();
+        Event event = eventService.find(gradeDTO.getEventId().toString());
+        Project project = projectService.find(gradeDTO.getProjectId().toString());
         User creator = userService.findByGithubLogin(authentication).get();
 
         gradeDTO.setJuryId(creator.getId());
@@ -182,15 +172,6 @@ public class GradeController {
         // Получаем пользователя (проверяющего) из аутентификации
         if (userService.findByGithubLogin(authentication).isEmpty()) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        } else if (gradeService.findById(key).isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Grade not found");
-        } else if (projectService.findById(gradeDTO.getProjectId()).isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Project not found");
-        } else if (eventService.findById(gradeDTO.getEventId().toString()).isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Event not found");
         } else if (projectEventService.findById(new ProjectEventKey(gradeDTO.getProjectId(), gradeDTO.getEventId())).isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND)
                     .body("Project and event are not linked");
@@ -205,7 +186,7 @@ public class GradeController {
 //        }
 
         Grade existingGrade = gradeService.findById(key).get();
-        Event event = eventService.findById(gradeDTO.getEventId().toString()).get();
+        Event event = eventService.find(gradeDTO.getEventId().toString());
 
         if (gradeDTO.getPresPoints() != null && gradeDTO.getPresPoints() > event.getMaxPresPoints()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST)

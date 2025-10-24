@@ -34,7 +34,7 @@ public class ProjectEventService {
         this.projectService = projectService;
     }
 
-    public Page<Project> findProjectsByEvent(String eventId, Integer day, PaginationPayload paginationPayload) {
+    public Page<Project> findProjectsByEventId(String eventId, Integer day, PaginationPayload paginationPayload) {
         if (!eventService.existsById(eventId)) {
             throw new EntityNotFoundException(STR."Event with id \{eventId} not found");
         }
@@ -44,7 +44,7 @@ public class ProjectEventService {
         return projectEventRepository.findProjectsByEventId(UUID.fromString(eventId), day, pageable);
     }
 
-    public List<Project> findProjectsByEvent(String eventId, Integer day) {
+    public List<Project> findProjectsByEventId(String eventId, Integer day) {
         if (!eventService.existsById(eventId)) {
             throw new EntityNotFoundException(STR."Event with id \{eventId} not found");
         }
@@ -52,12 +52,22 @@ public class ProjectEventService {
         return projectEventRepository.findProjectsByEventId(UUID.fromString(eventId), day);
     }
 
-    public List<Event> findByProjectId(UUID projectId) {
-        if (!projectService.existsById(projectId)) {
+    public Page<Event> findEventsByProjectId(String projectId, Integer day, PaginationPayload paginationPayload) {
+        if (!projectService.existsById(UUID.fromString(projectId))) {
             throw new EntityNotFoundException(STR."Project with id \{projectId} not found");
         }
 
-        return projectEventRepository.findEventsByProjectId(projectId);
+        Pageable pageable = paginationPayload.getPageable();
+
+        return projectEventRepository.findEventsByProjectId(UUID.fromString(projectId), day, pageable);
+    }
+
+    public List<Event> findEventsByProjectId(String projectId) {
+        if (!projectService.existsById(UUID.fromString(projectId))) {
+            throw new EntityNotFoundException(STR."Project with id \{projectId} not found");
+        }
+
+        return projectEventRepository.findEventsByProjectId(UUID.fromString(projectId), null);
     }
 
     public Optional<ProjectEvent> findById(ProjectEventKey id) {
@@ -70,13 +80,15 @@ public class ProjectEventService {
     }
 
     @Transactional
-    public void setProjectsForEvent(Event event, LinkProjectsToEventRequestPayload payload) {
+    public void setProjectsForEvent(String eventId, LinkProjectsToEventRequestPayload payload) {
+        Event event = eventService.find(eventId);
+
         List<Project> projects;
 
         if (payload.isLinkAllProjects()) {
-            projects = projectService.findByYear(event.getYear());
+            projects = projectService.findAll(event.getYear());
         } else {
-            projects = projectService.findByIds(payload.getProjectIds());
+            projects = projectService.findAll(payload.getProjectIds());
         }
 
         deleteLinksByEventId(event.getId());
@@ -88,7 +100,8 @@ public class ProjectEventService {
         }
     }
 
-    public void setDaysForProjectAndEvent(Event event, List<UUID> firstDayProjects, List<UUID> secondDayProjects) {
+    public void setDaysForProjectAndEvent(String eventId, List<UUID> firstDayProjects, List<UUID> secondDayProjects) {
+        Event event = eventService.find(eventId);
 
         if (firstDayProjects != null && secondDayProjects != null) {
             boolean hasOverlap = firstDayProjects.stream()
@@ -101,10 +114,8 @@ public class ProjectEventService {
             }
         }
 
-        UUID eventId = event.getId();
-
         if (firstDayProjects != null) for (UUID uuid : firstDayProjects) {
-            if (!projectEventRepository.existsById(new ProjectEventKey(uuid, eventId))) {
+            if (!projectEventRepository.existsById(new ProjectEventKey(uuid, event.getId()))) {
                 throw new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         STR."Project \{uuid} is not linked to event \{eventId}"
@@ -112,7 +123,7 @@ public class ProjectEventService {
             }
         }
         if (secondDayProjects != null) for (UUID uuid : secondDayProjects) {
-            if (!projectEventRepository.existsById(new ProjectEventKey(uuid, eventId))) {
+            if (!projectEventRepository.existsById(new ProjectEventKey(uuid, event.getId()))) {
                 throw new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
                         STR."Project \{uuid} is not linked to event \{eventId}"
@@ -120,7 +131,7 @@ public class ProjectEventService {
             }
         }
 
-        List<ProjectEvent> links = projectEventRepository.findByEventId(eventId);
+        List<ProjectEvent> links = projectEventRepository.findByEventId(event.getId());
 
         Set<UUID> firstSet  = firstDayProjects == null
                 ? Collections.emptySet()

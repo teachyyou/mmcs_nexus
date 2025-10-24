@@ -40,16 +40,7 @@ public class GradeTableService {
 
     //Получение таблицы оценок
     public GetGradeTableResponsePayload getGradeTable(UUID eventId, GradeTableEnums.ShowFilter showFilter, Integer day, User user) {
-
-        Optional<Event> eventOptional = eventService.findById(eventId.toString());
-
-        if (eventOptional.isEmpty()) {
-            throw new ResponseStatusException(
-                    HttpStatus.NOT_FOUND,
-                    STR."Event \{eventId} not found"
-            );
-        }
-        Event event = eventOptional.get();
+        Event event = eventService.find(eventId.toString());
 
         //Находим в зависимости от параметра show, в случае all - все проекты привязанные к событию, иначе - только те, с которыми есть связь у отправителя запроса
         List<Project> eventProjects = projectJuryEventService.findProjectsForEvent(event.getId(), showFilter, user.getId(), day).stream().sorted(Comparator.comparing(Project::getName)).toList();

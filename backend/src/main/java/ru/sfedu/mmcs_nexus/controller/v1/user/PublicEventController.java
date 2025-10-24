@@ -39,7 +39,7 @@ public class PublicEventController {
 
         PaginationPayload paginationPayload = new PaginationPayload(limit, offset, sort, order, EntitySort.EVENT_SORT);
 
-        Page<Event> events = eventService.getEvents(year, paginationPayload);
+        Page<Event> events = eventService.findAll(year, paginationPayload);
 
         return ResponseEntity.ok().body(
                 ResponseUtils.buildResponse(events.getContent(), events.getTotalElements())
