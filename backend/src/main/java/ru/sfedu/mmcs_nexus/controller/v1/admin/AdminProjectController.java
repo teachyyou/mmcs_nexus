@@ -5,9 +5,11 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import ru.sfedu.mmcs_nexus.config.ApplicationConfig;
 import ru.sfedu.mmcs_nexus.model.enums.controller.EntitySort;
 import ru.sfedu.mmcs_nexus.model.internal.PaginationPayload;
@@ -15,13 +17,10 @@ import ru.sfedu.mmcs_nexus.model.payload.admin.AssignJuriesRequestPayload;
 import ru.sfedu.mmcs_nexus.model.dto.entity.UserDTO;
 import ru.sfedu.mmcs_nexus.model.entity.Event;
 import ru.sfedu.mmcs_nexus.model.payload.admin.CreateProjectRequestPayload;
-import ru.sfedu.mmcs_nexus.service.EventService;
+import ru.sfedu.mmcs_nexus.model.payload.admin.ImportResponsePayload;
+import ru.sfedu.mmcs_nexus.service.*;
 import ru.sfedu.mmcs_nexus.model.entity.ProjectJuryEvent;
-import ru.sfedu.mmcs_nexus.service.ProjectJuryEventService;
 import ru.sfedu.mmcs_nexus.model.entity.Project;
-import ru.sfedu.mmcs_nexus.service.ProjectService;
-import ru.sfedu.mmcs_nexus.service.ProjectEventService;
-import ru.sfedu.mmcs_nexus.service.UserService;
 import ru.sfedu.mmcs_nexus.util.ResponseUtils;
 import org.hibernate.validator.constraints.UUID;
 
@@ -40,12 +39,16 @@ public class AdminProjectController {
 
     private final EventService eventService;
 
+    private final ImportService importService;
+
     @Autowired
-    public AdminProjectController(ProjectService projectService, ProjectEventService projectEventService, ProjectJuryEventService projectJuryEventService, EventService eventService, UserService userService) {
+    public AdminProjectController(ProjectService projectService, ProjectEventService projectEventService, ProjectJuryEventService projectJuryEventService, EventService eventService, ImportService importService) {
         this.projectService = projectService;
         this.projectEventService = projectEventService;
         this.projectJuryEventService = projectJuryEventService;
-        this.eventService = eventService;}
+        this.eventService = eventService;
+        this.importService = importService;
+    }
 
 
     //Получить список всех проектов с сортировкой за указанный год, по дефолту - 2024
@@ -105,6 +108,15 @@ public class AdminProjectController {
         projectService.deleteById(projectId);
 
         return ResponseEntity.noContent().build();
+    }
+
+    @PostMapping(value="api/v1/admin/projects/from_csv", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
+    public ResponseEntity<?> importProjectsFromCsv(
+            @RequestPart("file") MultipartFile file,
+            @RequestParam(name = "limit", defaultValue = "2") int limit
+    ) {
+        ImportResponsePayload<Project> result = importService.ImportProjectsFromCsv(file, limit);
+        return ResponseEntity.ok(result);
     }
 
     //todo rewrite this

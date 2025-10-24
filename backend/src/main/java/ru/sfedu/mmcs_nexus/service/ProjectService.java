@@ -112,7 +112,7 @@
                     .orElseThrow(() -> new EntityNotFoundException(STR."Project with id \{projectId} not found"));
         }
 
-        private boolean existsByName(String name) {
+        public boolean existsByName(String name) {
             return projectRepository.existsByName(name);
         }
 

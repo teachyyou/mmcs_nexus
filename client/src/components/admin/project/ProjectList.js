@@ -23,8 +23,9 @@ const renderProjectType = (record) => {
 const ProjectList = (props) => (
     <List {...props} exporter={false}>
         <Datagrid rowClick="edit">
-            <NumberField source="externalId" label="externalid" />
+            <NumberField source="externalId" label="Внешний ID" textAlign="center" />
             <TextField source="name" label="Название" />
+            <TextField source="description" label="Описание" />
             <FunctionField
                 source="type"
                 label="Тип"
