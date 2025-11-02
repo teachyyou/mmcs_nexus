@@ -1,9 +1,10 @@
 package ru.sfedu.mmcs_nexus.service;
 
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import ru.sfedu.mmcs_nexus.model.entity.Event;
 import ru.sfedu.mmcs_nexus.model.internal.PaginationPayload;
@@ -11,7 +12,6 @@ import ru.sfedu.mmcs_nexus.model.payload.admin.CreateEventRequestPayload;
 import ru.sfedu.mmcs_nexus.repository.EventRepository;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -24,7 +24,7 @@ public class EventService {
         this.eventRepository = eventRepository;
     }
 
-    public Page<Event> getEvents(Integer year, PaginationPayload paginationPayload) {
+    public Page<Event> findAll(Integer year, PaginationPayload paginationPayload) {
         Pageable pageable = paginationPayload.getPageable();
 
         if (year != null) {
@@ -34,12 +34,16 @@ public class EventService {
         return eventRepository.findAll(pageable);
     }
 
-    public Optional<Event> findById(String id) {
-        return eventRepository.findById(UUID.fromString(id));
+    public Event find(String id){
+        return getById(id);
     }
 
+    public List<Integer> getEventsYears() {
+        return eventRepository.findAllEventsYears();
+    }
 
-    public void createEvent(CreateEventRequestPayload payload) {
+    @Transactional
+    public void create(CreateEventRequestPayload payload) {
         Event event = new Event(
                 payload.getName().trim(),
                 payload.getEventType(),
@@ -47,35 +51,35 @@ public class EventService {
                 payload.getMaxPresPoints(),
                 payload.getMaxBuildPoints()
         );
-        saveEvent(event);
+        eventRepository.save(event);
     }
 
-    public Event editEvent(Event event, CreateEventRequestPayload payload) {
+    @Transactional
+    public Event edit(String eventId, CreateEventRequestPayload payload) {
+        Event event = getById(eventId);
+
         event.setName(payload.getName());
         event.setEventType(payload.getEventType());
         event.setYear(payload.getYear());
         event.setMaxPresPoints(payload.getMaxPresPoints());
         event.setMaxBuildPoints(payload.getMaxBuildPoints());
 
-        saveEvent(event);
-
         return event;
     }
 
-    public boolean existsById(String id) {
-        return eventRepository.existsById(UUID.fromString(id));
+    public boolean existsById(String eventId) {
+        return eventRepository.existsById(UUID.fromString(eventId));
     }
 
-    public void deleteEventById(String id) {
-        eventRepository.deleteById(UUID.fromString(id));
+    @Transactional
+    public void deleteEventById(String eventId) {
+
+        Event event = getById(eventId);
+        eventRepository.delete(event);
     }
 
-    public List<Integer> getEventsYears(String sort, String order) {
-        return eventRepository.findAllEventsYears();
+    private Event getById(String id) throws EntityNotFoundException {
+        return eventRepository.findById(UUID.fromString(id))
+                .orElseThrow(() -> new EntityNotFoundException(STR."Event with id \{id} not found"));
     }
-
-    private void saveEvent(Event event) {
-        eventRepository.saveAndFlush(event);
-    }
-
 }

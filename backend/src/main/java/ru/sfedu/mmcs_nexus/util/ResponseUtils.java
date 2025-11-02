@@ -1,5 +1,6 @@
 package ru.sfedu.mmcs_nexus.util;
 
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -45,6 +46,15 @@ public final class ResponseUtils {
                 "content", content,
                 "totalElements", totalElements
         );
+    }
+
+    public static ResponseEntity<Map<String, Object>> buildPageResponse(Page<?> page) {
+        Map<String, Object> body = Map.of(
+                "content", page.getContent(),
+                "totalElements", page.getTotalElements()
+        );
+
+        return ResponseEntity.ok().body(body);
     }
 
 }

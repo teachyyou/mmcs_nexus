@@ -7,18 +7,18 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import ru.sfedu.mmcs_nexus.model.dto.entity.UserDTO;
 import ru.sfedu.mmcs_nexus.model.entity.Event;
-import ru.sfedu.mmcs_nexus.model.enums.controller.jury.GradeTableEnums;
-import ru.sfedu.mmcs_nexus.repository.EventRepository;
-import ru.sfedu.mmcs_nexus.model.entity.ProjectJuryEvent;
-import ru.sfedu.mmcs_nexus.model.entity.keys.ProjectJuryEventKey;
-import ru.sfedu.mmcs_nexus.repository.ProjectJuryEventRepository;
 import ru.sfedu.mmcs_nexus.model.entity.Project;
-import ru.sfedu.mmcs_nexus.repository.ProjectRepository;
-import ru.sfedu.mmcs_nexus.repository.ProjectEventRepository;
+import ru.sfedu.mmcs_nexus.model.entity.ProjectJuryEvent;
 import ru.sfedu.mmcs_nexus.model.entity.User;
-import ru.sfedu.mmcs_nexus.repository.UserRepository;
+import ru.sfedu.mmcs_nexus.model.entity.keys.ProjectJuryEventKey;
+import ru.sfedu.mmcs_nexus.model.enums.controller.jury.GradeTableEnums;
+import ru.sfedu.mmcs_nexus.model.payload.admin.AssignJuriesRequestPayload;
+import ru.sfedu.mmcs_nexus.model.payload.admin.ProjectJuryEventResponsePayload;
+import ru.sfedu.mmcs_nexus.repository.*;
 
-import java.util.*;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class ProjectJuryEventService {
@@ -41,6 +41,41 @@ public class ProjectJuryEventService {
         this.eventRepository = eventRepository;
         this.userRepository = userRepository;
     }
+
+    @Transactional
+    public void assignJuries(AssignJuriesRequestPayload payload) {
+
+        UUID projectId = UUID.fromString(payload.getProjectId());
+        UUID eventId = UUID.fromString(payload.getEventId());
+
+        Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(STR."Project with id \{projectId} not found"));
+
+        if (payload.isApplyToAllEvents()) {
+            List<Event> events = projectEventRepository.findEventsByProjectId(projectId, null);
+            for (Event event : events) {
+                assignJuriesForEvent(
+                        project,
+                        event,
+                        payload.getMentors().stream().map(UUID::fromString).toList(),
+                        payload.getObligedJuries().stream().map(UUID::fromString).toList(),
+                        payload.getWillingJuries().stream().map(UUID::fromString).toList()
+                );
+            }
+
+        } else {
+            Event event = eventRepository.findById(eventId).orElseThrow(() -> new EntityNotFoundException(STR."Event with id \{eventId} not found"));
+
+            assignJuriesForEvent(
+                    project,
+                    event,
+                    payload.getMentors().stream().map(UUID::fromString).toList(),
+                    payload.getObligedJuries().stream().map(UUID::fromString).toList(),
+                    payload.getWillingJuries().stream().map(UUID::fromString).toList()
+            );
+        }
+    }
+
+    //todo review rewrite everything below
 
     @Nullable
     public ProjectJuryEvent.RelationType getRelationType(UUID projectId, UUID eventId, UUID juryId) {
@@ -78,24 +113,19 @@ public class ProjectJuryEventService {
 
     }
 
-    public Map<String, List<UserDTO>> getJuriesByProjectAndEvent(UUID projectId, UUID eventId) {
+    public ProjectJuryEventResponsePayload getJuriesByProjectAndEvent(String projectId, String eventId) {
 
-        // Verify that the project exists
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new EntityNotFoundException("Project not found"));
+        if (!projectRepository.existsById(UUID.fromString(projectId))) {
+            throw new EntityNotFoundException(STR."Project with id \{projectId} not found");
+        }
 
-        // Verify that the event exists
-        Event event = eventRepository.findById(eventId)
-                .orElseThrow(() -> new EntityNotFoundException("Event not found"));
+        if (!eventRepository.existsById(UUID.fromString(eventId))) {
+            throw new EntityNotFoundException(STR."Event with id \{eventId} not found");
+        }
 
-        // Retrieve ProjectJuryEvent entries
-        List<ProjectJuryEvent> projectJuryEvents = projectJuryEventRepository.findByProjectIdAndEventId(projectId, eventId);
+        List<ProjectJuryEvent> projectJuryEvents = projectJuryEventRepository.findByProjectIdAndEventId(UUID.fromString(projectId), UUID.fromString(eventId));
 
-        // Group juries by relation type
-        Map<String, List<UserDTO>> juriesByRelationType = new HashMap<>();
-        juriesByRelationType.put("willingJuries", new ArrayList<>());
-        juriesByRelationType.put("obligedJuries", new ArrayList<>());
-        juriesByRelationType.put("mentors", new ArrayList<>());
+        ProjectJuryEventResponsePayload payload = new ProjectJuryEventResponsePayload();
 
         for (ProjectJuryEvent pje : projectJuryEvents) {
             User jury = pje.getJury();
@@ -103,37 +133,35 @@ public class ProjectJuryEventService {
 
             switch (pje.getRelationType()) {
                 case WILLING:
-                    juriesByRelationType.get("willingJuries").add(juryDTO);
+                    payload.getWillingJuries().add(juryDTO);
                     break;
                 case OBLIGED:
-                    juriesByRelationType.get("obligedJuries").add(juryDTO);
+                    payload.getObligedJuries().add(juryDTO);
                     break;
                 case MENTOR:
-                    juriesByRelationType.get("mentors").add(juryDTO);
+                    payload.getMentors().add(juryDTO);
                     break;
             }
         }
 
-        return juriesByRelationType;
+        return payload;
     }
 
-    @Transactional
-    public void clearProjectEventJuries(Project project, Event event) {
+    private void assignJuriesForEvent(Project project, Event event, List<UUID> mentors, List<UUID> obliged,List<UUID> willing) {
+        clearProjectEventJuries(project, event);
+        saveJuriesToProjectEvent(project, event, mentors, ProjectJuryEvent.RelationType.MENTOR);
+        saveJuriesToProjectEvent(project, event, obliged, ProjectJuryEvent.RelationType.OBLIGED);
+        saveJuriesToProjectEvent(project, event, willing, ProjectJuryEvent.RelationType.WILLING);
+    }
+
+    private void clearProjectEventJuries(Project project, Event event) {
         projectJuryEventRepository.deleteByProjectAndEvent(project.getId(), event.getId());
     }
 
-    @Transactional
-    public void clearProjectEventsJuries(Project project) {
-        List<Event> events = projectEventRepository.findEventsByProjectId(project.getId());
-        for (Event event : events) {
-            projectJuryEventRepository.deleteByProjectAndEvent(project.getId(), event.getId());
-        }
-    }
-
     //Для привязки нескольких жюри с указанным типом связи
-    @Transactional
-    public void saveJuriesToProjectEvent(Project project, Event event, List<UUID> juries, ProjectJuryEvent.RelationType relationType) {
+    private void saveJuriesToProjectEvent(Project project, Event event, List<UUID> juries, ProjectJuryEvent.RelationType relationType) {
 
+        //todo потом сделать не внутри цикла, а запросом saveAll
         for (UUID juryId: juries) {
             User jury = userRepository.findById(juryId).orElseThrow(() -> new EntityNotFoundException(STR."Jury with id \{juryId} not found"));
 

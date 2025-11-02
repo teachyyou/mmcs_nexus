@@ -1,0 +1,58 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-projects-extra-fields-1
+      author: TeachYou
+      changes:
+        - addColumn:
+            tableName: projects
+            columns:
+              - column:
+                  name: external_id
+                  type: int
+                  constraints:
+                    nullable: true
+              - column:
+                  name: quantity_of_students
+                  type: int
+                  constraints:
+                    nullable: true
+              - column:
+                  name: captain_name
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: is_full
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: track
+                  type: varchar(255)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: technologies
+                  type: varchar(1024)
+                  constraints:
+                    nullable: true
+      rollback:
+        - dropColumn:
+            tableName: projects
+            columnName: external_id
+        - dropColumn:
+            tableName: projects
+            columnName: quantity_of_students
+        - dropColumn:
+            tableName: projects
+            columnName: captain_name
+        - dropColumn:
+            tableName: projects
+            columnName: is_full
+        - dropColumn:
+            tableName: projects
+            columnName: track
+        - dropColumn:
+            tableName: projects
+            columnName: technologies

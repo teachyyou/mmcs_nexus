@@ -1,10 +1,14 @@
 package ru.sfedu.mmcs_nexus.model.payload.admin;
 
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.List;
 import java.util.UUID;
 
+@Setter
+@Getter
 public class SetDefenceDayRequestPayload {
 
     @NotNull(message = "firstDayProjects cannot be null")
@@ -19,19 +23,4 @@ public class SetDefenceDayRequestPayload {
         this.secondDayProjects = secondDayProjects;
     }
 
-    public List<UUID> getFirstDayProjects() {
-        return firstDayProjects;
-    }
-
-    public void setFirstDayProjects(List<UUID> firstDayProjects) {
-        this.firstDayProjects = firstDayProjects;
-    }
-
-    public List<UUID> getSecondDayProjects() {
-        return secondDayProjects;
-    }
-
-    public void setSecondDayProjects(List<UUID> secondDayProjects) {
-        this.secondDayProjects = secondDayProjects;
-    }
 }

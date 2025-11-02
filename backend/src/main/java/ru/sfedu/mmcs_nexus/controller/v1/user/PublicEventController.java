@@ -13,7 +13,6 @@ import ru.sfedu.mmcs_nexus.model.internal.PaginationPayload;
 import ru.sfedu.mmcs_nexus.service.EventService;
 import ru.sfedu.mmcs_nexus.util.ResponseUtils;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +38,7 @@ public class PublicEventController {
 
         PaginationPayload paginationPayload = new PaginationPayload(limit, offset, sort, order, EntitySort.EVENT_SORT);
 
-        Page<Event> events = eventService.getEvents(year, paginationPayload);
+        Page<Event> events = eventService.findAll(year, paginationPayload);
 
         return ResponseEntity.ok().body(
                 ResponseUtils.buildResponse(events.getContent(), events.getTotalElements())
@@ -47,17 +46,10 @@ public class PublicEventController {
     }
 
     @GetMapping(value = "/api/v1/public/events/years", produces = "application/json")
-    public ResponseEntity<Map<String, Object>> getEventsYears(
-            @RequestParam(defaultValue = "year") String sort,
-            @RequestParam(defaultValue = "asc") String order)
+    public ResponseEntity<Map<String, Object>> getEventsYears()
     {
+        List<Integer> years = eventService.getEventsYears();
 
-        List<Integer> years = eventService.getEventsYears(sort, order);
-
-        Map<String, Object> response = new HashMap<>();
-        response.put("content", years);
-        response.put("totalElements", years.size());
-
-        return ResponseEntity.ok().body(response);
+        return ResponseEntity.ok().body(ResponseUtils.buildResponse(years, years.size()));
     }
 }

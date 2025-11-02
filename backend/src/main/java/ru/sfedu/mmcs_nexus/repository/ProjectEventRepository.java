@@ -38,11 +38,28 @@ public interface ProjectEventRepository extends JpaRepository<ProjectEvent, Proj
 """)
     List<Project> findProjectsByEventId(@Param("eventId") UUID eventId, @Param("day") Integer day);
 
+    @Query("""
+  SELECT e
+  FROM ProjectEvent pe
+  JOIN pe.event e
+  WHERE pe.project.id = :projectId
+    AND (:day IS NULL OR pe.defDay = :day)
+    ORDER BY e.name ASC
+""")
+    Page<Event> findEventsByProjectId(@Param("projectId") UUID projectId, @Param("day") Integer day, Pageable pageable);
+
+    @Query("""
+  SELECT e
+  FROM ProjectEvent pe
+  JOIN pe.event e
+  WHERE pe.project.id = :projectId
+    AND (:day IS NULL OR pe.defDay = :day)
+    ORDER BY e.name ASC
+""")
+    List<Event> findEventsByProjectId(@Param("projectId") UUID projectId, @Param("day") Integer day);
+
     @Query("SELECT pe FROM ProjectEvent pe WHERE pe.event.id = :eventId")
     List<ProjectEvent> findByEventId(@Param("eventId") UUID eventId);
-
-    @Query("SELECT pe.event FROM ProjectEvent pe WHERE pe.project.id = :projectId")
-    List<Event> findEventsByProjectId(@Param("projectId") UUID projectId);
 
     @Modifying
     @Query("DELETE FROM ProjectEvent pe WHERE pe.event.id = :eventId")

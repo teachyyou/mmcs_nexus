@@ -23,3 +23,5 @@ databaseChangeLog:
       file: db/changelog/changeset/drop-user-group-and-course.yaml
   - include:
       file: db/changelog/changeset/add-user-email.yaml
+  - include:
+      file: db/changelog/changeset/add-projects-extra-fields.yaml
