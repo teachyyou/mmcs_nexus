@@ -77,13 +77,13 @@ public class UserService {
     }
 
     public Optional<User> findByGithubLogin(String githubLogin) {
-        return userRepository.findByLogin(githubLogin).stream().findFirst();
+        return userRepository.findByLogin(githubLogin);
     }
 
     public Optional<User> findByGithubLogin(Authentication authentication) {
         DefaultOAuth2User user = (DefaultOAuth2User) authentication.getPrincipal();
         String githubLogin = user.getAttribute("login");
-        return userRepository.findByLogin(githubLogin).stream().findFirst();
+        return userRepository.findByLogin(githubLogin);
     }
 
     public boolean isNotFoundOrVerified(String githubLogin) {
