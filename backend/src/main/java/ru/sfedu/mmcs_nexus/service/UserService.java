@@ -10,6 +10,7 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.stereotype.Service;
 import ru.sfedu.mmcs_nexus.exceptions.EmailAlreadyTakenException;
+import ru.sfedu.mmcs_nexus.model.dto.entity.UserDTO;
 import ru.sfedu.mmcs_nexus.model.entity.User;
 import ru.sfedu.mmcs_nexus.model.enums.entity.UserEnums;
 import ru.sfedu.mmcs_nexus.model.internal.PaginationPayload;
@@ -56,7 +57,7 @@ public class UserService {
     }
 
     @Transactional
-    public void updateUserInfo(String login, String email, String firstName, String lastName) {
+    public UserDTO updateUserInfo(String login, String email, String firstName, String lastName) {
         User user = findByGithubLogin(login).orElseThrow(
                 () -> new UsernameNotFoundException(STR."User \{login} is not found")
         );
@@ -66,6 +67,8 @@ public class UserService {
         if (user.getStatus() == UserEnums.UserStatus.NON_VERIFIED) {
             user.setStatus(UserEnums.UserStatus.VERIFIED);
         }
+
+        return new UserDTO(user);
     }
 
     @Transactional

@@ -54,6 +54,9 @@ public class GradeService {
         Event event = eventRepository.findById(payload.getEventId())
                 .orElseThrow(() -> new EntityNotFoundException(STR."Event with id \{payload.getEventId()} not found"));
 
+        if (!projectEventRepository.existsById(new ProjectEventKey(project.getId(), event.getId()))) {
+            throw new EntityNotFoundException("Given project and Event are not linked");
+        }
 
         if (payload.getPresPoints() != null
                 && payload.getPresPoints() > event.getMaxPresPoints()) {
@@ -112,8 +115,10 @@ public class GradeService {
         return new GradeDTO(grade);
     }
 
+    @Transactional
     public GradeDTO edit(String githubLogin, CreateGradeRequestPayload payload) {
-        User user = userRepository.findByLogin(githubLogin).orElseThrow(() -> new UsernameNotFoundException(STR."User \{githubLogin} is not found"));
+        User user = userRepository.findByLogin(githubLogin).orElseThrow(
+                () -> new UsernameNotFoundException(STR."User \{githubLogin} is not found"));
 
         GradeKey key = new GradeKey(
                 payload.getProjectId(),
@@ -121,32 +126,25 @@ public class GradeService {
                 user.getId()
         );
 
-        // Получаем пользователя (проверяющего) из аутентификации
-        if (userService.findByGithubLogin(authentication).isEmpty()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
-        } else if (projectEventService.findById(new ProjectEventKey(gradeDTO.getProjectId(), gradeDTO.getEventId())).isEmpty()) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body("Project and event are not linked");
+        Grade existingGrade = find(key);
+        Event event = eventRepository.findById(payload.getEventId())
+                .orElseThrow(() -> new EntityNotFoundException(STR."Event with id \{payload.getEventId()} not found"));
+
+        if (payload.getPresPoints() != null
+                && payload.getPresPoints() > event.getMaxPresPoints()) {
+            throw new WrongGradePointsException(STR."Maximum presentation score for \{event.getName()} is \{event.getMaxPresPoints()}");
+
+        } else if (payload.getBuildPoints() != null
+                && payload.getBuildPoints() > event.getMaxBuildPoints()) {
+            throw new WrongGradePointsException(STR."Maximum build score for \{event.getName()} is \{event.getMaxBuildPoints()}");
+
         }
 
-        Grade existingGrade = gradeService.find(key);
-        Event event = eventService.find(gradeDTO.getEventId().toString());
+        existingGrade.setPresPoints(payload.getPresPoints());
+        existingGrade.setBuildPoints(payload.getBuildPoints());
+        existingGrade.setComment(payload.getComment());
 
-        if (gradeDTO.getPresPoints() != null && gradeDTO.getPresPoints() > event.getMaxPresPoints()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(STR."Maximum presentation score for \{event.getName()} is \{event.getMaxPresPoints()}");
-        } else if (gradeDTO.getBuildPoints() != null && gradeDTO.getBuildPoints() > event.getMaxBuildPoints()) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-                    .body(STR."Maximum build score for \{event.getName()} is \{event.getMaxBuildPoints()}");
-        }
-
-        existingGrade.setPresPoints(gradeDTO.getPresPoints());
-        existingGrade.setBuildPoints(gradeDTO.getBuildPoints());
-        existingGrade.setComment(gradeDTO.getComment());
-
-        gradeService.save(existingGrade);
-
-        return ResponseEntity.ok().body(new GradeDTO(existingGrade));
+        return new GradeDTO(existingGrade);
     }
 
     public Grade find(GradeKey key) {

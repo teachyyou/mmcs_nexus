@@ -31,7 +31,7 @@ const APPBAR_H = 64;
 
 export default function AppContent() {
     const outerTheme = useTheme();
-    const { setIsAuthenticated, setUserStatus, setUserRole, setUserId, setUser } = useAuth();
+    const { user, setIsAuthenticated, setUserStatus, setUserRole, setUserId, setUser } = useAuth();
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
@@ -43,16 +43,7 @@ export default function AppContent() {
                 setUserStatus(data.userStatus);
                 if (data.user) {
                     setUserId(data.userId);
-                    setUser({
-                        login: data.user.login,
-                        github_name: data.user.github_name,
-                        firstname: data.user.firstname,
-                        lastname: data.user.lastname,
-                        avatarUrl: data.user.avatar_url,
-                        email: data.user.email,
-                        course: data.user.course,
-                        group: data.user.group,
-                    });
+                    setUser(prev => ({ ...prev, ...data.user }));
                 }
                 setIsLoading(false);
             });

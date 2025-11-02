@@ -16,6 +16,7 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
+import ru.sfedu.mmcs_nexus.model.dto.entity.UserDTO;
 import ru.sfedu.mmcs_nexus.model.payload.user.UpdateProfileRequestPayload;
 import ru.sfedu.mmcs_nexus.model.entity.User;
 import ru.sfedu.mmcs_nexus.model.enums.entity.UserEnums;
@@ -66,11 +67,11 @@ public class AuthController {
 
             userMap = new HashMap<>();
             userMap.put("login", githubUser.getAttribute("login"));
-            userMap.put("github_name", githubUser.getAttribute("name"));
-            userMap.put("firstname", user.getFirstName());
-            userMap.put("lastname", user.getLastName());
+            userMap.put("githubName", githubUser.getAttribute("name"));
+            userMap.put("firstName", user.getFirstName());
+            userMap.put("lastName", user.getLastName());
             userMap.put("email", user.getEmail());
-            userMap.put("avatar_url", githubUser.getAttribute("avatar_url"));
+            userMap.put("avatarUrl", githubUser.getAttribute("avatar_url"));
 
             response.put("userId", user.getId());
 
@@ -87,9 +88,9 @@ public class AuthController {
     public ResponseEntity<?> updateProfile(@AuthenticationPrincipal OAuth2User oauthUser, @Valid @RequestBody UpdateProfileRequestPayload userDTO) {
         String githubLogin = oauthUser.getAttribute("login");
 
-        userService.updateUserInfo(githubLogin, userDTO.getEmail(), userDTO.getFirstName(), userDTO.getLastName());
+        UserDTO user = userService.updateUserInfo(githubLogin, userDTO.getEmail(), userDTO.getFirstName(), userDTO.getLastName());
 
-        return ResponseUtils.success(HttpStatus.OK, "success");
+        return ResponseEntity.ok().body(user);
     }
 
     //Очень полезная штука чтобы залогиниться под другим пользователем, не забыть убрать потом

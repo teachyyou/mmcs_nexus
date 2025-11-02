@@ -58,7 +58,7 @@ const UserMenu = ({ open, onClose, user, onLogout }) => {
                                     color="inherit"
                                     onClick={onClose}
                                 >
-                                    <Typography variant="h6">{user.github_name || 'User Name'}</Typography>
+                                    <Typography variant="h6">{user.githubName || 'User Name'}</Typography>
                                 </MuiLink>
                                 {user.email && (
                                     <Typography variant="body2" color="inherit">
