@@ -17,6 +17,8 @@ import ru.sfedu.mmcs_nexus.model.payload.admin.LinkProjectsToEventRequestPayload
 import ru.sfedu.mmcs_nexus.repository.ProjectEventRepository;
 
 import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Service
 public class ProjectEventService {
@@ -75,28 +77,40 @@ public class ProjectEventService {
     }
 
     @Transactional
-    public void deleteLinksByEventId(UUID eventId) {
-        projectEventRepository.deleteByEventId(eventId);
-    }
-
-    @Transactional
     public void setProjectsForEvent(String eventId, LinkProjectsToEventRequestPayload payload) {
         Event event = eventService.find(eventId);
 
-        List<Project> projects;
+        List<Project> desiredProjects = payload.isLinkAllProjects()
+                ? projectService.findAll(event.getYear())
+                : projectService.findAll(payload.getProjectIds());
 
-        if (payload.isLinkAllProjects()) {
-            projects = projectService.findAll(event.getYear());
-        } else {
-            projects = projectService.findAll(payload.getProjectIds());
+        //Тут важно не перезаписывать день защиты для тех связей, которые уже ранее существовали.
+        List<ProjectEvent> existing = projectEventRepository.findByEventId(event.getId());
+        Map<UUID, ProjectEvent> byProjectId = existing.stream()
+                .collect(Collectors.toMap(pe -> pe.getProject().getId(), Function.identity()));
+
+        List<ProjectEvent> toInsert = new ArrayList<>();
+        Set<UUID> desiredIds = new HashSet<>();
+
+        for (Project p : desiredProjects) {
+            desiredIds.add(p.getId());
+            ProjectEvent kept = byProjectId.get(p.getId());
+            if (kept == null) {
+                ProjectEventKey key = new ProjectEventKey(p.getId(), event.getId());
+                toInsert.add(new ProjectEvent(key, event, p));
+            }
         }
 
-        deleteLinksByEventId(event.getId());
+        List<ProjectEvent> toDelete = existing.stream()
+                .filter(pe -> !desiredIds.contains(pe.getProject().getId()))
+                .toList();
 
-        for (Project project : projects) {
-            ProjectEventKey key = new ProjectEventKey(project.getId(), event.getId());
-            ProjectEvent projectEvent = new ProjectEvent(key, event, project);
-            projectEventRepository.save(projectEvent);
+        if (!toDelete.isEmpty()) {
+            projectEventRepository.deleteAllInBatch(toDelete);
+        }
+
+        if (!toInsert.isEmpty()) {
+            projectEventRepository.saveAll(toInsert);
         }
     }
 

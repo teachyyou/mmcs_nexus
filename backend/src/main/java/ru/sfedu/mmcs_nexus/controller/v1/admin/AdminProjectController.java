@@ -1,30 +1,27 @@
 package ru.sfedu.mmcs_nexus.controller.v1.admin;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
+import org.hibernate.validator.constraints.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.sfedu.mmcs_nexus.config.ApplicationConfig;
+import ru.sfedu.mmcs_nexus.model.entity.Event;
+import ru.sfedu.mmcs_nexus.model.entity.Project;
 import ru.sfedu.mmcs_nexus.model.enums.controller.EntitySort;
 import ru.sfedu.mmcs_nexus.model.internal.PaginationPayload;
 import ru.sfedu.mmcs_nexus.model.payload.admin.AssignJuriesRequestPayload;
-import ru.sfedu.mmcs_nexus.model.dto.entity.UserDTO;
-import ru.sfedu.mmcs_nexus.model.entity.Event;
 import ru.sfedu.mmcs_nexus.model.payload.admin.CreateProjectRequestPayload;
 import ru.sfedu.mmcs_nexus.model.payload.admin.ImportResponsePayload;
+import ru.sfedu.mmcs_nexus.model.payload.admin.ProjectJuryEventResponsePayload;
 import ru.sfedu.mmcs_nexus.service.*;
-import ru.sfedu.mmcs_nexus.model.entity.ProjectJuryEvent;
-import ru.sfedu.mmcs_nexus.model.entity.Project;
 import ru.sfedu.mmcs_nexus.util.ResponseUtils;
-import org.hibernate.validator.constraints.UUID;
 
-import java.util.*;
+import java.util.Map;
 
 import static ru.sfedu.mmcs_nexus.util.ResponseUtils.buildPageResponse;
 
@@ -37,16 +34,14 @@ public class AdminProjectController {
 
     private final ProjectJuryEventService projectJuryEventService;
 
-    private final EventService eventService;
 
     private final ImportService importService;
 
     @Autowired
-    public AdminProjectController(ProjectService projectService, ProjectEventService projectEventService, ProjectJuryEventService projectJuryEventService, EventService eventService, ImportService importService) {
+    public AdminProjectController(ProjectService projectService, ProjectEventService projectEventService, ProjectJuryEventService projectJuryEventService, ImportService importService) {
         this.projectService = projectService;
         this.projectEventService = projectEventService;
         this.projectJuryEventService = projectJuryEventService;
-        this.eventService = eventService;
         this.importService = importService;
     }
 
@@ -116,49 +111,25 @@ public class AdminProjectController {
             @RequestParam(name = "limit", defaultValue = "2") int limit
     ) {
         ImportResponsePayload<Project> result = importService.ImportProjectsFromCsv(file, limit);
+
         return ResponseEntity.ok(result);
     }
 
-    //todo rewrite this
     @GetMapping(value = "api/v1/admin/projects/{project_id}/juries/{event_id}", produces = "application/json")
-    public ResponseEntity<?> getProjectEventJuriesById(
+    public ResponseEntity<?> getProjectEventJuriesById
+    (
             @PathVariable("project_id") @UUID String projectId,
-            @PathVariable("event_id") @UUID String eventId,
-            Authentication authentication) {
+            @PathVariable("event_id") @UUID String eventId
+    ) {
+        ProjectJuryEventResponsePayload response = projectJuryEventService.getJuriesByProjectAndEvent(projectId, eventId);
 
-        try {
-            Map<String, List<UserDTO>> response = projectJuryEventService.getJuriesByProjectAndEvent(projectId, eventId);
-            return ResponseEntity.ok().body(response);
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.singletonMap("error", e.getMessage()));
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.singletonMap("error", "An unexpected error occurred"));
-        }
+        return ResponseEntity.ok().body(response);
     }
 
-    //todo rewrite this
-    @PostMapping(value = "api/v1/admin/projects/{id}/juries", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<?> saveProjectEventJuries(@PathVariable("id") @UUID String id, @RequestBody AssignJuriesRequestPayload request) {
+    @PostMapping(value = "api/v1/admin/projects/assign", consumes = "application/json", produces = "application/json")
+    public ResponseEntity<?> saveProjectEventJuries(@Valid @RequestBody AssignJuriesRequestPayload request) {
+        projectJuryEventService.assignJuries(request);
 
-        Project project = projectService.find(id);
-        if (request.isApplyToAllEvents()) {
-            List<Event> events = projectEventService.findEventsByProjectId(id);
-            projectJuryEventService.clearProjectEventsJuries(project);
-            for (Event event : events) {
-                projectJuryEventService.saveJuriesToProjectEvent(project, event, request.getMentors(), ProjectJuryEvent.RelationType.MENTOR);
-                projectJuryEventService.saveJuriesToProjectEvent(project, event, request.getObligedJuries(), ProjectJuryEvent.RelationType.OBLIGED);
-                projectJuryEventService.saveJuriesToProjectEvent(project, event, request.getWillingJuries(), ProjectJuryEvent.RelationType.WILLING);
-            }
-
-        } else {
-            Event event = eventService.find(request.getEventId().toString());
-            projectJuryEventService.clearProjectEventJuries(project, event);
-
-            projectJuryEventService.saveJuriesToProjectEvent(project, event, request.getMentors(), ProjectJuryEvent.RelationType.MENTOR);
-            projectJuryEventService.saveJuriesToProjectEvent(project, event, request.getObligedJuries(), ProjectJuryEvent.RelationType.OBLIGED);
-            projectJuryEventService.saveJuriesToProjectEvent(project, event, request.getWillingJuries(), ProjectJuryEvent.RelationType.WILLING);
-        }
-
-        return null;
+        return ResponseUtils.success(HttpStatus.OK, "saved successfully");
     }
 }

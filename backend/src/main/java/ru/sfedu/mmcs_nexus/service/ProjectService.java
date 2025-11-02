@@ -4,12 +4,9 @@
     import jakarta.persistence.EntityNotFoundException;
     import jakarta.transaction.Transactional;
     import org.springframework.beans.factory.annotation.Autowired;
-    import org.springframework.dao.EmptyResultDataAccessException;
     import org.springframework.data.domain.Page;
     import org.springframework.data.domain.Pageable;
-    import org.springframework.data.domain.Sort;
     import org.springframework.stereotype.Service;
-    import ru.sfedu.mmcs_nexus.model.entity.Event;
     import ru.sfedu.mmcs_nexus.model.entity.Project;
     import ru.sfedu.mmcs_nexus.model.internal.PaginationPayload;
     import ru.sfedu.mmcs_nexus.model.payload.admin.CreateProjectRequestPayload;
@@ -95,12 +92,10 @@
             return project;
         }
 
+        @Transactional
         public void deleteById(String projectId) {
-            try {
-                projectRepository.deleteById(UUID.fromString(projectId));
-            } catch (EmptyResultDataAccessException e) {
-                throw new EntityNotFoundException(STR."Project with id \{projectId} not found");
-            }
+            Project project = getById(projectId);
+            projectRepository.delete(project);
         }
 
         public boolean existsById(UUID id) {

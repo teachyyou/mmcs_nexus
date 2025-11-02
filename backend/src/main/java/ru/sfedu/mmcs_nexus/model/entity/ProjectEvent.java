@@ -1,8 +1,12 @@
 package ru.sfedu.mmcs_nexus.model.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 import ru.sfedu.mmcs_nexus.model.entity.keys.ProjectEventKey;
 
+@Setter
+@Getter
 @Entity
 public class ProjectEvent {
 
@@ -36,35 +40,4 @@ public class ProjectEvent {
         this.defDay = day;
     }
 
-    public Event getEvent() {
-        return event;
-    }
-
-    public void setEvent(Event event) {
-        this.event = event;
-    }
-
-    public Project getProject() {
-        return project;
-    }
-
-    public void setProject(Project project) {
-        this.project = project;
-    }
-
-    public ProjectEventKey getId() {
-        return id;
-    }
-
-    public void setId(ProjectEventKey id) {
-        this.id = id;
-    }
-
-    public Integer getDefDay() {
-        return defDay;
-    }
-
-    public void setDefDay(Integer defDay) {
-        this.defDay = defDay;
-    }
 }

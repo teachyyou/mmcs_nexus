@@ -3,7 +3,6 @@ package ru.sfedu.mmcs_nexus.service;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -39,6 +38,10 @@ public class EventService {
         return getById(id);
     }
 
+    public List<Integer> getEventsYears() {
+        return eventRepository.findAllEventsYears();
+    }
+
     @Transactional
     public void create(CreateEventRequestPayload payload) {
         Event event = new Event(
@@ -70,15 +73,9 @@ public class EventService {
 
     @Transactional
     public void deleteEventById(String eventId) {
-        try {
-            eventRepository.deleteById(UUID.fromString(eventId));
-        } catch (EmptyResultDataAccessException e) {
-            throw new EntityNotFoundException(STR."Event with id \{eventId} not found");
-        }
-    }
 
-    public List<Integer> getEventsYears(String sort, String order) {
-        return eventRepository.findAllEventsYears();
+        Event event = getById(eventId);
+        eventRepository.delete(event);
     }
 
     private Event getById(String id) throws EntityNotFoundException {

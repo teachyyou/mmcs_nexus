@@ -12,7 +12,9 @@ import ru.sfedu.mmcs_nexus.validators.MaxPoints;
 public class CreateEventRequestPayload {
     @EventName
     private String name;
+
     private EventType eventType;
+
     @EventYear
     private Integer year;
 

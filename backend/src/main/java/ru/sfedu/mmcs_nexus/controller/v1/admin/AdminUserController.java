@@ -1,6 +1,5 @@
 package ru.sfedu.mmcs_nexus.controller.v1.admin;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import org.hibernate.validator.constraints.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,7 +13,6 @@ import ru.sfedu.mmcs_nexus.model.enums.controller.EntitySort;
 import ru.sfedu.mmcs_nexus.model.internal.PaginationPayload;
 import ru.sfedu.mmcs_nexus.model.payload.admin.EditUserRequestPayload;
 import ru.sfedu.mmcs_nexus.service.UserService;
-import ru.sfedu.mmcs_nexus.util.ResponseUtils;
 
 import java.util.Map;
 
@@ -40,36 +38,29 @@ public class AdminUserController {
 
         PaginationPayload paginationPayload = new PaginationPayload(limit, offset, sort, order, EntitySort.USER_SORT);
 
-        Page<User> users = userService.getUsers(paginationPayload);
+        Page<User> users = userService.findAll(paginationPayload);
 
         return buildPageResponse(users);
 
     }
 
     @GetMapping(value = "/api/v1/admin/users/{id}", produces = "application/json")
-    public ResponseEntity<User> getUserById(@PathVariable("id") @UUID String id) {
-        User user = userService.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(STR."User with id \{id} not found"));
+    public ResponseEntity<User> getUserById(@PathVariable("id") @UUID String userId) {
+        User user = userService.find(userId);
 
         return ResponseEntity.ok(user);
     }
 
     @PutMapping(value = "/api/v1/admin/users/{id}", produces = "application/json")
-    public ResponseEntity<User> editUserById(@PathVariable("id") @UUID String id, @Valid @RequestBody EditUserRequestPayload payload) {
-        User user = userService.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(STR."User with id \{id} not found"));
-
-        user = userService.editUser(user, payload);
+    public ResponseEntity<User> editUserById(@PathVariable("id") @UUID String userId, @Valid @RequestBody EditUserRequestPayload payload) {
+        User user = userService.edit(userId, payload);
 
         return ResponseEntity.ok(user);
     }
 
     @DeleteMapping(value = "/api/v1/admin/users/{id}")
-    public ResponseEntity<Void> blockUserById(@PathVariable("id") @UUID String id) {
-        User user = userService.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException(STR."User with id \{id} not found"));
-
-        userService.blockUser(user);
+    public ResponseEntity<Void> blockUserById(@PathVariable("id") @UUID String userId) {
+        userService.block(userId);
 
         return ResponseEntity.noContent().build();
     }

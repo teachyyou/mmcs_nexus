@@ -8,32 +8,16 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.sfedu.mmcs_nexus.model.dto.entity.GradeDTO;
-import ru.sfedu.mmcs_nexus.service.EventService;
 import ru.sfedu.mmcs_nexus.model.entity.keys.GradeKey;
 import ru.sfedu.mmcs_nexus.service.GradeService;
-import ru.sfedu.mmcs_nexus.service.ProjectJuryEventService;
-import ru.sfedu.mmcs_nexus.service.ProjectService;
-import ru.sfedu.mmcs_nexus.service.ProjectEventService;
 
 @RestController
 public class AdminGradeController {
 
-    private final ProjectService projectService;
-
-    private final ProjectEventService projectEventService;
-
-    private final ProjectJuryEventService projectJuryEventService;
-
-    private final EventService eventService;
-
     private final GradeService gradeService;
 
     @Autowired
-    public AdminGradeController(ProjectService projectService, ProjectEventService projectEventService, ProjectJuryEventService projectJuryEventService, EventService eventService, GradeService gradeService) {
-        this.projectService = projectService;
-        this.projectEventService = projectEventService;
-        this.projectJuryEventService = projectJuryEventService;
-        this.eventService = eventService;
+    public AdminGradeController(GradeService gradeService) {
         this.gradeService = gradeService;
     }
 

@@ -1,5 +1,7 @@
 package ru.sfedu.mmcs_nexus.service;
 
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,19 +29,33 @@ public class UserService {
         this.userRepository = userRepository;
     }
 
-    public Page<User> getUsers(PaginationPayload paginationPayload) {
+    public Page<User> findAll(PaginationPayload paginationPayload) {
         Pageable pageable = paginationPayload.getPageable();
 
         return userRepository.findAll(pageable);
     }
 
+    public User find(String userId) {
+        return getById(userId);
+    }
+
     //Для первого сохранения в БД чисто по логину
-    public void saveUser(String githubLogin) {
+    @Transactional
+    public void create(String githubLogin) {
         if (findByGithubLogin(githubLogin).isEmpty()) {
-            saveUser(new User(githubLogin));
+            userRepository.save(new User(githubLogin));
         }
     }
 
+    @Transactional
+    public User edit(String userId, EditUserRequestPayload payload) {
+        User user = getById(userId);
+        partialUserUpdate(user, payload.getFirstName(), payload.getLastName(), payload.getEmail(), payload.getRole(), payload.getStatus());
+
+        return user;
+    }
+
+    @Transactional
     public void updateUserInfo(String login, String email, String firstName, String lastName) {
         User user = findByGithubLogin(login).orElseThrow(
                 () -> new UsernameNotFoundException(STR."User \{login} is not found")
@@ -50,31 +66,18 @@ public class UserService {
         if (user.getStatus() == UserEnums.UserStatus.NON_VERIFIED) {
             user.setStatus(UserEnums.UserStatus.VERIFIED);
         }
-
-        saveUser(user);
     }
 
-    public User editUser(User user, EditUserRequestPayload payload) {
-        partialUserUpdate(user, payload.getFirstName(), payload.getLastName(), payload.getEmail(), payload.getRole(), payload.getStatus());
+    @Transactional
+    public void block(String userId) {
+        User user = getById(userId);
 
-        saveUser(user);
-
-        return user;
-    }
-
-    public void blockUser(User user) {
         user.setStatus(UserEnums.UserStatus.BLOCKED);
         user.setRole(UserEnums.UserRole.ROLE_USER);
-
-        saveUser(user);
     }
 
     public Optional<User> findByGithubLogin(String githubLogin) {
         return userRepository.findByLogin(githubLogin).stream().findFirst();
-    }
-
-    public Optional<User> findById(String id) {
-        return userRepository.findById(UUID.fromString(id));
     }
 
     public Optional<User> findByGithubLogin(Authentication authentication) {
@@ -88,10 +91,6 @@ public class UserService {
         return optionalUser.isEmpty() || optionalUser.get().getStatus() == UserEnums.UserStatus.NON_VERIFIED;
     }
 
-    private void saveUser(User user) {
-        userRepository.saveAndFlush(user);
-    }
-
     private void partialUserUpdate(User user, String firstName, String lastName, String email, UserEnums.UserRole role, UserEnums.UserStatus status) {
 
         if (userRepository.existsByEmailAndIdNot(email, user.getId())) {
@@ -103,6 +102,11 @@ public class UserService {
         user.setEmail(email);
         if (role!=null) user.setRole(role);
         if (status!=null) user.setStatus(status);
+    }
+
+    private User getById(String userId) {
+        return userRepository.findById(UUID.fromString(userId))
+                .orElseThrow(() -> new EntityNotFoundException(STR."User with id \{userId} not found"));
     }
 
 }

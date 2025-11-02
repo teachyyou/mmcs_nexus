@@ -84,7 +84,7 @@ public class SecurityConfig {
             String githubLogin = oauthUser.getAttribute("login");
 
             if (userService.isNotFoundOrVerified(githubLogin)) {
-                userService.saveUser(githubLogin);
+                userService.create(githubLogin);
             }
             String roleName = userService.findByGithubLogin(githubLogin).orElseThrow().getRole().name();
             DefaultOAuth2User newUser = new DefaultOAuth2User(List.of(new SimpleGrantedAuthority(roleName)),

@@ -83,42 +83,6 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    //todo remove this and use only above
-    @ResponseBody
-    @GetMapping(value = "/api/v1/auth/user", produces="application/json")
-    public ResponseEntity<Map<String, Object>> getUserInfo(Authentication authentication) {
-        Map<String, Object> response = new HashMap<>();
-
-        if (authentication == null || authentication instanceof AnonymousAuthenticationToken || !authentication.isAuthenticated()) {
-            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
-        }
-
-        try {
-            DefaultOAuth2User github_user = (DefaultOAuth2User) authentication.getPrincipal();
-            String login = github_user.getAttribute("login");
-
-            Optional<User> optionalUser = userService.findByGithubLogin(login);
-            if (optionalUser.isEmpty()) {
-                response.put("error", STR."User with GitHub login \{login} not found");
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-            }
-
-            User existingUser = optionalUser.get();
-            response.put("login", login);
-            response.put("github_name", github_user.getAttribute("name"));
-            response.put("firstname", existingUser.getFirstName());
-            response.put("lastname", existingUser.getLastName());
-            response.put("email", existingUser.getEmail());
-            response.put("avatar_url", github_user.getAttribute("avatar_url"));
-
-            return ResponseEntity.ok(response);
-        } catch (Exception e) {
-            response.put("error", e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
-    }
-
-    //todo сделать нормальное обновление инфы через POST/PUT
     @PutMapping("api/v1/auth/update_profile")
     public ResponseEntity<?> updateProfile(@AuthenticationPrincipal OAuth2User oauthUser, @Valid @RequestBody UpdateProfileRequestPayload userDTO) {
         String githubLogin = oauthUser.getAttribute("login");

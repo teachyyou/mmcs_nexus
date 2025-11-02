@@ -15,7 +15,6 @@ import ru.sfedu.mmcs_nexus.model.entity.Project;
 import ru.sfedu.mmcs_nexus.model.enums.controller.EntitySort;
 import ru.sfedu.mmcs_nexus.model.internal.PaginationPayload;
 import ru.sfedu.mmcs_nexus.service.ProjectEventService;
-import ru.sfedu.mmcs_nexus.service.ProjectService;
 import ru.sfedu.mmcs_nexus.util.ResponseUtils;
 
 import java.util.Map;
@@ -24,12 +23,10 @@ import java.util.Map;
 @RestController
 public class PublicProjectController {
 
-    private final ProjectService projectService;
     private final ProjectEventService projectEventService;
 
     @Autowired
-    public PublicProjectController(ProjectService projectService, ProjectEventService projectEventService) {
-        this.projectService = projectService;
+    public PublicProjectController(ProjectEventService projectEventService) {
         this.projectEventService = projectEventService;
     }
 
@@ -47,8 +44,7 @@ public class PublicProjectController {
 
         Page<Project> projects = projectEventService.findProjectsByEventId(eventId, day, paginationPayload);
 
-        return ResponseEntity.ok().body(
-                ResponseUtils.buildResponse(projects.getContent(), projects.getTotalElements())
-        );
+        return ResponseUtils.buildPageResponse(projects);
+
     }
 }
