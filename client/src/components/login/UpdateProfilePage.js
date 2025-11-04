@@ -1,48 +1,43 @@
 // client/src/components/login/UpdateProfilePage.jsx
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react'; // NEW: useRef
 import { useNavigate } from 'react-router-dom';
 import {
     Container, TextField, Button, Typography, Box,
     Paper, Stack, Divider, CircularProgress, useTheme,
+    Snackbar, Alert, // NEW
 } from '@mui/material';
 import { useAuth } from '../../AuthContext';
 
 const UpdateProfilePage = () => {
     const theme = useTheme();
     const navigate = useNavigate();
-    const { setIsAuthenticated, setUserStatus } = useAuth();
+    const { user, setIsAuthenticated, setUserStatus, setUser } = useAuth();
 
     const [firstName, setFirstName] = useState('');
     const [lastName, setLastName]   = useState('');
     const [email, setEmail]         = useState('');
-    const [loading, setLoading]     = useState(true);
-    const [saving, setSaving]       = useState(false);
 
+    const [saving, setSaving]       = useState(false);
     const [emailTouched, setEmailTouched] = useState(false);
+
+    // NEW: snackbar state + таймер для навигации
+    const [successOpen, setSuccessOpen] = useState(false);
+    const navTimerRef = useRef(null);
 
     const isSfeduEmail = (val) => /^[^\s@]+@sfedu\.ru$/i.test(val.trim());
 
     const emailInvalid = useMemo(() => !isSfeduEmail(email), [email]);
 
     useEffect(() => {
-        const fetchUserInfo = async () => {
-            try {
-                const res = await fetch('/api/v1/auth/user', { credentials: 'include' });
-                if (res.ok) {
-                    const data = await res.json();
-                    if (data.firstname) setFirstName(data.firstname);
-                    if (data.lastname)  setLastName(data.lastname);
-                    if (data.email)     setEmail(data.email);
-                } else {
-                    console.error('Failed to fetch user info');
-                }
-            } catch (e) {
-                console.error('Error fetching user info:', e);
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchUserInfo();
+        if (!user) return;
+        setFirstName(user.firstName ?? '');
+        setLastName(user.lastName ?? '');
+        setEmail(user.email ?? '');
+    }, [user]);
+
+    // NEW: очистка таймера при размонтировании
+    useEffect(() => () => {
+        if (navTimerRef.current) clearTimeout(navTimerRef.current);
     }, []);
 
     const handleSubmit = async (e) => {
@@ -63,8 +58,13 @@ const UpdateProfilePage = () => {
             });
 
             if (res.ok) {
+                let updatedUser = await res.json()
                 setUserStatus('VERIFIED');
-                navigate('/');
+                setUser(prev => ({ ...prev, ...updatedUser }));
+
+                // NEW: показать уведомление и перейти через 800 мс
+                setSuccessOpen(true);
+                navTimerRef.current = setTimeout(() => navigate('/'), 800);
             } else {
                 console.error('Profile updating failed.');
             }
@@ -112,79 +112,90 @@ const UpdateProfilePage = () => {
 
                 <Divider sx={{ mb: 3 }} />
 
-                {loading ? (
-                    <Box sx={{ py: 6, display: 'flex', justifyContent: 'center' }}>
-                        <CircularProgress />
-                    </Box>
-                ) : (
-                    <Box component="form" onSubmit={handleSubmit} noValidate>
-                        <Stack spacing={2}>
-                            <TextField
-                                label="Имя"
-                                value={firstName}
-                                onChange={(e) => setFirstName(e.target.value)}
-                                fullWidth
-                                required
-                            />
-                            <TextField
-                                label="Фамилия"
-                                value={lastName}
-                                onChange={(e) => setLastName(e.target.value)}
-                                fullWidth
-                                required
-                            />
-                            <TextField
-                                // NEW: тип, паттерн, ошибка и подсказка
-                                type="email"
-                                label="Почта (@sfedu.ru)"
-                                value={email}
-                                onChange={(e) => setEmail(e.target.value)}
-                                onBlur={() => setEmailTouched(true)}
-                                fullWidth
-                                required
-                                inputProps={{ pattern: '^[^\\s@]+@sfedu\\.ru$' }}
-                                error={emailTouched && emailInvalid}
-                                helperText={
-                                    emailTouched && emailInvalid
-                                        ? 'Используйте корпоративную почту, оканчивающуюся на @sfedu.ru'
-                                        : ' '
-                                }
-                            />
-                        </Stack>
+                <Box component="form" onSubmit={handleSubmit} noValidate>
+                    <Stack spacing={2}>
+                        <TextField
+                            label="Имя"
+                            value={firstName}
+                            onChange={(e) => setFirstName(e.target.value)}
+                            fullWidth
+                            required
+                        />
+                        <TextField
+                            label="Фамилия"
+                            value={lastName}
+                            onChange={(e) => setLastName(e.target.value)}
+                            fullWidth
+                            required
+                        />
+                        <TextField
+                            // NEW: тип, паттерн, ошибка и подсказка
+                            type="email"
+                            label="Почта (@sfedu.ru)"
+                            value={email}
+                            onChange={(e) => setEmail(e.target.value)}
+                            onBlur={() => setEmailTouched(true)}
+                            fullWidth
+                            required
+                            inputProps={{ pattern: '^[^\\s@]+@sfedu\\.ru$' }}
+                            error={emailTouched && emailInvalid}
+                            helperText={
+                                emailTouched && emailInvalid
+                                    ? 'Используйте корпоративную почту, оканчивающуюся на @sfedu.ru'
+                                    : ' '
+                            }
+                        />
+                    </Stack>
 
-                        <Stack
-                            direction={{ xs: 'column', sm: 'row' }}
-                            spacing={1.5}
-                            sx={{ mt: 3 }}
+                    <Stack
+                        direction={{ xs: 'column', sm: 'row' }}
+                        spacing={1.5}
+                        sx={{ mt: 3 }}
+                    >
+                        <Button
+                            type="submit"
+                            variant="contained"
+                            color="primary"
+                            disabled={saving || emailInvalid}
                         >
-                            <Button
-                                type="submit"
-                                variant="contained"
-                                color="primary"
-                                disabled={saving || emailInvalid}
-                            >
-                                {saving ? 'Сохранение…' : 'Сохранить'}
-                            </Button>
+                            {saving ? 'Сохранение…' : 'Сохранить'}
+                        </Button>
 
-                            <Box sx={{ flexGrow: 1 }} />
+                        <Box sx={{ flexGrow: 1 }} />
 
-                            <Button
-                                variant="outlined"
-                                color="inherit"
-                                onClick={handleLogout}
-                                sx={{
-                                    borderColor:
-                                        theme.palette.mode === 'dark'
-                                            ? 'rgba(255,255,255,0.35)'
-                                            : theme.palette.divider,
-                                }}
-                            >
-                                Выйти
-                            </Button>
-                        </Stack>
-                    </Box>
-                )}
+                        <Button
+                            variant="outlined"
+                            color="inherit"
+                            onClick={handleLogout}
+                            sx={{
+                                borderColor:
+                                    theme.palette.mode === 'dark'
+                                        ? 'rgba(255,255,255,0.35)'
+                                        : theme.palette.divider,
+                            }}
+                        >
+                            Выйти
+                        </Button>
+                    </Stack>
+                </Box>
             </Paper>
+
+            {/* NEW: success snackbar */}
+            <Snackbar
+                open={successOpen}
+                onClose={() => setSuccessOpen(false)}
+                autoHideDuration={3000}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert
+                    onClose={() => setSuccessOpen(false)}
+                    severity="success"
+                    variant="filled"
+                    sx={{ width: '100%' }}
+                >
+                    Данные профиля успешно сохранены
+                </Alert>
+            </Snackbar>
         </Container>
     );
 };

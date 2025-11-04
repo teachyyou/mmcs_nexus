@@ -7,6 +7,7 @@ import org.apache.commons.csv.CSVRecord;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartException;
 import org.springframework.web.multipart.MultipartFile;
 import ru.sfedu.mmcs_nexus.model.entity.Project;
 import ru.sfedu.mmcs_nexus.model.enums.entity.ProjectType;
@@ -35,6 +36,19 @@ public class ImportService {
 
     @Transactional
     public ImportResponsePayload<Project> ImportProjectsFromCsv(MultipartFile file, Integer limit) {
+
+        String contentType = file.getContentType();
+        String fileName = file.getOriginalFilename() != null ? file.getOriginalFilename().toLowerCase(Locale.ROOT) : "";
+
+        boolean isCorrectFormat =
+                "text/csv".equalsIgnoreCase(contentType) ||
+                        "application/vnd.ms-excel".equalsIgnoreCase(contentType) ||
+                        fileName.endsWith(".csv");
+
+        if (!isCorrectFormat) {
+            throw new MultipartException("Only CSV files are supported");
+        }
+
         List<Project> created = new ArrayList<Project>();
         List<ImportRowIssue> skipped = new ArrayList<ImportRowIssue>();
 

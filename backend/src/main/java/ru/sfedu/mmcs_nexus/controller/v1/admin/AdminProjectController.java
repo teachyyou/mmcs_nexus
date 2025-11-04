@@ -29,9 +29,7 @@ import static ru.sfedu.mmcs_nexus.util.ResponseUtils.buildPageResponse;
 public class AdminProjectController {
 
     private final ProjectService projectService;
-
     private final ProjectEventService projectEventService;
-
     private final ProjectJuryEventService projectJuryEventService;
 
 
@@ -100,7 +98,7 @@ public class AdminProjectController {
 
     @DeleteMapping("/api/v1/admin/projects/{id}")
     public ResponseEntity<?> deleteProjectById(@PathVariable("id") @UUID String projectId) {
-        projectService.deleteById(projectId);
+        projectService.delete(projectId);
 
         return ResponseEntity.noContent().build();
     }

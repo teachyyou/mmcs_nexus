@@ -3,10 +3,14 @@ package ru.sfedu.mmcs_nexus.model.entity.keys;
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
 import jakarta.validation.constraints.NotNull;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.UUID;
 
+@Setter
+@Getter
 @Embeddable
 public class GradeKey implements Serializable {
 
@@ -33,27 +37,4 @@ public class GradeKey implements Serializable {
     }
 
 
-    public UUID getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(UUID projectId) {
-        this.projectId = projectId;
-    }
-
-    public UUID getEventId() {
-        return eventId;
-    }
-
-    public void setEventId(UUID eventId) {
-        this.eventId = eventId;
-    }
-
-    public UUID getJuryId() {
-        return juryId;
-    }
-
-    public void setJuryId(UUID juryId) {
-        this.juryId = juryId;
-    }
 }

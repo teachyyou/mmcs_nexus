@@ -1,8 +1,7 @@
 // client/src/components/jury/GradeTablePage.jsx
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import {
     Box,
-    Button,
     Container,
     FormControl,
     FormControlLabel,
@@ -23,8 +22,9 @@ import {
 } from '@mui/material';
 import InfoIcon from '@mui/icons-material/Info';
 import GradeTable from './GradeTable';
+import {Placeholder} from "react-admin";
 
-const APPBAR_H = 64; // высота глобальной шапки
+const APPBAR_H = 64;
 
 const GradeTablePage = () => {
     const [year, setYear] = useState('');
@@ -35,9 +35,9 @@ const GradeTablePage = () => {
     const [loading, setLoading] = useState(false);
     const [showOnlyMy, setShowOnlyMy] = useState(false);
     const [showMentored, setShowMentored] = useState(false);
-    const [selectedDay, setSelectedDay] = useState('all'); // 'all', '1', '2'
+    const [selectedDay, setSelectedDay] = useState('all'); // 'all' | '1' | '2'
 
-    // локальный флаг для плавного появления страницы
+    // плавное появление страницы
     const [mounted, setMounted] = useState(false);
     useEffect(() => {
         const t = requestAnimationFrame(() => setMounted(true));
@@ -46,6 +46,7 @@ const GradeTablePage = () => {
 
     const handleGradeUpdatedInParent = (updatedGrade) => {
         setGrades(prev => {
+            if (!prev) return prev;
             const newContent = { ...prev };
             newContent.rows = newContent.rows.map(row => {
                 if (row.projectId !== updatedGrade.projectId) return row;
@@ -59,6 +60,7 @@ const GradeTablePage = () => {
         });
     };
 
+    // подгружаем список годов
     useEffect(() => {
         const fetchYears = async () => {
             try {
@@ -77,6 +79,7 @@ const GradeTablePage = () => {
         fetchYears();
     }, []);
 
+    // подгружаем события по выбранному году
     useEffect(() => {
         const fetchEvents = async () => {
             if (!year) return;
@@ -98,28 +101,59 @@ const GradeTablePage = () => {
     const handleYearChange = (e) => setYear(e.target.value);
     const handleEventChange = (e) => setSelectedEvent(e.target.value);
 
-    const fetchGrades = async () => {
-        if (!selectedEvent) return;
-        setLoading(true);
+    // ===== РЕАКТИВНАЯ ПОДГРУЗКА ОЦЕНОК =====
+    const fetchAbortRef = useRef(null);
+    const debounceRef = useRef(null);
 
+    useEffect(() => {
+        // нет выбранного события — чистим и выходим
+        if (!selectedEvent?.id) {
+            setGrades(null);
+            return;
+        }
+
+        // построим параметры показа
         let showParam = 'ALL';
         if (showOnlyMy) showParam = showMentored ? 'MENTORED' : 'ASSIGNED';
 
-        let url = `/api/v1/jury/table/${selectedEvent.id}?show=${showParam}`;
+        // подготавливаем URL
+        let url = `/api/v1/jury/grades/table/${selectedEvent.id}?show=${showParam}`;
         if (selectedDay !== 'all') url += `&day=${selectedDay}`;
 
-        try {
-            const response = await fetch(url, { credentials: 'include' });
-            if (!response.ok) throw new Error('Ошибка при загрузке оценок');
-            const data = await response.json();
-            setGrades(data.content);
-        } catch (error) {
-            console.error(error.message);
-            setGrades(null);
-        } finally {
-            setLoading(false);
-        }
-    };
+        // дебаунс, чтобы не дергать API на каждый тик
+        if (debounceRef.current) clearTimeout(debounceRef.current);
+        debounceRef.current = setTimeout(() => {
+            // отменяем предыдущий запрос, если есть
+            if (fetchAbortRef.current) fetchAbortRef.current.abort();
+            const controller = new AbortController();
+            fetchAbortRef.current = controller;
+
+            const run = async () => {
+                setLoading(true);
+                try {
+                    const res = await fetch(url, { credentials: 'include', signal: controller.signal });
+                    if (!res.ok) throw new Error('Ошибка при загрузке оценок');
+                    const data = await res.json();
+                    setGrades(data.content);
+                } catch (err) {
+                    if (err.name !== 'AbortError') {
+                        console.error(err.message || err);
+                        setGrades(null);
+                    }
+                } finally {
+                    setLoading(false);
+                }
+            };
+
+            run();
+        }, 200); // 200мс достаточно комфортно
+
+        // очистка
+        return () => {
+            if (debounceRef.current) clearTimeout(debounceRef.current);
+        };
+        // тянем данные при смене любого фильтра:
+    }, [selectedEvent?.id, selectedDay, showOnlyMy, showMentored]);
 
     return (
         <Fade in={mounted} timeout={220}>
@@ -129,7 +163,7 @@ const GradeTablePage = () => {
                         Просмотр оценок по событию
                     </Typography>
                     <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                        Выберите год и событие, при необходимости отфильтруйте по дню защиты.
+                        Выберите год и этап отчётности, при необходимости отфильтруйте по дню защиты.
                     </Typography>
                 </Box>
 
@@ -144,7 +178,7 @@ const GradeTablePage = () => {
                                     border: (t) => `1px solid ${t.palette.divider}`,
                                     borderRadius: 2,
                                     position: 'sticky',
-                                    top: APPBAR_H + 16, // под шапкой и с небольшим отступом
+                                    top: APPBAR_H + 16,
                                 }}
                             >
                                 <FormControl fullWidth margin="normal">
@@ -155,8 +189,11 @@ const GradeTablePage = () => {
                                 </FormControl>
 
                                 <FormControl fullWidth margin="normal" disabled={!events.length}>
-                                    <InputLabel>Событие</InputLabel>
-                                    <Select value={selectedEvent || ''} onChange={handleEventChange} label="Событие">
+                                    <InputLabel>Этап отчетности</InputLabel>
+                                    <Select
+                                        value={selectedEvent || ''}
+                                        onChange={handleEventChange}
+                                        label="Этап отчетности">
                                         {events.map(ev => <MenuItem key={ev.id} value={ev}>{ev.name}</MenuItem>)}
                                     </Select>
                                 </FormControl>
@@ -211,16 +248,11 @@ const GradeTablePage = () => {
                                     )}
                                 </FormGroup>
 
-                                <Button
-                                    fullWidth
-                                    variant="contained"
-                                    color="primary"
-                                    onClick={fetchGrades}
-                                    disabled={!selectedEvent || loading}
-                                    sx={{ mt: 2 }}
-                                >
-                                    {loading ? 'Загрузка…' : 'Показать оценки'}
-                                </Button>
+                                {/* Кнопка больше не нужна — загрузка идёт реактивно */}
+                                {/* Можно оставить маленький индикатор состояния */}
+                                <Box sx={{ mt: 2, fontSize: 13, opacity: 0.7 }}>
+                                    {selectedEvent ? (loading ? 'Загрузка…' : '') : 'Выберите событие'}
+                                </Box>
                             </Paper>
                         </Slide>
                     </Grid>

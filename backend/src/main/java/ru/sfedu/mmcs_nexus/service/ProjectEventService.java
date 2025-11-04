@@ -14,7 +14,9 @@ import ru.sfedu.mmcs_nexus.model.entity.ProjectEvent;
 import ru.sfedu.mmcs_nexus.model.entity.keys.ProjectEventKey;
 import ru.sfedu.mmcs_nexus.model.internal.PaginationPayload;
 import ru.sfedu.mmcs_nexus.model.payload.admin.LinkProjectsToEventRequestPayload;
+import ru.sfedu.mmcs_nexus.repository.EventRepository;
 import ru.sfedu.mmcs_nexus.repository.ProjectEventRepository;
+import ru.sfedu.mmcs_nexus.repository.ProjectRepository;
 
 import java.util.*;
 import java.util.function.Function;
@@ -24,20 +26,19 @@ import java.util.stream.Collectors;
 public class ProjectEventService {
 
     private final ProjectEventRepository projectEventRepository;
-    private final EventService eventService;
-    private final ProjectService projectService;
-
+    private final ProjectRepository projectRepository;
+    private final EventRepository eventRepository;
 
     @Autowired
     public ProjectEventService(ProjectEventRepository projectEventRepository,
-                               EventService eventService, ProjectService projectService) {
+                               EventRepository eventRepository, ProjectRepository projectRepository) {
         this.projectEventRepository = projectEventRepository;
-        this.eventService = eventService;
-        this.projectService = projectService;
+        this.eventRepository = eventRepository;
+        this.projectRepository = projectRepository;
     }
 
     public Page<Project> findProjectsByEventId(String eventId, Integer day, PaginationPayload paginationPayload) {
-        if (!eventService.existsById(eventId)) {
+        if (!eventRepository.existsById(UUID.fromString(eventId))) {
             throw new EntityNotFoundException(STR."Event with id \{eventId} not found");
         }
 
@@ -47,7 +48,7 @@ public class ProjectEventService {
     }
 
     public List<Project> findProjectsByEventId(String eventId, Integer day) {
-        if (!eventService.existsById(eventId)) {
+        if (!eventRepository.existsById(UUID.fromString(eventId))) {
             throw new EntityNotFoundException(STR."Event with id \{eventId} not found");
         }
 
@@ -55,7 +56,7 @@ public class ProjectEventService {
     }
 
     public Page<Event> findEventsByProjectId(String projectId, Integer day, PaginationPayload paginationPayload) {
-        if (!projectService.existsById(UUID.fromString(projectId))) {
+        if (!projectRepository.existsById(UUID.fromString(projectId))) {
             throw new EntityNotFoundException(STR."Project with id \{projectId} not found");
         }
 
@@ -65,24 +66,21 @@ public class ProjectEventService {
     }
 
     public List<Event> findEventsByProjectId(String projectId) {
-        if (!projectService.existsById(UUID.fromString(projectId))) {
+        if (!projectRepository.existsById(UUID.fromString(projectId))) {
             throw new EntityNotFoundException(STR."Project with id \{projectId} not found");
         }
 
         return projectEventRepository.findEventsByProjectId(UUID.fromString(projectId), null);
     }
 
-    public Optional<ProjectEvent> findById(ProjectEventKey id) {
-        return projectEventRepository.findById(id);
-    }
-
     @Transactional
     public void setProjectsForEvent(String eventId, LinkProjectsToEventRequestPayload payload) {
-        Event event = eventService.find(eventId);
+        Event event = eventRepository.findById(UUID.fromString(eventId))
+                .orElseThrow(() -> new EntityNotFoundException(STR."Event with id \{eventId} not found"));
 
         List<Project> desiredProjects = payload.isLinkAllProjects()
-                ? projectService.findAll(event.getYear())
-                : projectService.findAll(payload.getProjectIds());
+                ? projectRepository.findAllByYear(event.getYear())
+                : projectRepository.findAllById(payload.getProjectIds());
 
         //Тут важно не перезаписывать день защиты для тех связей, которые уже ранее существовали.
         List<ProjectEvent> existing = projectEventRepository.findByEventId(event.getId());
@@ -115,7 +113,8 @@ public class ProjectEventService {
     }
 
     public void setDaysForProjectAndEvent(String eventId, List<UUID> firstDayProjects, List<UUID> secondDayProjects) {
-        Event event = eventService.find(eventId);
+        Event event = eventRepository.findById(UUID.fromString(eventId))
+                .orElseThrow(() -> new EntityNotFoundException(STR."Event with id \{eventId} not found"));
 
         if (firstDayProjects != null && secondDayProjects != null) {
             boolean hasOverlap = firstDayProjects.stream()

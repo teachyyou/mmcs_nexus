@@ -67,10 +67,6 @@ public class EventService {
         return event;
     }
 
-    public boolean existsById(String eventId) {
-        return eventRepository.existsById(UUID.fromString(eventId));
-    }
-
     @Transactional
     public void deleteEventById(String eventId) {
 

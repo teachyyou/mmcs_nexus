@@ -11,7 +11,6 @@ import java.util.UUID;
 
 @Repository
 public interface ProjectRepository extends JpaRepository<Project, UUID> {
-    List<Project> findByName(String name);
 
     Page<Project> findAllByYear(Integer year, Pageable pageable);
     List<Project> findAllByYear(Integer year);

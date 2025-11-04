@@ -133,8 +133,8 @@ export default function NavigationBar() {
                         <>
                             <IconButton onClick={handleAvatarClick} sx={{ ml: 1, color: 'inherit' }}>
                                 <Avatar
-                                    src={user?.avatarUrl || user?.avatar_url}
-                                    alt={user?.github_name || user?.login || 'user'}
+                                    src={user?.avatarUrl}
+                                    alt={user?.githubName || user?.login || 'user'}
                                     sx={{
                                         width: 36,
                                         height: 36,
@@ -155,7 +155,7 @@ export default function NavigationBar() {
                                 MenuListProps={{ dense: true }}
                             >
                                 <Box sx={{ px: 2, py: 1.5, maxWidth: 260 }}>
-                                    <Box sx={{ fontWeight: 600 }}>{user?.github_name || user?.login}</Box>
+                                    <Box sx={{ fontWeight: 600 }}>{(user?.firstName + ' ' + user?.lastName) || user?.githubName || user?.login}</Box>
                                     <Box sx={{ opacity: 0.7, fontSize: 12 }}>{user?.email}</Box>
                                 </Box>
                                 <Divider />

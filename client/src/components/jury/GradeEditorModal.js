@@ -8,7 +8,7 @@ import { useAuth } from '../../AuthContext';
 const GradeEditorModal = ({
                               open,
                               onClose,
-                              onExited,           // ← НОВОЕ: будет вызвано после завершения анимации
+                              onExited,
                               grade,
                               projectId,
                               juryId,
@@ -26,7 +26,6 @@ const GradeEditorModal = ({
     const [presPoints, setPresPoints] = useState('');
     const [buildPoints, setBuildPoints] = useState('');
 
-    // При открытии – загружаем значения, при закрытии не трогаем (чтобы не мигало)
     useEffect(() => {
         if (!open) return;
         if (grade) {
@@ -85,7 +84,7 @@ const GradeEditorModal = ({
             maxWidth="sm"
             disableScrollLock
             TransitionProps={{
-                onExited: onExited, // ← вызовется ПОСЛЕ fade-out — тут и чистим родительское состояние
+                onExited: onExited,
             }}
         >
             <DialogTitle>

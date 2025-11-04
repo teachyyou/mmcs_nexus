@@ -1,22 +1,24 @@
 package ru.sfedu.mmcs_nexus.model.payload.jury;
 
-import ru.sfedu.mmcs_nexus.model.internal.GradeTableRow;
+import lombok.Getter;
+import lombok.Setter;
+import ru.sfedu.mmcs_nexus.model.dto.entity.UserDTO;
 import ru.sfedu.mmcs_nexus.model.entity.Event;
 import ru.sfedu.mmcs_nexus.model.entity.Project;
-import ru.sfedu.mmcs_nexus.model.dto.entity.UserDTO;
+import ru.sfedu.mmcs_nexus.model.internal.GradeTableRow;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
+@Getter
+@Setter
 public class GetGradeTableResponsePayload {
-
     private int juriesCount;
-
     private int projectsCount;
 
     private Event event;
 
     private List<Project> projects;
-
     private List<UserDTO> juries;
 
     //table rows for every project in the table
@@ -26,42 +28,9 @@ public class GetGradeTableResponsePayload {
         this.rows = new ArrayList<>();
     }
 
-
-    public int getJuriesCount() {
-        return juriesCount;
-    }
-
-    public void setJuriesCount(int juriesCount) {
-        this.juriesCount = juriesCount;
-    }
-
-    public int getProjectsCount() {
-        return projectsCount;
-    }
-
-    public void setProjectsCount(int projectsCount) {
-        this.projectsCount = projectsCount;
-    }
-
-    public Event getEvent() {
-        return event;
-    }
-
-    public void setEvent(Event event) {
-        this.event = event;
-    }
-
-    public List<Project> getProjects() {
-        return projects;
-    }
-
     public void setProjects(List<Project> projects) {
         this.projects = projects;
         this.projectsCount=projects.size();
-    }
-
-    public List<UserDTO> getJuries() {
-        return juries;
     }
 
     public void setJuries(List<UserDTO> juries) {
@@ -69,27 +38,8 @@ public class GetGradeTableResponsePayload {
         this.juriesCount=juries.size();
     }
 
-    public List<GradeTableRow> getRows() {
-        return rows;
-    }
-
-    public void setRows(List<GradeTableRow> rows) {
-        this.rows = rows;
-    }
-
     public void addGradeRow(GradeTableRow row) {
         this.rows.add(row);
     }
 
-    //temporary unused `
-//    public void addGrade(Project project, User jury, GradeDTO gradeDTO) {
-//
-//        rows.stream().filter(x->x.getProjectId().equals(project.getId())).findFirst().get();
-//
-//        if (this.rows.containsKey(project.getId())) {
-//            rows.get(project.getId()).getTableRow().add(gradeDTO);
-//        } else {
-//            this.rows.put(project.getId(),new GradeTableRowDTO(project.getId(), project.getName(), new ArrayList<>()));
-//        }
-//    }
 }
