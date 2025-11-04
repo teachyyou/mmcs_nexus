@@ -1,24 +1,15 @@
 package ru.sfedu.mmcs_nexus.model.entity;
 
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 import ru.sfedu.mmcs_nexus.model.entity.keys.ProjectJuryEventKey;
+import ru.sfedu.mmcs_nexus.model.enums.entity.JuryRelationType;
 
+@Setter
+@Getter
 @Entity
 public class ProjectJuryEvent {
-
-    public Event getEvent() {
-        return event;
-    }
-
-    public void setEvent(Event event) {
-        this.event = event;
-    }
-
-    public enum RelationType {
-        MENTOR,
-        WILLING,
-        OBLIGED
-    }
 
     @EmbeddedId
     private ProjectJuryEventKey id;
@@ -39,14 +30,12 @@ public class ProjectJuryEvent {
     private Event event;
 
     @Enumerated(EnumType.STRING)
-    private RelationType relationType;
-
-    // Конструкторы
+    private JuryRelationType relationType;
 
     public ProjectJuryEvent() {
     }
 
-    public ProjectJuryEvent(ProjectJuryEventKey id, User jury, Project project, Event event, RelationType relationType) {
+    public ProjectJuryEvent(ProjectJuryEventKey id, User jury, Project project, Event event, JuryRelationType relationType) {
         this.id = id;
         this.jury = jury;
         this.project = project;
@@ -54,37 +43,5 @@ public class ProjectJuryEvent {
         this.relationType = relationType;
     }
 
-    // Геттеры и сеттеры
 
-    public ProjectJuryEventKey getId() {
-        return id;
-    }
-
-    public void setId(ProjectJuryEventKey id) {
-        this.id = id;
-    }
-
-    public User getJury() {
-        return jury;
-    }
-
-    public void setJury(User jury) {
-        this.jury = jury;
-    }
-
-    public Project getProject() {
-        return project;
-    }
-
-    public void setProject(Project project) {
-        this.project = project;
-    }
-
-    public RelationType getRelationType() {
-        return relationType;
-    }
-
-    public void setRelationType(RelationType relationType) {
-        this.relationType = relationType;
-    }
 }

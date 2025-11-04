@@ -1,18 +1,24 @@
 package ru.sfedu.mmcs_nexus.controller.v1.admin;
 
+import jakarta.validation.Valid;
+import org.hibernate.validator.constraints.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.sfedu.mmcs_nexus.config.ApplicationConfig;
 import ru.sfedu.mmcs_nexus.model.entity.User;
+import ru.sfedu.mmcs_nexus.model.enums.controller.EntitySort;
+import ru.sfedu.mmcs_nexus.model.internal.PaginationPayload;
+import ru.sfedu.mmcs_nexus.model.payload.admin.EditUserRequestPayload;
 import ru.sfedu.mmcs_nexus.service.UserService;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
+import static ru.sfedu.mmcs_nexus.util.ResponseUtils.buildPageResponse;
+
+@Validated
 @RestController
 public class AdminUserController {
 
@@ -27,48 +33,35 @@ public class AdminUserController {
     public ResponseEntity<Map<String, Object>> getUsersList(
             @RequestParam(defaultValue = "id") String sort,
             @RequestParam(defaultValue = "asc") String order,
-            Authentication authentication) {
+            @RequestParam(defaultValue = ApplicationConfig.DEFAULT_LIMIT) Integer limit,
+            @RequestParam(defaultValue = ApplicationConfig.DEFAULT_OFFSET) Integer offset) {
 
-        List<User> users = userService.getUsers(sort, order);
+        PaginationPayload paginationPayload = new PaginationPayload(limit, offset, sort, order, EntitySort.USER_SORT);
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("content", users);
-        response.put("totalElements", users.size());
+        Page<User> users = userService.findAll(paginationPayload);
 
-        return ResponseEntity.ok().body(response);
+        return buildPageResponse(users);
+
     }
 
-
     @GetMapping(value = "/api/v1/admin/users/{id}", produces = "application/json")
-    public ResponseEntity<User> getUserById(@PathVariable("id") UUID id, Authentication authentication) {
-        User user = userService.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+    public ResponseEntity<User> getUserById(@PathVariable("id") @UUID String userId) {
+        User user = userService.find(userId);
+
         return ResponseEntity.ok(user);
     }
 
     @PutMapping(value = "/api/v1/admin/users/{id}", produces = "application/json")
-    public ResponseEntity<User> editUserById(@PathVariable("id") UUID id, Authentication authentication, @RequestBody User user) {
+    public ResponseEntity<User> editUserById(@PathVariable("id") @UUID String userId, @Valid @RequestBody EditUserRequestPayload payload) {
+        User user = userService.edit(userId, payload);
 
-        User existingUser = userService.findById(id)
-                .orElseThrow(() -> new UsernameNotFoundException(STR."User with id \{id} not found"));
-
-        existingUser.editExistingUser(user);
-        userService.saveUser(existingUser);
-
-        return ResponseEntity.ok(existingUser);
+        return ResponseEntity.ok(user);
     }
 
     @DeleteMapping(value = "/api/v1/admin/users/{id}")
-    public ResponseEntity<Void> deleteUserById(@PathVariable("id") UUID id) {
-        if (!userService.existsById(id)) {
-            return ResponseEntity.notFound().build();
-        }
-
-        userService.deleteUserById(id);
+    public ResponseEntity<Void> blockUserById(@PathVariable("id") @UUID String userId) {
+        userService.block(userId);
 
         return ResponseEntity.noContent().build();
     }
-
-
-
 }

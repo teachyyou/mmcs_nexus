@@ -1,66 +1,84 @@
-import React, {useEffect, useState} from 'react';
-import {Alert, Autocomplete, Button, Checkbox, FormControlLabel, Snackbar, TextField,} from '@mui/material';
-import {Title} from "react-admin";
+// ProjectJuryManagement.js
+import React, { useEffect, useState, useMemo } from 'react';
+import {
+    Alert,
+    Autocomplete,
+    Box,
+    Button,
+    Checkbox,
+    FormControlLabel,
+    Snackbar,
+    Stack,
+    TextField,
+    Typography,
+    Divider,
+    CircularProgress,
+} from '@mui/material';
+import { Title } from 'react-admin';
 
 const ProjectJuryManagement = () => {
     const [projects, setProjects] = useState([]);
     const [selectedProject, setSelectedProject] = useState(null);
     const [events, setEvents] = useState([]);
     const [selectedEvent, setSelectedEvent] = useState(null);
+
+    const [juryOptions, setJuryOptions] = useState([]);
     const [willingJuries, setWillingJuries] = useState([]);
     const [obligedJuries, setObligedJuries] = useState([]);
     const [mentors, setMentors] = useState([]);
-    const [juryOptions, setJuryOptions] = useState([]);
+
     const [applyToAllEvents, setApplyToAllEvents] = useState(false);
+
     const [openSnackbar, setOpenSnackbar] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarSeverity, setSnackbarSeverity] = useState('success');
-    const [loading, setLoading] = useState(false);
 
-    // Получаем проекты и список жюри при монтировании
+    const [loading, setLoading] = useState(false);
+    const [loadingLists, setLoadingLists] = useState(false);
+
     useEffect(() => {
         const fetchInitialData = async () => {
             try {
-                const projectsResponse = await fetch('/api/v1/admin/projects?sort=name', {
-                    credentials: 'include',
-                });
-                const projectsData = await projectsResponse.json();
+                setLoadingLists(true);
+                const [projectsRes, juriesRes] = await Promise.all([
+                    fetch('/api/v1/admin/projects?sort=name&limit=100', { credentials: 'include' }),
+                    fetch('/api/v1/admin/users?sort=lastName&limit=100', { credentials: 'include' }),
+                ]);
+                const projectsData = await projectsRes.json();
+                const juriesData = await juriesRes.json();
                 setProjects(Array.isArray(projectsData.content) ? projectsData.content : []);
-
-                const juriesResponse = await fetch('/api/v1/admin/users?sort=lastName', {
-                    credentials: 'include',
-                });
-                const juriesData = await juriesResponse.json();
                 setJuryOptions(Array.isArray(juriesData.content) ? juriesData.content : []);
-            } catch (error) {
-                console.error('Error fetching projects or juries:', error);
+            } catch (e) {
+                console.error('Init fetch error:', e);
+            } finally {
+                setLoadingLists(false);
             }
         };
-
         fetchInitialData();
     }, []);
 
-    // Получаем события для выбранного проекта, если не выбран режим "Apply to all events"
     useEffect(() => {
         const fetchEvents = async () => {
             if (selectedProject && !applyToAllEvents) {
                 try {
-                    const response = await fetch(`/api/v1/admin/projects/${selectedProject}/events`, {
+                    setLoadingLists(true);
+                    const res = await fetch(`/api/v1/admin/projects/${selectedProject}/events?limit=100`, {
                         credentials: 'include',
                     });
-                    const data = await response.json();
+                    const data = await res.json();
                     const newEvents = Array.isArray(data.content) ? data.content : [];
                     setEvents(newEvents);
 
-                    // Если текущее событие отсутствует в новом списке, сбрасываем его и очищаем выбранные жюри
-                    if (!newEvents.some(event => event.id === selectedEvent)) {
+                    if (!newEvents.some((ev) => ev.id === selectedEvent)) {
                         setSelectedEvent(null);
                         setWillingJuries([]);
                         setObligedJuries([]);
                         setMentors([]);
                     }
-                } catch (error) {
-                    console.error('Error fetching events:', error);
+                } catch (e) {
+                    console.error('Fetch events error:', e);
+                } finally {
+                    setLoadingLists(false);
                 }
             } else {
                 setEvents([]);
@@ -70,78 +88,93 @@ const ProjectJuryManagement = () => {
                 setMentors([]);
             }
         };
-
         fetchEvents();
-    }, [selectedProject, applyToAllEvents, selectedEvent]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectedProject, applyToAllEvents]);
 
-    // Получаем назначенных жюри для выбранного проекта и события (или для всех событий)
     useEffect(() => {
-        const fetchAssignedJuries = async () => {
+        const fetchAssigned = async () => {
             if (selectedProject && selectedEvent) {
                 try {
-                    const url = `/api/v1/admin/projects/${selectedProject}/juries/${selectedEvent}`;
-                    const response = await fetch(url, { credentials: 'include' });
-                    const data = await response.json();
+                    setLoadingLists(true);
+                    const res = await fetch(
+                        `/api/v1/admin/projects/${selectedProject}/juries/${selectedEvent}`,
+                        { credentials: 'include' }
+                    );
+                    const data = await res.json();
                     setWillingJuries(data.willingJuries || []);
                     setObligedJuries(data.obligedJuries || []);
                     setMentors(data.mentors || []);
-                } catch (error) {
-                    console.error('Error fetching assigned juries:', error);
+                } catch (e) {
+                    console.error('Fetch assigned juries error:', e);
+                } finally {
+                    setLoadingLists(false);
                 }
             }
         };
-
-        fetchAssignedJuries();
+        fetchAssigned();
     }, [selectedProject, selectedEvent]);
 
-    // Обработчики изменения выбранных жюри
-    const handleWillingJuriesChange = (event, newValue) => {
-        setObligedJuries(prev => prev.filter(jury => !newValue.some(j => j.id === jury.id)));
-        setMentors(prev => prev.filter(jury => !newValue.some(j => j.id === jury.id)));
-        setWillingJuries(newValue);
+    const handleWillingJuriesChange = (_e, val) => {
+        setObligedJuries((prev) => prev.filter((x) => !val.some((j) => j.id === x.id)));
+        setMentors((prev) => prev.filter((x) => !val.some((j) => j.id === x.id)));
+        setWillingJuries(val);
     };
 
-    const handleObligedJuriesChange = (event, newValue) => {
-        setWillingJuries(prev => prev.filter(jury => !newValue.some(j => j.id === jury.id)));
-        setMentors(prev => prev.filter(jury => !newValue.some(j => j.id === jury.id)));
-        setObligedJuries(newValue);
+    const handleObligedJuriesChange = (_e, val) => {
+        setWillingJuries((prev) => prev.filter((x) => !val.some((j) => j.id === x.id)));
+        setMentors((prev) => prev.filter((x) => !val.some((j) => j.id === x.id)));
+        setObligedJuries(val);
     };
 
-    const handleMentorsChange = (event, newValue) => {
-        setWillingJuries(prev => prev.filter(jury => !newValue.some(j => j.id === jury.id)));
-        setObligedJuries(prev => prev.filter(jury => !newValue.some(j => j.id === jury.id)));
-        setMentors(newValue);
+    const handleMentorsChange = (_e, val) => {
+        setWillingJuries((prev) => prev.filter((x) => !val.some((j) => j.id === x.id)));
+        setObligedJuries((prev) => prev.filter((x) => !val.some((j) => j.id === x.id)));
+        setMentors(val);
     };
 
-    // Отправка изменений на сервер
+    const selectedIdsAll = useMemo(
+        () => new Set([...willingJuries, ...obligedJuries, ...mentors].map((u) => u.id)),
+        [willingJuries, obligedJuries, mentors]
+    );
+
+    const filteredOptions = (currentRole) => {
+        const copy = new Set(selectedIdsAll);
+        if (currentRole === 'willing') willingJuries.forEach((u) => copy.delete(u.id));
+        if (currentRole === 'obliged') obligedJuries.forEach((u) => copy.delete(u.id));
+        if (currentRole === 'mentor') mentors.forEach((u) => copy.delete(u.id));
+        return juryOptions.filter((u) => !copy.has(u.id));
+    };
+
     const handleSubmit = async () => {
         if (!selectedProject) return;
         setLoading(true);
         const payload = {
             projectId: selectedProject,
             eventId: applyToAllEvents ? null : selectedEvent,
-            willingJuries: willingJuries.map(jury => jury.id),
-            obligedJuries: obligedJuries.map(jury => jury.id),
-            mentors: mentors.map(mentor => mentor.id),
-            applyToAllEvents: applyToAllEvents,
+            willingJuries: willingJuries.map((u) => u.id),
+            obligedJuries: obligedJuries.map((u) => u.id),
+            mentors: mentors.map((u) => u.id),
+            applyToAllEvents,
         };
 
         try {
-            const response = await fetch(`/api/v1/admin/projects/${selectedProject}/juries`, {
+            const res = await fetch(`/api/v1/admin/projects/assign`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
                 body: JSON.stringify(payload),
             });
-            if (response.ok) {
+            if (res.ok) {
                 setSnackbarMessage('Успешно сохранено');
                 setSnackbarSeverity('success');
             } else {
-                setSnackbarMessage('Во время сохранения произошла ошибка');
+                const err = await res.json().catch(() => ({}));
+                setSnackbarMessage(err.error || 'Во время сохранения произошла ошибка');
                 setSnackbarSeverity('error');
             }
-        } catch (error) {
-            console.error('Error saving project juries:', error);
+        } catch (e) {
+            console.error('Save error:', e);
             setSnackbarMessage('Во время сохранения произошла ошибка');
             setSnackbarSeverity('error');
         } finally {
@@ -150,139 +183,176 @@ const ProjectJuryManagement = () => {
         }
     };
 
-    const handleSnackbarClose = (event, reason) => {
-        if (reason === 'clickaway') return;
-        setOpenSnackbar(false);
-    };
-
-    // Фильтрация жюри, исключая уже выбранных в других ролях
-    const getFilteredJuryOptions = (currentRole) => {
-        const selectedIds = new Set([
-            ...willingJuries.map(jury => jury.id),
-            ...obligedJuries.map(jury => jury.id),
-            ...mentors.map(jury => jury.id),
-        ]);
-
-        // Убираем ID уже выбранных в текущей роли
-        if (currentRole === 'willing') {
-            willingJuries.forEach(jury => selectedIds.delete(jury.id));
-        } else if (currentRole === 'obliged') {
-            obligedJuries.forEach(jury => selectedIds.delete(jury.id));
-        } else if (currentRole === 'mentor') {
-            mentors.forEach(jury => selectedIds.delete(jury.id));
-        }
-
-        return juryOptions.filter(jury => !selectedIds.has(jury.id));
-    };
+    const canSave =
+        !!selectedProject && (applyToAllEvents || (!!selectedEvent && !loadingLists));
 
     return (
         <>
             <Title title="Проверяющие и менторы" />
-            <h2>Распределение жюри и менторов по проектам</h2>
-            <div>
-                {/* Выбор проекта */}
-                <Autocomplete
-                    options={projects}
-                    getOptionLabel={(option) => `${option.name} ${option.year}-${parseInt(option.year) + 1}`}
-                    onChange={(event, newValue) => {
-                        setSelectedProject(newValue?.id || null);
-                        setApplyToAllEvents(false);
-                        setWillingJuries([]);
-                        setObligedJuries([]);
-                        setMentors([]);
-                    }}
-                    renderInput={(params) => <TextField {...params} label="Выберите проект"/>}
-                    style={{marginBottom: '16px'}}
-                />
+            <Box
+                sx={{
+                    maxWidth: 720,
+                    width: '100%',
+                    mx: 'auto',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 2,
+                }}
+            >
+                <Typography variant="h5" fontWeight={600}>
+                    Распределение жюри и менторов по проектам
+                </Typography>
+                <Divider />
 
-                {/* Галочка "Apply to all events" */}
-                {selectedProject && (
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={applyToAllEvents}
-                                onChange={(e) => {
-                                    setApplyToAllEvents(e.target.checked);
-                                    if (e.target.checked) {
-                                        setSelectedEvent(null);
-                                    }
-                                }}
-                            />
-                        }
-                        label="Принять для всех этапов отчётности"
-                    />
-                )}
-
-                {/* Выбор события */}
-                {!applyToAllEvents && selectedProject && (
+                <Stack spacing={3}>
                     <Autocomplete
-                        options={events}
-                        value={events.find(event => event.id === selectedEvent) || null}
-                        getOptionLabel={(option) => option.name}
-                        onChange={(event, newValue) => {
-                            setSelectedEvent(newValue?.id || null);
+                        options={projects}
+                        getOptionLabel={(o) =>
+                            o?.name ? `${o.name} ${o.year}-${parseInt(o.year, 10) + 1}` : ''
+                        }
+                        onChange={(_e, v) => {
+                            setSelectedProject(v?.id || null);
+                            setApplyToAllEvents(false);
+                            setSelectedEvent(null);
                             setWillingJuries([]);
                             setObligedJuries([]);
                             setMentors([]);
                         }}
-                        renderInput={(params) => <TextField {...params} label="Выберите этап отчётности"/>}
-                        style={{marginBottom: '16px'}}
+                        renderInput={(params) => (
+                            <TextField {...params} label="Выберите проект" size="small" fullWidth />
+                        )}
+                        loading={loadingLists}
+                        loadingText="Загрузка…"
                     />
-                )}
 
-                {/* Выбор жюри */}
-                {selectedProject && ((selectedEvent && !applyToAllEvents) || applyToAllEvents) && (
-                    <>
-                        <Autocomplete
-                            multiple
-                            options={getFilteredJuryOptions('willing')}
-                            getOptionLabel={(option) => `${option.lastName} ${option.firstName} `}
-                            isOptionEqualToValue={(option, value) => option.id === value.id}
-                            value={willingJuries}
-                            onChange={handleWillingJuriesChange}
-                            renderInput={(params) => <TextField {...params} label="Желают проверить"/>}
-                            style={{marginBottom: '16px'}}
+                    {selectedProject && (
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={applyToAllEvents}
+                                    onChange={(e) => {
+                                        setApplyToAllEvents(e.target.checked);
+                                        if (e.target.checked) {
+                                            setSelectedEvent(null);
+                                            setWillingJuries([]);
+                                            setObligedJuries([]);
+                                            setMentors([]);
+                                        }
+                                    }}
+                                />
+                            }
+                            label="Установить для всех этапов отчётности"
                         />
+                    )}
 
+                    {!applyToAllEvents && selectedProject && (
                         <Autocomplete
-                            multiple
-                            options={getFilteredJuryOptions('obliged')}
-                            getOptionLabel={(option) => `${option.lastName} ${option.firstName} `}
-                            isOptionEqualToValue={(option, value) => option.id === value.id}
-                            value={obligedJuries}
-                            onChange={handleObligedJuriesChange}
-                            renderInput={(params) => <TextField {...params} label="Обязаны проверить"/>}
-                            style={{marginBottom: '16px'}}
+                            options={events}
+                            value={events.find((ev) => ev.id === selectedEvent) || null}
+                            getOptionLabel={(o) => o?.name || ''}
+                            onChange={(_e, v) => {
+                                setSelectedEvent(v?.id || null);
+                                setWillingJuries([]);
+                                setObligedJuries([]);
+                                setMentors([]);
+                            }}
+                            renderInput={(params) => (
+                                <TextField
+                                    {...params}
+                                    label="Выберите этап отчётности"
+                                    size="small"
+                                    fullWidth
+                                />
+                            )}
+                            loading={loadingLists}
+                            loadingText="Загрузка…"
                         />
+                    )}
 
-                        <Autocomplete
-                            multiple
-                            options={getFilteredJuryOptions('mentor')}
-                            getOptionLabel={(option) => `${option.lastName} ${option.firstName} `}
-                            isOptionEqualToValue={(option, value) => option.id === value.id}
-                            value={mentors}
-                            onChange={handleMentorsChange}
-                            renderInput={(params) => <TextField {...params} label="Менторы"/>}
-                            style={{marginBottom: '16px'}}
-                        />
+                    {((selectedProject && applyToAllEvents) ||
+                        (selectedProject && selectedEvent)) && (
+                        <>
+                            <Autocomplete
+                                multiple
+                                options={filteredOptions('willing')}
+                                getOptionLabel={(o) =>
+                                    o ? `${o.lastName} ${o.firstName}`.trim() : ''
+                                }
+                                isOptionEqualToValue={(o, v) => o.id === v.id}
+                                value={willingJuries}
+                                onChange={handleWillingJuriesChange}
+                                renderInput={(params) => (
+                                    <TextField
+                                        {...params}
+                                        label="Желают проверить"
+                                        size="small"
+                                        fullWidth
+                                    />
+                                )}
+                            />
 
-                        <Button onClick={handleSubmit} variant="contained" color="primary" disabled={loading}>
-                            {loading ? 'Отправка...' : 'Сохранить'}
-                        </Button>
-                    </>
-                )}
+                            <Autocomplete
+                                multiple
+                                options={filteredOptions('obliged')}
+                                getOptionLabel={(o) =>
+                                    o ? `${o.lastName} ${o.firstName}`.trim() : ''
+                                }
+                                isOptionEqualToValue={(o, v) => o.id === v.id}
+                                value={obligedJuries}
+                                onChange={handleObligedJuriesChange}
+                                renderInput={(params) => (
+                                    <TextField
+                                        {...params}
+                                        label="Обязаны проверить"
+                                        size="small"
+                                        fullWidth
+                                    />
+                                )}
+                            />
 
-                <Snackbar
-                    open={openSnackbar}
-                    autoHideDuration={3000}
-                    onClose={handleSnackbarClose}
-                    anchorOrigin={{vertical: 'bottom', horizontal: 'center'}}
+                            <Autocomplete
+                                multiple
+                                options={filteredOptions('mentor')}
+                                getOptionLabel={(o) =>
+                                    o ? `${o.lastName} ${o.firstName}`.trim() : ''
+                                }
+                                isOptionEqualToValue={(o, v) => o.id === v.id}
+                                value={mentors}
+                                onChange={handleMentorsChange}
+                                renderInput={(params) => (
+                                    <TextField {...params} label="Менторы" size="small" fullWidth />
+                                )}
+                            />
+
+                            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                <Button
+                                    variant="contained"
+                                    onClick={handleSubmit}
+                                    disabled={loading || !canSave}
+                                    startIcon={loading ? <CircularProgress size={18} /> : null}
+                                >
+                                    {loading ? 'Сохранение…' : 'Сохранить'}
+                                </Button>
+                            </Box>
+                        </>
+                    )}
+                </Stack>
+            </Box>
+
+            <Snackbar
+                open={openSnackbar}
+                autoHideDuration={3000}
+                onClose={(_, r) => r !== 'clickaway' && setOpenSnackbar(false)}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert
+                    onClose={() => setOpenSnackbar(false)}
+                    severity={snackbarSeverity}
+                    sx={{ width: '100%' }}
                 >
-                    <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{width: '100%'}}>
-                        {snackbarMessage}
-                    </Alert>
-                </Snackbar>
-            </div>
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
         </>
     );
 };

@@ -2,12 +2,16 @@ package ru.sfedu.mmcs_nexus.model.entity.keys;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Embeddable;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.UUID;
 
+@Setter
+@Getter
 @Embeddable
-public class    ProjectEventKey implements Serializable {
+public class ProjectEventKey implements Serializable {
 
     @Column(name = "project_id")
     private UUID projectId;
@@ -20,23 +24,6 @@ public class    ProjectEventKey implements Serializable {
 
     public ProjectEventKey(UUID projectId, UUID eventId) {
         this.projectId = projectId;
-        this.eventId = eventId;
-    }
-
-
-    public UUID getProjectId() {
-        return projectId;
-    }
-
-    public void setProjectId(UUID projectId) {
-        this.projectId = projectId;
-    }
-
-    public UUID getEventId() {
-        return eventId;
-    }
-
-    public void setEventId(UUID eventId) {
         this.eventId = eventId;
     }
 

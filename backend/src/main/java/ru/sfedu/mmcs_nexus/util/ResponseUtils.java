@@ -1,5 +1,6 @@
 package ru.sfedu.mmcs_nexus.util;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 
@@ -27,11 +28,20 @@ public final class ResponseUtils {
         return ResponseEntity.status(status).body(body);
     }
 
-    public static Map<String, Object> buildResponse(Object content, int totalElements) {
+    public static Map<String, Object> buildResponse(Object content, long totalElements) {
         return Map.of(
                 "content", content,
                 "totalElements", totalElements
         );
+    }
+
+    public static ResponseEntity<Map<String, Object>> buildPageResponse(Page<?> page) {
+        Map<String, Object> body = Map.of(
+                "content", page.getContent(),
+                "totalElements", page.getTotalElements()
+        );
+
+        return ResponseEntity.ok().body(body);
     }
 
 }

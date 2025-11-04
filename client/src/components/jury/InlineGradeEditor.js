@@ -1,13 +1,28 @@
 import React, { useState, useEffect } from 'react';
-import { Box, TextField, Typography, InputAdornment } from '@mui/material';
+import { Box, TextField, Typography, InputAdornment, Stack } from '@mui/material';
 import { useAuth } from "../../AuthContext";
+
+const labelSx = { fontSize: 11, fontWeight: 600, opacity: 0.7, textTransform: 'uppercase', letterSpacing: 0.2 };
+
+const fieldSx = {
+    '& .MuiOutlinedInput-root': {
+        height: 36,
+        fontSize: 14,
+        textAlign: 'center',
+    },
+    '& input': {
+        textAlign: 'center',
+        padding: '6px 8px',
+    },
+    width: 140,
+};
 
 const InlineGradeEditor = ({ gradeItem, maxBuild, maxPres, onUpdate }) => {
     const [buildPoints, setBuildPoints] = useState(
-        gradeItem.buildPoints !== undefined ? gradeItem.buildPoints : ''
+        gradeItem.buildPoints !== undefined && gradeItem.buildPoints !== null ? gradeItem.buildPoints : ''
     );
     const [presPoints, setPresPoints] = useState(
-        gradeItem.presPoints !== undefined ? gradeItem.presPoints : ''
+        gradeItem.presPoints !== undefined && gradeItem.presPoints !== null ? gradeItem.presPoints : ''
     );
 
     useEffect(() => {
@@ -28,9 +43,9 @@ const InlineGradeEditor = ({ gradeItem, maxBuild, maxPres, onUpdate }) => {
     };
 
     return (
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-            <Box sx={{ border: '1px solid black', borderRadius: 1, p: 0.5, textAlign: 'center' }}>
-                <Typography variant="caption">Презентация</Typography>
+        <Stack spacing={0.5} alignItems="center">
+            <Box>
+                <Typography sx={labelSx}>Презентация</Typography>
                 <TextField
                     type="number"
                     variant="outlined"
@@ -39,15 +54,16 @@ const InlineGradeEditor = ({ gradeItem, maxBuild, maxPres, onUpdate }) => {
                     onChange={(e) => setPresPoints(e.target.value)}
                     onBlur={() => isOwner && handleUpdate('presPoints', presPoints)}
                     disabled={!isOwner}
+                    inputProps={{ min: 0, max: maxPres }}
                     InputProps={{
-                        style: { textAlign: 'center', fontSize: '1rem', padding: '2px' },
-                        endAdornment: <InputAdornment position="end">/{maxPres}</InputAdornment>
+                        endAdornment: <InputAdornment position="end">/{maxPres}</InputAdornment>,
                     }}
-                    sx={{ width: '100%' }}
+                    sx={fieldSx}
                 />
             </Box>
-            <Box sx={{ border: '1px solid black', borderRadius: 1, p: 0.5, textAlign: 'center' }}>
-                <Typography variant="caption">Билд</Typography>
+
+            <Box>
+                <Typography sx={labelSx}>Билд</Typography>
                 <TextField
                     type="number"
                     variant="outlined"
@@ -56,14 +72,14 @@ const InlineGradeEditor = ({ gradeItem, maxBuild, maxPres, onUpdate }) => {
                     onChange={(e) => setBuildPoints(e.target.value)}
                     onBlur={() => isOwner && handleUpdate('buildPoints', buildPoints)}
                     disabled={!isOwner}
+                    inputProps={{ min: 0, max: maxBuild }}
                     InputProps={{
-                        style: { textAlign: 'center', fontSize: '1rem', padding: '2px' },
-                        endAdornment: <InputAdornment position="end">/{maxBuild}</InputAdornment>
+                        endAdornment: <InputAdornment position="end">/{maxBuild}</InputAdornment>,
                     }}
-                    sx={{ width: '100%' }}
+                    sx={fieldSx}
                 />
             </Box>
-        </Box>
+        </Stack>
     );
 };
 

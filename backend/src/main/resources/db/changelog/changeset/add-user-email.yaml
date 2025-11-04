@@ -1,0 +1,27 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-user-email-1
+      author: TeachYou
+      preConditions:
+        onFail: MARK_RAN
+        onError: HALT
+        and:
+          - tableExists:
+              tableName: users
+          - not:
+              columnExists:
+                tableName: users
+                columnName: email
+      changes:
+        - addColumn:
+            tableName: users
+            columns:
+              - column:
+                  name: email
+                  type: varchar(255)
+                  constraints:
+                    nullable: true   # сначала допускаем NULL, чтобы не упасть на существующих данных
+        - addUniqueConstraint:
+            tableName: users
+            columnNames: email
+            constraintName: uq_users_email

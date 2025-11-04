@@ -33,9 +33,8 @@ public class Grade {
 
     private Integer buildPoints;
 
-    public Grade() {
+    public Grade() {}
 
-    }
     public Grade(Grade grade) {
         this.id = grade.getId();
         this.project = grade.getProject();
@@ -46,59 +45,4 @@ public class Grade {
         this.buildPoints = grade.getBuildPoints();
     }
 
-    public Event getEvent() {
-        return event;
-    }
-
-    public void setEvent(Event event) {
-        this.event = event;
-    }
-
-    public Project getProject() {
-        return project;
-    }
-
-    public void setProject(Project project) {
-        this.project = project;
-    }
-
-    public User getJury() {
-        return jury;
-    }
-
-    public void setJury(User jury) {
-        this.jury = jury;
-    }
-
-    public String getComment() {
-        return comment;
-    }
-
-    public void setComment(String comment) {
-        this.comment = comment;
-    }
-
-    public Integer getPresPoints() {
-        return presPoints;
-    }
-
-    public void setPresPoints(Integer presPoints) {
-        this.presPoints = presPoints;
-    }
-
-    public Integer getBuildPoints() {
-        return buildPoints;
-    }
-
-    public void setBuildPoints(Integer buildPoints) {
-        this.buildPoints = buildPoints;
-    }
-
-    public void setId(GradeKey gradeKey) {
-        this.id = gradeKey;
-    }
-
-    public GradeKey getId() {
-        return this.id;
-    }
 }

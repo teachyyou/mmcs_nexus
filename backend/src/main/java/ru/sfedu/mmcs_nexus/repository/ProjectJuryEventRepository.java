@@ -17,11 +17,6 @@ import java.util.UUID;
 @Repository
 public interface ProjectJuryEventRepository extends JpaRepository<ProjectJuryEvent, ProjectJuryEventKey> {
 
-    List<ProjectJuryEvent> findByJury(User user);
-
-    //Поиск всех проектов, для которых есть связь с жюри
-    @Query("SELECT DISTINCT pje.project FROM ProjectJuryEvent pje WHERE pje.event.id = :eventId")
-    List<Project> findDistinctProjectByEventId(@Param("eventId") UUID eventId);
 
     @Query("SELECT pje.jury FROM ProjectJuryEvent pje WHERE pje.event.id=:eventId AND pje.project.id=:projectId AND pje.relationType='MENTOR'")
     List<User> findMentorsByProjectIdAndEventId(@Param("eventId") UUID eventId, @Param("projectId") UUID projectId);

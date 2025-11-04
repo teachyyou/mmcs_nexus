@@ -18,7 +18,7 @@ const EventList = (props) => {
     };
 
     return (
-        <List {...props}>
+        <List {...props} exporter={false} perPage={5}>
             <Datagrid>
                 <TextField source="name" label="Название" />
                 <FunctionField

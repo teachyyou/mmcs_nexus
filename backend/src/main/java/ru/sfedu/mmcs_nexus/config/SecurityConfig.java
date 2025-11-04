@@ -2,6 +2,7 @@ package ru.sfedu.mmcs_nexus.config;
 
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
@@ -16,7 +17,6 @@ import org.springframework.security.oauth2.client.authentication.OAuth2Authentic
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
-import org.springframework.beans.factory.annotation.Value;
 import ru.sfedu.mmcs_nexus.service.UserService;
 
 import java.util.List;
@@ -25,11 +25,15 @@ import java.util.List;
 @EnableWebSecurity
 public class SecurityConfig {
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
     @Value("${BASE_URL}")
     private String baseUrl;
+
+    @Autowired
+    public SecurityConfig(UserService userService) {
+        this.userService = userService;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -40,7 +44,6 @@ public class SecurityConfig {
                     auth.requestMatchers("/api/v1/auth/**").hasRole("GUEST");
                     auth.requestMatchers("/api/v1/public/**").hasRole("USER");
                     auth.requestMatchers("/api/v1/admin/**").hasRole("ADMIN");
-                    //auth.requestMatchers("/api/v1/admin/**").permitAll();
                     auth.requestMatchers("/api/v1/jury/**").hasRole("JURY");
                     auth.anyRequest().authenticated();
                 })
@@ -49,7 +52,6 @@ public class SecurityConfig {
                 .logout(logout -> logout
                         .logoutUrl("/api/v1/auth/logout")
                         .logoutSuccessHandler((request, response, authentication) -> {
-                            System.out.println("wowowo");
                             response.setStatus(HttpServletResponse.SC_OK);
                         })
                         .deleteCookies("JSESSIONID")
@@ -84,7 +86,7 @@ public class SecurityConfig {
             String githubLogin = oauthUser.getAttribute("login");
 
             if (userService.isNotFoundOrVerified(githubLogin)) {
-                userService.saveUser(githubLogin);
+                userService.create(githubLogin);
             }
             String roleName = userService.findByGithubLogin(githubLogin).orElseThrow().getRole().name();
             DefaultOAuth2User newUser = new DefaultOAuth2User(List.of(new SimpleGrantedAuthority(roleName)),

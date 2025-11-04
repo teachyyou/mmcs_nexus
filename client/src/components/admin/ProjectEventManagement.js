@@ -1,158 +1,199 @@
-import React, {useEffect, useState} from 'react';
-import {Alert, Autocomplete, Button, Checkbox, FormControlLabel, Snackbar, TextField} from '@mui/material';
-import {Title} from "react-admin";
+// ProjectEventManagement.js
+import React, { useEffect, useState } from 'react';
+import {
+    Alert,
+    Autocomplete,
+    Box,
+    Button,
+    Checkbox,
+    CircularProgress,
+    Divider,
+    FormControlLabel,
+    Snackbar,
+    Stack,
+    TextField,
+    Typography,
+} from '@mui/material';
+import { Title } from 'react-admin';
 
 const ProjectEventManagement = () => {
     const [events, setEvents] = useState([]);
-    const [selectedEvent, setSelectedEvent] = useState(null);
     const [projects, setProjects] = useState([]);
+
+    const [selectedEvent, setSelectedEvent] = useState(null);
     const [selectedProjects, setSelectedProjects] = useState([]);
     const [linkAllProjects, setLinkAllProjects] = useState(false);
-    const [openSnackbar, setOpenSnackbar] = useState(false);
+
+    const [loadingLists, setLoadingLists] = useState(false);
+    const [saving, setSaving] = useState(false);
+
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarSeverity, setSnackbarSeverity] = useState('success');
-    const [loading, setLoading] = useState(false);
 
-    // Загружаем список событий и проектов
     useEffect(() => {
         const fetchData = async () => {
             try {
-                const eventsResponse = await fetch('/api/v1/admin/events', { credentials: 'include' });
-                const eventsData = await eventsResponse.json();
+                setLoadingLists(true);
+                const [eventsRes, projectsRes] = await Promise.all([
+                    fetch('/api/v1/admin/events?limit=100', { credentials: 'include' }),
+                    fetch('/api/v1/admin/projects?limit=100', { credentials: 'include' }),
+                ]);
+                const [eventsData, projectsData] = await Promise.all([eventsRes.json(), projectsRes.json()]);
                 setEvents(Array.isArray(eventsData.content) ? eventsData.content : []);
-
-                const projectsResponse = await fetch('/api/v1/admin/projects', { credentials: 'include' });
-                const projectsData = await projectsResponse.json();
                 setProjects(Array.isArray(projectsData.content) ? projectsData.content : []);
-            } catch (error) {
-                console.error('Error fetching events or projects:', error);
+            } catch (e) {
+                console.error(e);
+            } finally {
+                setLoadingLists(false);
             }
         };
-
         fetchData();
     }, []);
 
-    // Загружаем проекты, связанные с выбранным событием (если не выбрана опция "Link all projects")
     useEffect(() => {
-        const fetchLinkedProjects = async () => {
-            if (selectedEvent && !linkAllProjects) {
-                try {
-                    const response = await fetch(`/api/v1/admin/events/${selectedEvent}/projects`, { credentials: 'include' });
-                    const data = await response.json();
-                    setSelectedProjects(Array.isArray(data.content) ? data.content : []);
-                } catch (error) {
-                    console.error('Error fetching linked projects:', error);
-                }
-            } else {
+        const fetchLinked = async () => {
+            if (!selectedEvent || linkAllProjects) {
                 setSelectedProjects([]);
+                return;
+            }
+            try {
+                setLoadingLists(true);
+                const res = await fetch(`/api/v1/admin/events/${selectedEvent}/projects?limit=100`, { credentials: 'include' });
+                const data = await res.json();
+                setSelectedProjects(Array.isArray(data.content) ? data.content : []);
+            } catch (e) {
+                console.error(e);
+            } finally {
+                setLoadingLists(false);
             }
         };
-
-        fetchLinkedProjects();
+        fetchLinked();
     }, [selectedEvent, linkAllProjects]);
 
-    // Отправка данных на сервер
-    const handleSubmit = async () => {
+    const handleSave = async () => {
         if (!selectedEvent) return;
-        setLoading(true);
-
-        const payload = {
-            eventId: selectedEvent,
-            projectIds: linkAllProjects ? null : selectedProjects.map(project => project.id),
-            linkAllProjects: linkAllProjects
-        };
-
+        setSaving(true);
         try {
-            const response = await fetch(`/api/v1/admin/events/${selectedEvent}/projects`, {
+            const payload = {
+                eventId: selectedEvent,
+                projectIds: linkAllProjects ? null : selectedProjects.map(p => p.id),
+                linkAllProjects,
+            };
+            const res = await fetch(`/api/v1/admin/events/${selectedEvent}/projects?limit=100`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 credentials: 'include',
                 body: JSON.stringify(payload),
             });
-            if (!response.ok) {
-                setSnackbarMessage('Во время сохранения произошла ошибка');
-                setSnackbarSeverity('error');
-            } else {
+            if (res.ok) {
                 setSnackbarMessage('Успешно сохранено');
                 setSnackbarSeverity('success');
+            } else {
+                const err = await res.json().catch(() => ({}));
+                setSnackbarMessage(err.error || 'Во время сохранения произошла ошибка');
+                setSnackbarSeverity('error');
             }
-        } catch (error) {
-            console.error('Error saving changes:', error);
+        } catch (e) {
+            console.error(e);
             setSnackbarMessage('Во время сохранения произошла ошибка');
             setSnackbarSeverity('error');
         } finally {
-            setOpenSnackbar(true);
-            setLoading(false);
+            setSaving(false);
+            setSnackbarOpen(true);
         }
     };
 
-    const handleSnackbarClose = (event, reason) => {
-        if (reason === 'clickaway') return;
-        setOpenSnackbar(false);
-    };
+    const canSave = !!selectedEvent && !loadingLists;
 
     return (
         <>
             <Title title="Этапы отчётности" />
-            <h2>Привязка проектов к этапам отчётности</h2>
-            <div>
-                {/* Выбор события */}
-                <Autocomplete
-                    options={events}
-                    getOptionLabel={(option) => `${option.name} ${option.year}-${parseInt(option.year) + 1}`}
-                    onChange={(event, newValue) => setSelectedEvent(newValue?.id || null)}
-                    renderInput={(params) => <TextField {...params} label="Выберите этап отчётности"/>}
-                    style={{marginBottom: '16px'}}
-                />
+            <Box
+                sx={{
+                    maxWidth: 720,
+                    width: '100%',
+                    mx: 'auto',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 2,
+                }}
+            >
+                <Typography variant="h5" fontWeight={600}>
+                    Привязка проектов к этапам отчётности
+                </Typography>
+                <Divider />
 
-                {/* Чекбокс "Link all projects for the same year" */}
-                {selectedEvent && (
-                    <FormControlLabel
-                        control={
-                            <Checkbox
-                                checked={linkAllProjects}
-                                onChange={(e) => setLinkAllProjects(e.target.checked)}
-                            />
-                        }
-                        label="Привязать всё проекты за текущий год"
-                    />
-                )}
-
-                {/* Редактирование связанных проектов (если не выбрана опция "Link all" и событие выбрано) */}
-                {!linkAllProjects && selectedEvent && (
+                <Stack spacing={3}>
                     <Autocomplete
-                        multiple
-                        options={projects}
-                        getOptionLabel={(option) => option.name}
-                        isOptionEqualToValue={(option, value) => option.id === value.id}
-                        value={selectedProjects}
-                        onChange={(event, newValue) => setSelectedProjects(newValue)}
-                        renderInput={(params) => <TextField {...params} label="Привязанные проекты"/>}
-                        style={{marginTop: '16px', marginBottom: '16px'}}
+                        options={events}
+                        getOptionLabel={o => (o?.name ? `${o.name} ${o.year}-${parseInt(o.year, 10) + 1}` : '')}
+                        onChange={(_, v) => {
+                            setSelectedEvent(v?.id || null);
+                            setLinkAllProjects(false);
+                            setSelectedProjects([]);
+                        }}
+                        renderInput={params => <TextField {...params} label="Выберите этап отчётности" size="small" fullWidth />}
+                        loading={loadingLists}
+                        loadingText="Загрузка…"
                     />
-                )}
 
-                {/* Кнопка сохранения изменений */}
-                {selectedEvent && (
-                    <Button onClick={handleSubmit} variant="contained" color="primary" disabled={loading}>
-                        {loading ? 'Отправка' : 'Сохранить'}
-                    </Button>
-                )}
+                    {selectedEvent && (
+                        <FormControlLabel
+                            control={
+                                <Checkbox
+                                    checked={linkAllProjects}
+                                    onChange={e => {
+                                        setLinkAllProjects(e.target.checked);
+                                        if (e.target.checked) setSelectedProjects([]);
+                                    }}
+                                />
+                            }
+                            label="Привязать все проекты за текущий год"
+                        />
+                    )}
 
-                {/* Snackbar для вывода сообщений */}
-                <Snackbar
-                    open={openSnackbar}
-                    autoHideDuration={3000}
-                    onClose={handleSnackbarClose}
-                    anchorOrigin={{vertical: 'bottom', horizontal: 'center'}}
-                >
-                    <Alert onClose={handleSnackbarClose} severity={snackbarSeverity} sx={{width: '100%'}}>
-                        {snackbarMessage}
-                    </Alert>
-                </Snackbar>
-            </div>
+                    {!linkAllProjects && selectedEvent && (
+                        <Autocomplete
+                            multiple
+                            options={projects}
+                            getOptionLabel={o => o?.name || ''}
+                            isOptionEqualToValue={(o, v) => o.id === v.id}
+                            value={selectedProjects}
+                            onChange={(_, v) => setSelectedProjects(v)}
+                            renderInput={params => (
+                                <TextField {...params} label="Привязанные проекты" size="small" fullWidth />
+                            )}
+                            loading={loadingLists}
+                            loadingText="Загрузка…"
+                        />
+                    )}
+
+                    {selectedEvent && (
+                        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                            <Button
+                                variant="contained"
+                                onClick={handleSave}
+                                disabled={!canSave || saving}
+                                startIcon={saving ? <CircularProgress size={18} /> : null}
+                            >
+                                {saving ? 'Сохранение…' : 'Сохранить'}
+                            </Button>
+                        </Box>
+                    )}
+                </Stack>
+            </Box>
+
+            <Snackbar
+                open={snackbarOpen}
+                autoHideDuration={3000}
+                onClose={(_, r) => r !== 'clickaway' && setSnackbarOpen(false)}
+                anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
+            >
+                <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} sx={{ width: '100%' }}>
+                    {snackbarMessage}
+                </Alert>
+            </Snackbar>
         </>
     );
 };
