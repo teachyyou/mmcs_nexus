@@ -73,7 +73,7 @@ const ru = {
     resources: {
         users: { name: 'Пользователи' },
         projects: { name: 'Проекты' },
-        events: { name: 'События' },
+        events: { name: 'Этапы отчётности' },
     },
 };
 

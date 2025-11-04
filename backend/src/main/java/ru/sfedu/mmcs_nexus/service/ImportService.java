@@ -37,8 +37,16 @@ public class ImportService {
     @Transactional
     public ImportResponsePayload<Project> ImportProjectsFromCsv(MultipartFile file, Integer limit) {
 
-        if (file.getContentType() != null && file.getContentType().equals("text/csv")) {
-            throw new MultipartException("required extension is csv");
+        String contentType = file.getContentType();
+        String fileName = file.getOriginalFilename() != null ? file.getOriginalFilename().toLowerCase(Locale.ROOT) : "";
+
+        boolean isCorrectFormat =
+                "text/csv".equalsIgnoreCase(contentType) ||
+                        "application/vnd.ms-excel".equalsIgnoreCase(contentType) ||
+                        fileName.endsWith(".csv");
+
+        if (!isCorrectFormat) {
+            throw new MultipartException("Only CSV files are supported");
         }
 
         List<Project> created = new ArrayList<Project>();

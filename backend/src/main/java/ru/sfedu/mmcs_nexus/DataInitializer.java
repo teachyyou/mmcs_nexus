@@ -11,26 +11,11 @@ import java.util.List;
 @Component
 public class DataInitializer implements CommandLineRunner {
 
-    private final UserRepository userRepository;
     private final ProjectRepository projectRepository;
-    private final ProjectJuryEventRepository projectJuryEventRepository;
-    private final ProjectEventRepository projectEventRepository;
-    private final EventRepository eventRepository;
-    private final GradeRepository gradeRepository;
 
     @Autowired
-    public DataInitializer(UserRepository userRepository,
-                           ProjectRepository projectRepository,
-                           ProjectJuryEventRepository projectJuryEventRepository,
-                           ProjectEventRepository projectEventRepository,
-                           EventRepository eventRepository,
-                           GradeRepository gradeRepository) {
-        this.userRepository = userRepository;
+    public DataInitializer(ProjectRepository projectRepository) {
         this.projectRepository = projectRepository;
-        this.projectJuryEventRepository = projectJuryEventRepository;
-        this.projectEventRepository = projectEventRepository;
-        this.eventRepository = eventRepository;
-        this.gradeRepository = gradeRepository;
     }
 
     @Override

@@ -24,8 +24,8 @@ public class PaginationPayload {
         if (sort == null) {
             this.dirSort = Sort.unsorted();
         } else {
-            Sort.Direction direction = order.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
-            this.dirSort = Sort.by(direction, sort);
+            Sort.Direction direction = this.order.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+            this.dirSort = Sort.by(direction, this.sort);
         }
     }
 

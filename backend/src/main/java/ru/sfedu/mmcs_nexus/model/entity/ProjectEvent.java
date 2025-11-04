@@ -22,6 +22,7 @@ public class ProjectEvent {
     @MapsId("projectId")
     @JoinColumn(name = "project_id")
     private Project project;
+
     private Integer defDay;
 
     public ProjectEvent() {

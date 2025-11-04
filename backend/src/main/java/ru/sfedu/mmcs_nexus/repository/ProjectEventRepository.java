@@ -3,7 +3,6 @@ package ru.sfedu.mmcs_nexus.repository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -60,10 +59,5 @@ public interface ProjectEventRepository extends JpaRepository<ProjectEvent, Proj
 
     @Query("SELECT pe FROM ProjectEvent pe WHERE pe.event.id = :eventId")
     List<ProjectEvent> findByEventId(@Param("eventId") UUID eventId);
-
-    @Modifying
-    @Query("DELETE FROM ProjectEvent pe WHERE pe.event.id = :eventId")
-    void deleteByEventId(@Param("eventId") UUID eventId);
-
 
 }

@@ -19,7 +19,6 @@ import { Title } from 'react-admin';
 const ProjectJuryManagement = () => {
     const [projects, setProjects] = useState([]);
     const [selectedProject, setSelectedProject] = useState(null);
-
     const [events, setEvents] = useState([]);
     const [selectedEvent, setSelectedEvent] = useState(null);
 
@@ -42,8 +41,8 @@ const ProjectJuryManagement = () => {
             try {
                 setLoadingLists(true);
                 const [projectsRes, juriesRes] = await Promise.all([
-                    fetch('/api/v1/admin/projects?sort=name', { credentials: 'include' }),
-                    fetch('/api/v1/admin/users?sort=lastName', { credentials: 'include' }),
+                    fetch('/api/v1/admin/projects?sort=name&limit=100', { credentials: 'include' }),
+                    fetch('/api/v1/admin/users?sort=lastName&limit=100', { credentials: 'include' }),
                 ]);
                 const projectsData = await projectsRes.json();
                 const juriesData = await juriesRes.json();
@@ -63,7 +62,7 @@ const ProjectJuryManagement = () => {
             if (selectedProject && !applyToAllEvents) {
                 try {
                     setLoadingLists(true);
-                    const res = await fetch(`/api/v1/admin/projects/${selectedProject}/events`, {
+                    const res = await fetch(`/api/v1/admin/projects/${selectedProject}/events?limit=100`, {
                         credentials: 'include',
                     });
                     const data = await res.json();

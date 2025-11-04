@@ -84,10 +84,10 @@ export default function AppContent() {
                                 >
                                     <Resource name="users" options={{label: 'Пользователи'}} list={UserList} edit={UserEdit}/>
                                     <Resource name="projects" options={{label: 'Проекты'}} list={ProjectList} edit={ProjectEdit} create={ProjectCreate}/>
-                                    <Resource name="events" options={{label: 'События'}} list={EventList} edit={EventEdit} create={EventCreate}/>
-                                    <Resource name="project_jury" options={{label: 'Проверяющие и менторы'}} list={ProjectJuryManagement} edit={ProjectJuryManagement} create={ProjectJuryManagement}/>
-                                    <Resource name="project_event" options={{label: 'Этапы отчётности'}} list={ProjectEventManagement} edit={ProjectEventManagement} create={ProjectEventManagement}/>
+                                    <Resource name="events" options={{label: 'Этапы отчётности'}} list={EventList} edit={EventEdit} create={EventCreate}/>
+                                    <Resource name="project_event" options={{label: 'Назначение этапов'}} list={ProjectEventManagement} edit={ProjectEventManagement} create={ProjectEventManagement}/>
                                     <Resource name="project_event_days" options={{label: 'Дни защиты'}} list={ProjectEventDayManagement} edit={ProjectEventDayManagement} create={ProjectEventDayManagement}/>
+                                    <Resource name="project_jury" options={{label: 'Назначение жюри'}} list={ProjectJuryManagement} edit={ProjectJuryManagement} create={ProjectJuryManagement}/>
                                 </Admin>
                             }
                         />

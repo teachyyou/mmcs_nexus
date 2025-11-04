@@ -12,7 +12,6 @@
     import ru.sfedu.mmcs_nexus.model.payload.admin.CreateProjectRequestPayload;
     import ru.sfedu.mmcs_nexus.repository.ProjectRepository;
 
-    import java.util.List;
     import java.util.UUID;
 
     @Service
@@ -34,14 +33,6 @@
             }
 
             return projectRepository.findAll(pageable);
-        }
-
-        public List<Project> findAll(Integer year) {
-            return projectRepository.findAllByYear(year);
-        }
-
-        public List<Project> findAll(List<UUID> ids) {
-            return projectRepository.findAllById(ids);
         }
 
         public Project find(String projectId) {
@@ -93,14 +84,11 @@
         }
 
         @Transactional
-        public void deleteById(String projectId) {
+        public void delete(String projectId) {
             Project project = getById(projectId);
             projectRepository.delete(project);
         }
 
-        public boolean existsById(UUID id) {
-            return projectRepository.existsById(id);
-        }
 
         private Project getById(String projectId) {
             return projectRepository.findById(UUID.fromString(projectId))

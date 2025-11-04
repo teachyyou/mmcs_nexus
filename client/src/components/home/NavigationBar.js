@@ -155,7 +155,7 @@ export default function NavigationBar() {
                                 MenuListProps={{ dense: true }}
                             >
                                 <Box sx={{ px: 2, py: 1.5, maxWidth: 260 }}>
-                                    <Box sx={{ fontWeight: 600 }}>{user?.githubName || user?.login}</Box>
+                                    <Box sx={{ fontWeight: 600 }}>{(user?.firstName + ' ' + user?.lastName) || user?.githubName || user?.login}</Box>
                                     <Box sx={{ opacity: 0.7, fontSize: 12 }}>{user?.email}</Box>
                                 </Box>
                                 <Divider />

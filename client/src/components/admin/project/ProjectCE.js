@@ -19,11 +19,7 @@ const ProjectActions = () => {
     return (
         <TopToolbar sx={{ justifyContent: 'flex-start', pl: 0, gap: 1 }}>
             <Tooltip title="Назад">
-                <IconButton
-                    onClick={() => redirect('list', resource)}
-                    size="small"
-                    aria-label="Назад"
-                >
+                <IconButton onClick={() => redirect('list', resource)} size="small" aria-label="Назад">
                     <ArrowBackIosNewIcon fontSize="small" />
                 </IconButton>
             </Tooltip>
@@ -35,12 +31,7 @@ export const ProjectCreate = (props) => {
     const dataProvider = useDataProvider();
 
     return (
-        <Create
-            title="Добавить проект"
-            actions={<ProjectActions />}   // 👈 стрелка сверху
-            redirect="list"
-            {...props}
-        >
+        <Create title="Добавить проект" actions={<ProjectActions />} redirect="list" {...props}>
             <ProjectAdminForm requestMethod={dataProvider.create} />
         </Create>
     );
@@ -52,7 +43,7 @@ export const ProjectEdit = (props) => {
     return (
         <Edit
             title="Изменить проект"
-            actions={<ProjectActions />}    // 👈 стрелка сверху
+            actions={<ProjectActions />}
             mutationMode="pessimistic"
             redirect="list"
             {...props}

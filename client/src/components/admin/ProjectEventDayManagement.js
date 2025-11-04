@@ -1,12 +1,15 @@
+// EventProjectDayAssignment.js
 import React, { useEffect, useState } from 'react';
 import {
-    Autocomplete,
-    Button,
-    TextField,
-    Stack,
-    CircularProgress,
-    Snackbar,
     Alert,
+    Autocomplete,
+    Box,
+    Button,
+    CircularProgress,
+    Divider,
+    Snackbar,
+    Stack,
+    TextField,
     Typography,
 } from '@mui/material';
 import { Title } from 'react-admin';
@@ -14,22 +17,29 @@ import { Title } from 'react-admin';
 const EventProjectDayAssignment = () => {
     const [events, setEvents] = useState([]);
     const [selectedEvent, setSelectedEvent] = useState(null);
+
     const [allProjects, setAllProjects] = useState([]);
     const [day1Projects, setDay1Projects] = useState([]);
     const [day2Projects, setDay2Projects] = useState([]);
-    const [loading, setLoading] = useState(false);
-    const [openSnackbar, setOpenSnackbar] = useState(false);
+
+    const [loadingLists, setLoadingLists] = useState(false);
+    const [saving, setSaving] = useState(false);
+
+    const [snackbarOpen, setSnackbarOpen] = useState(false);
     const [snackbarMessage, setSnackbarMessage] = useState('');
     const [snackbarSeverity, setSnackbarSeverity] = useState('success');
 
     useEffect(() => {
         const fetchEvents = async () => {
             try {
-                const res = await fetch('/api/v1/admin/events', { credentials: 'include' });
+                setLoadingLists(true);
+                const res = await fetch('/api/v1/admin/events?limit=100', { credentials: 'include' });
                 const data = await res.json();
                 setEvents(Array.isArray(data.content) ? data.content : []);
-            } catch (err) {
-                console.error('Error fetching events:', err);
+            } catch (e) {
+                console.error(e);
+            } finally {
+                setLoadingLists(false);
             }
         };
         fetchEvents();
@@ -42,143 +52,152 @@ const EventProjectDayAssignment = () => {
             setDay2Projects([]);
             return;
         }
-
         const fetchAll = async () => {
             try {
-                setLoading(true);
-                const resAll = await fetch(
-                    `/api/v1/admin/events/${selectedEvent}/projects`,
-                    { credentials: 'include' }
-                );
+                setLoadingLists(true);
+                const [resAll, resDays] = await Promise.all([
+                    fetch(`/api/v1/admin/events/${selectedEvent}/projects?limit=100`, { credentials: 'include' }),
+                    fetch(`/api/v1/admin/events/${selectedEvent}/projects/days?limit=100`, { credentials: 'include' }),
+                ]);
                 const dataAll = await resAll.json();
-                setAllProjects(Array.isArray(dataAll.content) ? dataAll.content : []);
-
-                const resDays = await fetch(
-                    `/api/v1/admin/events/${selectedEvent}/projects/days`,
-                    { credentials: 'include' }
-                );
                 const dataDays = await resDays.json();
+                setAllProjects(Array.isArray(dataAll.content) ? dataAll.content : []);
                 const content = dataDays.content || {};
                 setDay1Projects(Array.isArray(content.firstDayProjects) ? content.firstDayProjects : []);
                 setDay2Projects(Array.isArray(content.secondDayProjects) ? content.secondDayProjects : []);
-            } catch (err) {
-                console.error('Error fetching data for event:', err);
+            } catch (e) {
+                console.error(e);
             } finally {
-                setLoading(false);
+                setLoadingLists(false);
             }
         };
-
         fetchAll();
     }, [selectedEvent]);
 
-    const handleSubmit = async () => {
+    const handleSave = async () => {
         if (!selectedEvent) return;
-        setLoading(true);
-        const payload = {
-            firstDayProjects: day1Projects.map(p => p.id),
-            secondDayProjects: day2Projects.map(p => p.id),
-        };
+        setSaving(true);
         try {
-            const response = await fetch(
-                `/api/v1/admin/events/${selectedEvent}/days`,
-                {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    credentials: 'include',
-                    body: JSON.stringify(payload),
-                }
-            );
-            if (response.ok) {
-                setSnackbarMessage('Изменения сохранены');
+            const payload = {
+                firstDayProjects: day1Projects.map(p => p.id),
+                secondDayProjects: day2Projects.map(p => p.id),
+            };
+            const res = await fetch(`/api/v1/admin/events/${selectedEvent}/days`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify(payload),
+            });
+            if (res.ok) {
+                setSnackbarMessage('Успешно сохранено');
                 setSnackbarSeverity('success');
             } else {
-                const errData = await response.json().catch(() => ({}));
-                setSnackbarMessage(errData.error || 'Не удалось сохранить изменения');
+                const err = await res.json().catch(() => ({}));
+                setSnackbarMessage(err.error || 'Во время сохранения произошла ошибка');
                 setSnackbarSeverity('error');
             }
-        } catch (err) {
-            console.error('Error saving assignments:', err);
-            setSnackbarMessage('Сетевая ошибка: не удалось сохранить');
+        } catch (e) {
+            console.error(e);
+            setSnackbarMessage('Во время сохранения произошла ошибка');
             setSnackbarSeverity('error');
         } finally {
-            setLoading(false);
-            setOpenSnackbar(true);
+            setSaving(false);
+            setSnackbarOpen(true);
         }
-    };
-
-    const handleCloseSnackbar = (_, reason) => {
-        if (reason === 'clickaway') return;
-        setOpenSnackbar(false);
     };
 
     return (
         <>
             <Title title="Дни защиты" />
-            <Typography variant="h5" sx={{ mb: 2 }}>Распределение проектов по дням защиты</Typography>
+            <Box
+                sx={{
+                    maxWidth: 720,
+                    width: '100%',
+                    mx: 'auto',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 2,
+                }}
+            >
+                <Typography variant="h5" fontWeight={600}>
+                    Распределение проектов по дням защиты
+                </Typography>
+                <Divider />
 
-            <Stack spacing={3} sx={{ maxWidth: 720, width: '100%' }}>
-                <Autocomplete
-                    options={events}
-                    fullWidth
-                    getOptionLabel={opt => `${opt.name} ${opt.year}-${parseInt(opt.year) + 1}`}
-                    onChange={(_, val) => setSelectedEvent(val?.id || null)}
-                    renderInput={params => <TextField {...params} label="Выберите этап отчётности" />}
-                />
+                <Stack spacing={3}>
+                    <Autocomplete
+                        options={events}
+                        getOptionLabel={o => (o?.name ? `${o.name} ${o.year}-${parseInt(o.year, 10) + 1}` : '')}
+                        onChange={(_, v) => setSelectedEvent(v?.id || null)}
+                        renderInput={params => <TextField {...params} label="Выберите этап отчётности" size="small" fullWidth />}
+                        loading={loadingLists}
+                        loadingText="Загрузка…"
+                    />
 
-                {loading && <CircularProgress />}
+                    {selectedEvent && (
+                        <Stack spacing={3}>
+                            <Stack spacing={1.5}>
+                                <Typography variant="subtitle1" fontWeight={600}>
+                                    1-й день защиты
+                                </Typography>
+                                <Autocomplete
+                                    multiple
+                                    options={allProjects}
+                                    getOptionLabel={o => o?.name || ''}
+                                    isOptionEqualToValue={(o, v) => o.id === v.id}
+                                    value={day1Projects}
+                                    onChange={(_, v) => setDay1Projects(v)}
+                                    renderInput={params => (
+                                        <TextField {...params} label="Проекты первого дня" size="small" fullWidth />
+                                    )}
+                                    loading={loadingLists}
+                                    loadingText="Загрузка…"
+                                    getOptionDisabled={o => day2Projects.some(p => p.id === o.id)}
+                                />
+                            </Stack>
 
-                {selectedEvent && !loading && (
-                    <Stack spacing={3}>
-                        <Stack spacing={1.5}>
-                            <Typography variant="subtitle1">1-й день защиты</Typography>
-                            <Autocomplete
-                                multiple
-                                fullWidth
-                                options={allProjects}
-                                getOptionLabel={opt => opt.name}
-                                isOptionEqualToValue={(opt, val) => opt.id === val.id}
-                                value={day1Projects}
-                                onChange={(_, val) => setDay1Projects(val)}
-                                renderInput={params => <TextField {...params} label="Проекты первого дня" />}
-                                getOptionDisabled={opt => day2Projects.some(p => p.id === opt.id)}
-                            />
+                            <Stack spacing={1.5}>
+                                <Typography variant="subtitle1" fontWeight={600}>
+                                    2-й день защиты
+                                </Typography>
+                                <Autocomplete
+                                    multiple
+                                    options={allProjects}
+                                    getOptionLabel={o => o?.name || ''}
+                                    isOptionEqualToValue={(o, v) => o.id === v.id}
+                                    value={day2Projects}
+                                    onChange={(_, v) => setDay2Projects(v)}
+                                    renderInput={params => (
+                                        <TextField {...params} label="Проекты второго дня" size="small" fullWidth />
+                                    )}
+                                    loading={loadingLists}
+                                    loadingText="Загрузка…"
+                                    getOptionDisabled={o => day1Projects.some(p => p.id === o.id)}
+                                />
+                            </Stack>
+
+                            <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                                <Button
+                                    variant="contained"
+                                    onClick={handleSave}
+                                    disabled={saving || loadingLists}
+                                    startIcon={saving ? <CircularProgress size={18} /> : null}
+                                >
+                                    {saving ? 'Сохранение…' : 'Сохранить'}
+                                </Button>
+                            </Box>
                         </Stack>
-
-                        <Stack spacing={1.5}>
-                            <Typography variant="subtitle1">2-й день защиты</Typography>
-                            <Autocomplete
-                                multiple
-                                fullWidth
-                                options={allProjects}
-                                getOptionLabel={opt => opt.name}
-                                isOptionEqualToValue={(opt, val) => opt.id === val.id}
-                                value={day2Projects}
-                                onChange={(_, val) => setDay2Projects(val)}
-                                renderInput={params => <TextField {...params} label="Проекты второго дня" />}
-                                getOptionDisabled={opt => day1Projects.some(p => p.id === opt.id)}
-                            />
-                        </Stack>
-
-                        <Stack direction="row" spacing={2} justifyContent="flex-end">
-                            <Button
-                                variant="contained"
-                                onClick={handleSubmit}
-                                disabled={loading}
-                            >
-                                {loading ? 'Сохранение…' : 'Сохранить'}
-                            </Button>
-                        </Stack>
-                    </Stack>
-                )}
-            </Stack>
+                    )}
+                </Stack>
+            </Box>
 
             <Snackbar
-                open={openSnackbar}
+                open={snackbarOpen}
                 autoHideDuration={3000}
-                onClose={handleCloseSnackbar}
+                onClose={(_, r) => r !== 'clickaway' && setSnackbarOpen(false)}
                 anchorOrigin={{ vertical: 'bottom', horizontal: 'center' }}
             >
-                <Alert onClose={handleCloseSnackbar} severity={snackbarSeverity} sx={{ width: '100%' }}>
+                <Alert onClose={() => setSnackbarOpen(false)} severity={snackbarSeverity} sx={{ width: '100%' }}>
                     {snackbarMessage}
                 </Alert>
             </Snackbar>
