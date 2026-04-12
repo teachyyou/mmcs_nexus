@@ -19,7 +19,6 @@ jobs:
         with:
           java-version: '21'
           distribution: 'temurin'
-          cache: maven
 
-      - name: Build and test with Maven
-        run: ./mvnw test -Dspring.profiles.active=test
+      - name: Run tests
+        run: cd backend && ./mvnw test -Dspring.profiles.active=test
