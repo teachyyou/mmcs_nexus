@@ -76,6 +76,6 @@ public class EventService {
 
     private Event getById(String id) throws EntityNotFoundException {
         return eventRepository.findById(UUID.fromString(id))
-                .orElseThrow(() -> new EntityNotFoundException(STR."Event with id \{id} not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Event with id " + id + " not found"));
     }
 }

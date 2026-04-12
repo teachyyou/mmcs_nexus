@@ -59,7 +59,7 @@ public class UserService {
     @Transactional
     public UserDTO updateUserInfo(String login, String email, String firstName, String lastName) {
         User user = findByGithubLogin(login).orElseThrow(
-                () -> new UsernameNotFoundException(STR."User \{login} is not found")
+                () -> new UsernameNotFoundException("User " + login + " is not found")
         );
 
         partialUserUpdate(user, firstName, lastName,email, null, null);
@@ -109,7 +109,7 @@ public class UserService {
 
     private User getById(String userId) {
         return userRepository.findById(UUID.fromString(userId))
-                .orElseThrow(() -> new EntityNotFoundException(STR."User with id \{userId} not found"));
+                .orElseThrow(() -> new EntityNotFoundException("User with id " + userId + " not found"));
     }
 
 }
