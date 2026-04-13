@@ -27,6 +27,10 @@ spring:
             client-secret: test-client-secret
             redirect-uri: http://localhost:8080/login/oauth2/code/github
 
+file:
+  upload:
+    dir: ${java.io.tmpdir}/uploads
+
 # Переменные для тестов
 POSTGRES_URL: localhost:5432
 POSTGRES_DATABASE: testdb
