@@ -49,9 +49,9 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     public ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         Throwable cause = ex.getMostSpecificCause();
-        String errorMessage = STR."Invalid input format: \{cause.getMessage()}";
+        String errorMessage = "Invalid input format: " + cause.getMessage();
         if (cause instanceof NumberFormatException) {
-            errorMessage = STR."Invalid numeric format: \{cause.getMessage()}";
+            errorMessage = "Invalid numeric format: " + cause.getMessage();
         }
         Map<String, String> body = new HashMap<>();
         body.put("error", errorMessage);

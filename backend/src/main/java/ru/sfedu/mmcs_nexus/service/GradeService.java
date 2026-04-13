@@ -51,13 +51,13 @@ public class GradeService {
 
     @Transactional
     public GradeDTO create(String githubLogin, CreateGradeRequestPayload payload) {
-        User user = userRepository.findByLogin(githubLogin).orElseThrow(() -> new UsernameNotFoundException(STR."User \{githubLogin} is not found"));
+        User user = userRepository.findByLogin(githubLogin).orElseThrow(() -> new UsernameNotFoundException("User " + githubLogin + " is not found"));
 
         Project project = projectRepository.findById(payload.getProjectId())
-                .orElseThrow(() -> new EntityNotFoundException(STR."Project with id \{payload.getProjectId()} not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Project with id " + payload.getProjectId() + " not found"));
 
         Event event = eventRepository.findById(payload.getEventId())
-                .orElseThrow(() -> new EntityNotFoundException(STR."Event with id \{payload.getEventId()} not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Event with id " + payload.getEventId() + " not found"));
 
         if (!projectEventRepository.existsById(new ProjectEventKey(project.getId(), event.getId()))) {
             throw new EntityNotFoundException("Given project and Event are not linked");
@@ -65,11 +65,11 @@ public class GradeService {
 
         if (payload.getPresPoints() != null
                 && payload.getPresPoints() > event.getMaxPresPoints()) {
-            throw new WrongGradePointsException(STR."Maximum presentation score for \{event.getName()} is \{event.getMaxPresPoints()}");
+            throw new WrongGradePointsException("Maximum presentation score for " + event.getName() + " is " + event.getMaxPresPoints());
 
         } else if (payload.getBuildPoints() != null
                 && payload.getBuildPoints() > event.getMaxBuildPoints()) {
-            throw new WrongGradePointsException(STR."Maximum build score for \{event.getName()} is \{event.getMaxBuildPoints()}");
+            throw new WrongGradePointsException("Maximum build score for " + event.getName() + " is " + event.getMaxBuildPoints());
 
         }
 
@@ -123,7 +123,7 @@ public class GradeService {
     @Transactional
     public GradeDTO edit(String githubLogin, CreateGradeRequestPayload payload) {
         User user = userRepository.findByLogin(githubLogin).orElseThrow(
-                () -> new UsernameNotFoundException(STR."User \{githubLogin} is not found"));
+                () -> new UsernameNotFoundException("User " + githubLogin + " is not found"));
 
         GradeKey key = new GradeKey(
                 payload.getProjectId(),
@@ -133,15 +133,15 @@ public class GradeService {
 
         Grade existingGrade = find(key);
         Event event = eventRepository.findById(payload.getEventId())
-                .orElseThrow(() -> new EntityNotFoundException(STR."Event with id \{payload.getEventId()} not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Event with id " + payload.getEventId() + " not found"));
 
         if (payload.getPresPoints() != null
                 && payload.getPresPoints() > event.getMaxPresPoints()) {
-            throw new WrongGradePointsException(STR."Maximum presentation score for \{event.getName()} is \{event.getMaxPresPoints()}");
+            throw new WrongGradePointsException("Maximum presentation score for " + event.getName() + " is " + event.getMaxPresPoints());
 
         } else if (payload.getBuildPoints() != null
                 && payload.getBuildPoints() > event.getMaxBuildPoints()) {
-            throw new WrongGradePointsException(STR."Maximum build score for \{event.getName()} is \{event.getMaxBuildPoints()}");
+            throw new WrongGradePointsException("Maximum build score for " + event.getName() + " is " + event.getMaxBuildPoints());
 
         }
 
@@ -155,10 +155,10 @@ public class GradeService {
     public GetGradeTableResponsePayload getTable(String githubLogin, String eventId, GradeTableEnums.ShowFilter showFilter, Integer day) {
 
         User user = userRepository.findByLogin(githubLogin).orElseThrow(
-                () -> new UsernameNotFoundException(STR."User \{githubLogin} is not found"));
+                () -> new UsernameNotFoundException("User " + githubLogin + " is not found"));
 
         Event event = eventRepository.findById(UUID.fromString(eventId))
-                .orElseThrow(() -> new EntityNotFoundException(STR."Event with id \{eventId} not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Event with id " + eventId + " not found"));
 
         //Находим в зависимости от параметра show, в случае all - все проекты привязанные к событию, иначе - только те, с которыми есть связь у отправителя запроса
         List<Project> eventProjects = findProjectsForEvent(event.getId(), showFilter, user.getId(), day).stream().sorted(Comparator.comparing(Project::getName)).toList();
@@ -192,7 +192,7 @@ public class GradeService {
 
     private Grade getById(GradeKey key) {
         return gradeRepository.findById(key)
-                .orElseThrow(() -> new EntityNotFoundException(STR."Grade not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Grade not found"));
     }
 
     private boolean existsById(GradeKey key) {

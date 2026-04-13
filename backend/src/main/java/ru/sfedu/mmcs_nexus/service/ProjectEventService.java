@@ -39,7 +39,7 @@ public class ProjectEventService {
 
     public Page<Project> findProjectsByEventId(String eventId, Integer day, PaginationPayload paginationPayload) {
         if (!eventRepository.existsById(UUID.fromString(eventId))) {
-            throw new EntityNotFoundException(STR."Event with id \{eventId} not found");
+            throw new EntityNotFoundException("Event with id " + eventId + " not found");
         }
 
         Pageable pageable = paginationPayload.getPageable();
@@ -49,7 +49,7 @@ public class ProjectEventService {
 
     public List<Project> findProjectsByEventId(String eventId, Integer day) {
         if (!eventRepository.existsById(UUID.fromString(eventId))) {
-            throw new EntityNotFoundException(STR."Event with id \{eventId} not found");
+            throw new EntityNotFoundException("Event with id " + eventId + " not found");
         }
 
         return projectEventRepository.findProjectsByEventId(UUID.fromString(eventId), day);
@@ -57,7 +57,7 @@ public class ProjectEventService {
 
     public Page<Event> findEventsByProjectId(String projectId, Integer day, PaginationPayload paginationPayload) {
         if (!projectRepository.existsById(UUID.fromString(projectId))) {
-            throw new EntityNotFoundException(STR."Project with id \{projectId} not found");
+            throw new EntityNotFoundException("Project with id " + projectId + " not found");
         }
 
         Pageable pageable = paginationPayload.getPageable();
@@ -67,7 +67,7 @@ public class ProjectEventService {
 
     public List<Event> findEventsByProjectId(String projectId) {
         if (!projectRepository.existsById(UUID.fromString(projectId))) {
-            throw new EntityNotFoundException(STR."Project with id \{projectId} not found");
+            throw new EntityNotFoundException("Project with id " + projectId + " not found");
         }
 
         return projectEventRepository.findEventsByProjectId(UUID.fromString(projectId), null);
@@ -76,7 +76,7 @@ public class ProjectEventService {
     @Transactional
     public void setProjectsForEvent(String eventId, LinkProjectsToEventRequestPayload payload) {
         Event event = eventRepository.findById(UUID.fromString(eventId))
-                .orElseThrow(() -> new EntityNotFoundException(STR."Event with id \{eventId} not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Event with id " + eventId + " not found"));
 
         List<Project> desiredProjects = payload.isLinkAllProjects()
                 ? projectRepository.findAllByYear(event.getYear())
@@ -114,7 +114,7 @@ public class ProjectEventService {
 
     public void setDaysForProjectAndEvent(String eventId, List<UUID> firstDayProjects, List<UUID> secondDayProjects) {
         Event event = eventRepository.findById(UUID.fromString(eventId))
-                .orElseThrow(() -> new EntityNotFoundException(STR."Event with id \{eventId} not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Event with id " + eventId + " not found"));
 
         if (firstDayProjects != null && secondDayProjects != null) {
             boolean hasOverlap = firstDayProjects.stream()
@@ -131,7 +131,7 @@ public class ProjectEventService {
             if (!projectEventRepository.existsById(new ProjectEventKey(uuid, event.getId()))) {
                 throw new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
-                        STR."Project \{uuid} is not linked to event \{eventId}"
+                        "Project " + uuid + " is not linked to event " + eventId
                 );
             }
         }
@@ -139,7 +139,7 @@ public class ProjectEventService {
             if (!projectEventRepository.existsById(new ProjectEventKey(uuid, event.getId()))) {
                 throw new ResponseStatusException(
                         HttpStatus.NOT_FOUND,
-                        STR."Project \{uuid} is not linked to event \{eventId}"
+                        "Project " + uuid + " is not linked to event " + eventId
                 );
             }
         }
