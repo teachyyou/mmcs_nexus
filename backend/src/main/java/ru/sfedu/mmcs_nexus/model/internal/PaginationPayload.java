@@ -48,9 +48,9 @@ public class PaginationPayload {
 
     private void validateSort(String sortParam, String order, EntitySort entitySort) {
         if (!(order.equalsIgnoreCase("asc") || order.equalsIgnoreCase("desc"))) {
-            throw new WrongRequestParamException(STR."Incorrect sorting order: \{order}");
+            throw new WrongRequestParamException("Incorrect sorting order: " + order);
         } else if (entitySort.isNotAllowed(sortParam)) {
-            throw new WrongRequestParamException(STR."Incorrect sorting param: \{sortParam}");
+            throw new WrongRequestParamException("Incorrect sorting param: " + sortParam);
         }
     }
 }

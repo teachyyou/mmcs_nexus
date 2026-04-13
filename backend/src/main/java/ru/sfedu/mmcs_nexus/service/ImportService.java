@@ -134,8 +134,7 @@ public class ImportService {
             case "game", "videogame" -> ProjectType.GAME.name();
             case "gamemod", "mod", "modification" -> ProjectType.GAME_MOD.name();
             case "bot", "telegrambot", "tg", "tgbot" -> ProjectType.TELEGRAM_BOT.name();
-            default -> throw new IllegalArgumentException(STR."Unknown projectType value: \{s}");
-        };
+            default -> throw new IllegalArgumentException("Unknown projectType value: " + s);        };
     }
 
     private static String get(CSVRecord r, String key, boolean required, String... aliases) {
@@ -184,8 +183,7 @@ public class ImportService {
         return switch (v) {
             case "true", "t", "1", "yes", "y", "да" -> true;
             case "false", "f", "0", "no", "n", "нет" -> false;
-            default -> throw new IllegalArgumentException(STR."Invalid boolean value: \{s}");
-        };
+            default -> throw new IllegalArgumentException("Invalid boolean value: " + s);        };
     }
 
 
