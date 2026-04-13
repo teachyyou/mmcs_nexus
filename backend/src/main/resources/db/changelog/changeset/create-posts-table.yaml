@@ -1,0 +1,93 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-posts-table-1
+      author: TeachYou
+      changes:
+        - createTable:
+            tableName: posts
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  defaultValueComputed: "uuid_generate_v4()"
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: author_uuid
+                  type: uuid
+                  constraints:
+                    nullable: true
+              - column:
+                  name: title
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: preview_text
+                  type: text
+                  constraints:
+                    nullable: true
+              - column:
+                  name: content_html
+                  type: text
+                  constraints:
+                    nullable: false
+              - column:
+                  name: banner_path
+                  type: varchar(512)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: is_published
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: published_at
+                  type: timestamp
+                  constraints:
+                    nullable: true
+
+        - addForeignKeyConstraint:
+            constraintName: fk_posts_author
+            baseTableName: posts
+            baseColumnNames: author_uuid
+            referencedTableName: users
+            referencedColumnNames: id
+
+        - createIndex:
+            tableName: posts
+            indexName: idx_posts_published_at
+            columns:
+              - column:
+                  name: published_at
+
+        - createIndex:
+            tableName: posts
+            indexName: idx_posts_is_published
+            columns:
+              - column:
+                  name: is_published
+
+        - createIndex:
+            tableName: posts
+            indexName: idx_posts_author_id
+            columns:
+              - column:
+                  name: author_uuid
+
+      rollback:
+        - dropTable:
+            tableName: posts

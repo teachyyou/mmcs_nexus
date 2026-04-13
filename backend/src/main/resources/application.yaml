@@ -20,6 +20,10 @@ spring:
   liquibase:
     change-log: classpath:db/changelog/db.changelog-master.yaml
     enabled: true
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
 
   security:
     oauth2:
@@ -29,4 +33,5 @@ spring:
             client-id: ${GITHUB_CLIENT_ID}
             client-secret: ${GITHUB_CLIENT_SECRET}
             redirect-uri: ${BASE_URL}/login/oauth2/code/github
-          
+app:
+  uploads-dir: ${UPLOADS_DIR:/data/uploads}

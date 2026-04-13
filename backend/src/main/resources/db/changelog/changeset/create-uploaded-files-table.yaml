@@ -1,0 +1,98 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-uploaded-files-table-1
+      author: TeachYou
+      changes:
+        - createTable:
+            tableName: uploaded_files
+            columns:
+              - column:
+                  name: id
+                  type: uuid
+                  defaultValueComputed: "uuid_generate_v4()"
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: uploaded_by_uuid
+                  type: uuid
+                  constraints:
+                    nullable: true
+              - column:
+                  name: original_filename
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: storage_path
+                  type: varchar(512)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: content_type
+                  type: varchar(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: size_bytes
+                  type: bigint
+                  constraints:
+                    nullable: false
+              - column:
+                  name: is_attached
+                  type: boolean
+                  defaultValueBoolean: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: attached_at
+                  type: timestamp
+                  constraints:
+                    nullable: true
+
+        - addForeignKeyConstraint:
+            constraintName: fk_uploaded_files_uploaded_by
+            baseTableName: uploaded_files
+            baseColumnNames: uploaded_by_uuid
+            referencedTableName: users
+            referencedColumnNames: id
+
+        - addUniqueConstraint:
+            tableName: uploaded_files
+            columnNames: storage_path
+            constraintName: uk_uploaded_files_storage_path
+
+        - createIndex:
+            tableName: uploaded_files
+            indexName: idx_uploaded_files_uploaded_by_uuid
+            columns:
+              - column:
+                  name: uploaded_by_uuid
+
+        - createIndex:
+            tableName: uploaded_files
+            indexName: idx_uploaded_files_is_attached
+            columns:
+              - column:
+                  name: is_attached
+
+        - createIndex:
+            tableName: uploaded_files
+            indexName: idx_uploaded_files_created_at
+            columns:
+              - column:
+                  name: created_at
+
+      rollback:
+        - dropTable:
+            tableName: uploaded_files
