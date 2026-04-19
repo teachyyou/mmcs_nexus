@@ -15,7 +15,7 @@ import ru.sfedu.mmcs_nexus.service.UploadedFileService;
 @RestController
 public class AdminFileUploadController {
 
-    private UploadedFileService uploadedFileService;
+    private final UploadedFileService uploadedFileService;
 
     @Autowired
     public AdminFileUploadController(UploadedFileService uploadedFileService) {

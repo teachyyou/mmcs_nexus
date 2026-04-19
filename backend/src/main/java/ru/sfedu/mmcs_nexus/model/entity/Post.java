@@ -36,8 +36,9 @@ public class Post {
     @Column(name = "content_html", nullable = false, columnDefinition = "text")
     private String contentHtml;
 
-    @Column(name = "banner_path", length = 512)
-    private String bannerPath;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "banner_file_id")
+    private UploadedFile bannerFile;
 
     @Column(name = "is_published", nullable = false)
     private boolean isPublished;
@@ -52,7 +53,7 @@ public class Post {
             String title,
             String previewText,
             String contentHtml,
-            String bannerPath,
+            UploadedFile bannerFile,
             boolean isPublished,
             User author,
             LocalDateTime publishedAt
@@ -60,7 +61,7 @@ public class Post {
         this.title = title;
         this.previewText = previewText;
         this.contentHtml = contentHtml;
-        this.bannerPath = bannerPath;
+        this.bannerFile = bannerFile;
         this.isPublished = isPublished;
         this.author = author;
         this.publishedAt = publishedAt;

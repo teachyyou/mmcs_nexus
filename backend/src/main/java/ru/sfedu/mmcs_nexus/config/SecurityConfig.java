@@ -42,6 +42,7 @@ public class SecurityConfig {
                 .anonymous((anonymous)->anonymous.authorities("ROLE_GUEST"))
                 .authorizeHttpRequests(auth -> {
                     auth.requestMatchers("/api/v1/auth/**").hasRole("GUEST");
+                    auth.requestMatchers("/api/v1/media/**").hasRole("GUEST");
                     auth.requestMatchers("/api/v1/public/**").hasRole("USER");
                     auth.requestMatchers("/api/v1/admin/**").hasRole("ADMIN");
                     auth.requestMatchers("/api/v1/jury/**").hasRole("JURY");

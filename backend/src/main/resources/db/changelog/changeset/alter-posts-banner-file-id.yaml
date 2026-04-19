@@ -1,0 +1,25 @@
+databaseChangeLog:
+  - changeSet:
+      id: alter-posts-banner-file-id-1
+      author: TeachYou
+      changes:
+        - dropColumn:
+            tableName: posts
+            columnName: banner_path
+
+        - addColumn:
+            tableName: posts
+            columns:
+              - column:
+                  name: banner_file_id
+                  type: uuid
+                  constraints:
+                    nullable: true
+
+        - addForeignKeyConstraint:
+            baseTableName: posts
+            baseColumnNames: banner_file_id
+            constraintName: fk_posts_banner_file_id_uploaded_files
+            referencedTableName: uploaded_files
+            referencedColumnNames: id
+            onDelete: SET NULL
