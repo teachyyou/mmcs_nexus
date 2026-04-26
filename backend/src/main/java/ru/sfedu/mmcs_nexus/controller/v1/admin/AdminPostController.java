@@ -13,6 +13,7 @@ import ru.sfedu.mmcs_nexus.config.ApplicationConfig;
 import ru.sfedu.mmcs_nexus.model.dto.entity.PostDTO;
 import ru.sfedu.mmcs_nexus.model.enums.controller.EntitySort;
 import ru.sfedu.mmcs_nexus.model.internal.PaginationPayload;
+import ru.sfedu.mmcs_nexus.model.payload.admin.ChangePostPublishedRequestPayload;
 import ru.sfedu.mmcs_nexus.model.payload.admin.CreatePostRequestPayload;
 import ru.sfedu.mmcs_nexus.service.PostService;
 import ru.sfedu.mmcs_nexus.util.ResponseUtils;
@@ -61,6 +62,27 @@ public class AdminPostController {
         postService.create(payload, githubLogin);
 
         return ResponseUtils.success(HttpStatus.OK, "saved successfully");
+    }
+
+    @PutMapping(value = "/api/v1/admin/posts/{id}", produces = "application/json")
+    public ResponseEntity<PostDTO> edit(
+            @PathVariable("id") @UUID String postId,
+            @Valid @RequestBody CreatePostRequestPayload payload) {
+        PostDTO postDTO = new PostDTO(postService.edit(payload, postId));
+
+        return ResponseEntity.ok(postDTO);
+    }
+
+    @PatchMapping(value = "/api/v1/admin/posts/{id}", produces = "application/json")
+    public ResponseEntity<?> changePublished(
+            @PathVariable("id") @UUID String postId,
+            @Valid @RequestBody ChangePostPublishedRequestPayload payload) {
+        postService.changePublished(postId, payload.getPublished());
+
+        return ResponseUtils.success(
+                HttpStatus.OK,
+                payload.getPublished() ? "published successfully" : "unpublished successfully"
+        );
     }
 
 }

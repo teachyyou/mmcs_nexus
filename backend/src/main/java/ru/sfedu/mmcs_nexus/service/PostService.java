@@ -75,6 +75,41 @@ public class PostService {
 
     }
 
+    @Transactional
+    public Post edit(CreatePostRequestPayload payload, String postId) {
+        Post post = findById(postId);
+
+        UploadedFile file = uploadedFileService.find(payload.getBannerFileId().toString());
+
+        if (file.getContentType() == null || !file.getContentType().startsWith("image/")) {
+            throw new IllegalArgumentException("Banner file must be an image");
+        }
+
+        post.setTitle(payload.getTitle());
+        post.setPreviewText(payload.getPreviewText());
+        post.setContentHtml(payload.getContentHtml());
+        post.setBannerFile(file);
+
+        postRepository.save(post);
+
+        if (!file.isAttached()) {
+            uploadedFileService.setAttached(file.getId());
+        }
+
+        return post;
+
+    }
+
+    @Transactional
+    public void changePublished(String postId, boolean isPublished) {
+        Post post = findById(postId);
+
+        post.setPublished(isPublished);
+        post.setPublishedAt(isPublished ? LocalDateTime.now() : null);
+
+        postRepository.save(post);
+    }
+
     private Post findById(String postId) {
         return postRepository.findById(UUID.fromString(postId))
                 .orElseThrow(() -> new EntityNotFoundException("Post with id " + postId + " not found"));

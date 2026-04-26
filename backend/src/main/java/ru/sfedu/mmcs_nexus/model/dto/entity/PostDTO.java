@@ -15,11 +15,12 @@ public class PostDTO {
     private String title;
     private String previewText;
     private String contentHtml;
-    private boolean published;
+    private boolean isPublished;
     private LocalDateTime publishedAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private String bannerUrl;
+    private UUID bannerFileId;
     private String author;
 
     public PostDTO(Post post) {
@@ -27,13 +28,17 @@ public class PostDTO {
         this.title = post.getTitle();
         this.previewText = post.getPreviewText();
         this.contentHtml = post.getContentHtml();
-        this.published = post.isPublished();
+        this.isPublished = post.isPublished();
         this.publishedAt = post.getPublishedAt();
         this.createdAt = post.getCreatedAt();
         this.updatedAt = post.getUpdatedAt();
 
+        this.bannerFileId = post.getBannerFile() != null
+                ? post.getBannerFile().getId()
+                : null;
+
         this.bannerUrl = post.getBannerFile() != null
-                ? "/api/v1/media/image/" + post.getBannerFile().getId()
+                ? "/api/v1/media/image/" + this.bannerFileId
                 : null;
 
         this.author = post.getAuthor() != null
