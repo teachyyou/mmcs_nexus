@@ -1,13 +1,17 @@
 package ru.sfedu.mmcs_nexus.model.internal;
 
+import lombok.Getter;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import ru.sfedu.mmcs_nexus.exceptions.WrongRequestParamException;
 import ru.sfedu.mmcs_nexus.model.enums.controller.EntitySort;
 
+@Getter
 public class PaginationPayload {
+
     private final Integer limit;
+
     private final Integer offset;
     private final String sort;
     private final String order;

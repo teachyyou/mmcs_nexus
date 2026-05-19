@@ -24,6 +24,6 @@ public class CreatePostRequestPayload {
     @NotNull(message = "Banner file id is required")
     private UUID bannerFileId;
 
-    private boolean published;
+    private Boolean published;
 
 }

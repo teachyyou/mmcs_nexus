@@ -19,4 +19,19 @@ public interface PostRepository extends JpaRepository<Post, UUID> {
 
     @Query("select p from Post p where function('year', p.createdAt) = :year")
     List<Post> findAllByYear(@Param("year") Integer year);
+
+    @Query("""
+            select post
+            from Post post
+            where post.isPublished = true
+            """)
+    Page<Post> findAllPublished(Pageable pageable);
+
+    @Query("""
+            select post
+            from Post post
+            where post.isPublished = true
+              and extract(year from post.createdAt) = :year
+            """)
+    Page<Post> findAllPublishedByYear(Integer year, Pageable pageable);
 }

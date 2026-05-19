@@ -11,6 +11,7 @@ import {
     useRedirect,
     useRefresh,
 } from 'react-admin';
+import { useFormContext } from 'react-hook-form';
 import {
     Alert,
     Box,
@@ -30,7 +31,7 @@ const PostFormToolbar = ({ mode, record }) => {
     const handlePublicationChange = async () => {
         if (!record?.id) return;
 
-        const nextIsPublished = !record.isPublished;
+        const nextPublished = !record.published;
 
         try {
             const response = await fetch(`/api/v1/admin/posts/${record.id}`, {
@@ -40,7 +41,7 @@ const PostFormToolbar = ({ mode, record }) => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    isPublished: nextIsPublished,
+                    published: nextPublished,
                 }),
             });
 
@@ -48,7 +49,7 @@ const PostFormToolbar = ({ mode, record }) => {
                 throw new Error('Не удалось изменить статус публикации');
             }
 
-            notify(nextIsPublished ? 'Пост опубликован' : 'Публикация отменена');
+            notify(nextPublished ? 'Пост опубликован' : 'Публикация отменена');
             refresh();
         } catch (error) {
             notify(error.message || 'Ошибка публикации', { type: 'error' });
@@ -63,38 +64,30 @@ const PostFormToolbar = ({ mode, record }) => {
 
             {isEditMode && (
                 <Button
-                    variant={record?.published ? 'outlined' : 'contained'}
-                    color={record?.published ? 'warning' : 'success'}
+                    variant={record?.published  ? 'outlined' : 'contained'}
+                    color={record?.published  ? 'warning' : 'success'}
                     onClick={handlePublicationChange}
                 >
-                    {record?.published ? 'Отменить публикацию' : 'Опубликовать'}
+                    {record?.published  ? 'Отменить публикацию' : 'Опубликовать'}
                 </Button>
             )}
         </Toolbar>
     );
 };
 
-const PostAdminForm = ({ requestMethod, mode = 'create' }) => {
-    const notify = useNotify();
-    const redirect = useRedirect();
-    const record = useRecordContext();
-
-    const isEditMode = mode === 'edit';
-
+const BannerUploadInput = ({
+    isEditMode,
+    record,
+    bannerPreviewUrl,
+    setBannerPreviewUrl,
+    uploading,
+    setUploading,
+    setSnackbar,
+}) => {
     const fileInputRef = useRef(null);
-
-    const [bannerFileId, setBannerFileId] = useState(null);
-    const [bannerPreviewUrl, setBannerPreviewUrl] = useState(null);
-    const [uploading, setUploading] = useState(false);
-    const [snackbar, setSnackbar] = useState({ open: false, msg: '', severity: 'success' });
-
-    const requiredMsg = required('Обязательное поле');
+    const { setValue } = useFormContext();
 
     const openFilePicker = () => fileInputRef.current?.click();
-
-    const handleCloseSnackbar = () => {
-        setSnackbar((current) => ({ ...current, open: false }));
-    };
 
     const handleBannerSelected = async (event) => {
         const file = event.target.files?.[0];
@@ -103,7 +96,11 @@ const PostAdminForm = ({ requestMethod, mode = 'create' }) => {
         if (!file) return;
 
         if (!file.type?.startsWith('image/')) {
-            setSnackbar({ open: true, msg: 'Можно загрузить только изображение', severity: 'warning' });
+            setSnackbar({
+                open: true,
+                msg: 'Можно загрузить только изображение',
+                severity: 'warning',
+            });
             return;
         }
 
@@ -131,9 +128,19 @@ const PostAdminForm = ({ requestMethod, mode = 'create' }) => {
                 throw new Error('Сервер не вернул id загруженного файла');
             }
 
-            setBannerFileId(uploadedId);
+            setValue('bannerFileId', uploadedId, {
+                shouldDirty: true,
+                shouldTouch: true,
+                shouldValidate: true,
+            });
+
             setBannerPreviewUrl(URL.createObjectURL(file));
-            setSnackbar({ open: true, msg: 'Изображение загружено', severity: 'success' });
+
+            setSnackbar({
+                open: true,
+                msg: 'Изображение загружено',
+                severity: 'success',
+            });
         } catch (error) {
             setSnackbar({
                 open: true,
@@ -145,8 +152,77 @@ const PostAdminForm = ({ requestMethod, mode = 'create' }) => {
         }
     };
 
+    const previewUrl = bannerPreviewUrl || record?.bannerUrl;
+
+    return (
+        <Box sx={{ width: '100%' }}>
+            <Typography variant="subtitle2" sx={{ mb: 1 }}>
+                Баннер поста
+            </Typography>
+
+            <input
+                ref={fileInputRef}
+                type="file"
+                accept="image/*"
+                style={{ display: 'none' }}
+                onChange={handleBannerSelected}
+            />
+
+            <Button
+                variant="contained"
+                size="small"
+                startIcon={uploading ? <CircularProgress size={16} /> : <UploadFileIcon />}
+                onClick={openFilePicker}
+                disabled={uploading}
+            >
+                {uploading ? 'Загрузка…' : isEditMode ? 'Заменить изображение' : 'Загрузить изображение'}
+            </Button>
+
+            {previewUrl && (
+                <Box
+                    component="img"
+                    src={previewUrl}
+                    alt={record?.title || 'Предпросмотр баннера'}
+                    sx={{
+                        display: 'block',
+                        mt: 2,
+                        width: '100%',
+                        maxWidth: 480,
+                        maxHeight: 270,
+                        objectFit: 'cover',
+                        borderRadius: 2,
+                    }}
+                />
+            )}
+        </Box>
+    );
+};
+
+const PostAdminForm = ({ requestMethod, mode = 'create' }) => {
+    const notify = useNotify();
+    const redirect = useRedirect();
+    const record = useRecordContext();
+
+    const isEditMode = mode === 'edit';
+
+    const [bannerPreviewUrl, setBannerPreviewUrl] = useState(null);
+    const [uploading, setUploading] = useState(false);
+    const [snackbar, setSnackbar] = useState({
+        open: false,
+        msg: '',
+        severity: 'success',
+    });
+
+    const requiredMsg = required('Обязательное поле');
+
+    const handleCloseSnackbar = () => {
+        setSnackbar((current) => ({ ...current, open: false }));
+    };
+
     const handleSubmit = async (data) => {
-        if (!isEditMode && !bannerFileId) {
+        const selectedBannerFileId = data.bannerFileId || record?.bannerFileId;
+
+        if (!selectedBannerFileId) {
             notify('Загрузите изображение для поста', { type: 'warning' });
             return;
         }
@@ -155,8 +231,8 @@ const PostAdminForm = ({ requestMethod, mode = 'create' }) => {
             title: data.title,
             previewText: data.previewText,
             contentHtml: data.contentHtml,
-            bannerFileId: bannerFileId || record?.bannerFileId,
-            isPublished: isEditMode ? Boolean(record?.isPublished) : Boolean(data.isPublished),
+            bannerFileId: selectedBannerFileId,
+            published: isEditMode ? Boolean(record?.published) : Boolean(data.published),
         };
 
         requestMethod('posts', isEditMode ? { id: record.id, data: dto } : { data: dto })
@@ -168,8 +244,6 @@ const PostAdminForm = ({ requestMethod, mode = 'create' }) => {
                 notify(error?.message || 'Не удалось сохранить пост', { type: 'error' });
             });
     };
-
-    const previewUrl = bannerPreviewUrl || record?.bannerUrl;
 
     return (
         <>
@@ -206,54 +280,29 @@ const PostAdminForm = ({ requestMethod, mode = 'create' }) => {
                     validate={requiredMsg}
                 />
 
+                <TextInput
+                    source="bannerFileId"
+                    defaultValue={record?.bannerFileId}
+                    sx={{ display: 'none' }}
+                />
+
                 {!isEditMode && (
                     <BooleanInput
-                        source="isPublished"
+                        source="published"
                         label="Сразу опубликовать"
                         defaultValue={false}
                     />
                 )}
 
-                <Box sx={{ width: '100%' }}>
-                    <Typography variant="subtitle2" sx={{ mb: 1 }}>
-                        Баннер поста
-                    </Typography>
-
-                    <input
-                        ref={fileInputRef}
-                        type="file"
-                        accept="image/*"
-                        style={{ display: 'none' }}
-                        onChange={handleBannerSelected}
-                    />
-
-                    <Button
-                        variant="contained"
-                        size="small"
-                        startIcon={uploading ? <CircularProgress size={16} /> : <UploadFileIcon />}
-                        onClick={openFilePicker}
-                        disabled={uploading}
-                    >
-                        {uploading ? 'Загрузка…' : isEditMode ? 'Заменить изображение' : 'Загрузить изображение'}
-                    </Button>
-
-                    {previewUrl && (
-                        <Box
-                            component="img"
-                            src={previewUrl}
-                            alt={record?.title || 'Предпросмотр баннера'}
-                            sx={{
-                                display: 'block',
-                                mt: 2,
-                                width: '100%',
-                                maxWidth: 480,
-                                maxHeight: 270,
-                                objectFit: 'cover',
-                                borderRadius: 2,
-                            }}
-                        />
-                    )}
-                </Box>
+                <BannerUploadInput
+                    isEditMode={isEditMode}
+                    record={record}
+                    bannerPreviewUrl={bannerPreviewUrl}
+                    setBannerPreviewUrl={setBannerPreviewUrl}
+                    uploading={uploading}
+                    setUploading={setUploading}
+                    setSnackbar={setSnackbar}
+                />
             </SimpleForm>
 
             <Snackbar

@@ -87,7 +87,7 @@ export default function NavigationBar() {
                     }}
                 >
                     <Box component={Link} to="/" sx={{ textDecoration: 'none', color: 'inherit', fontWeight: 700, fontSize: 18, whiteSpace: 'nowrap' }}>
-                        MMCS Nexus
+                        Главная
                     </Box>
 
                     {/* Кнопки всегда смонтированы, меняем только видимость */}

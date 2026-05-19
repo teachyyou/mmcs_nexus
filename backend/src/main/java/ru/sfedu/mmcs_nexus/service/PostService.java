@@ -47,6 +47,26 @@ public class PostService {
         return posts.map(PostDTO::new);
     }
 
+    public Post findPublished(String postId) {
+        Post post = findById(postId);
+
+        if (!post.isPublished()) {
+            throw new EntityNotFoundException("Post with id " + postId + " not found");
+        }
+
+        return post;
+    }
+
+    public Page<PostDTO> findAllPublished(Integer year, PaginationPayload paginationPayload) {
+        Pageable pageable = paginationPayload.getPageable();
+
+        Page<Post> posts = year == null
+                ? postRepository.findAllPublished(pageable)
+                : postRepository.findAllPublishedByYear(year, pageable);
+
+        return posts.map(PostDTO::new);
+    }
+
     @Transactional
     public void create(CreatePostRequestPayload payload, String githubLogin) {
         User user = userService.findByGithubLogin(githubLogin).orElseThrow(() -> new UsernameNotFoundException("User " + githubLogin + " is not found"));
@@ -62,9 +82,9 @@ public class PostService {
             payload.getPreviewText(),
             payload.getContentHtml(),
             file,
-            payload.isPublished(),
+            payload.getPublished(),
             user,
-            payload.isPublished() ? LocalDateTime.now() : null
+            payload.getPublished() ? LocalDateTime.now() : null
         );
 
         postRepository.save(post);

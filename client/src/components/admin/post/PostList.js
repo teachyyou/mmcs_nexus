@@ -22,9 +22,9 @@ const PostList = (props) => (
         <Datagrid rowClick="edit">
             <TextField source="title" label="Заголовок" />
             <TextField source="previewText" label="Анонс" />
-            <BooleanField source="isPublished" label="Опубликован" />
+            <BooleanField source="published" label="Статус" />
             <DateField source="createdAt" label="Создан" showTime />
-            <DateField source="publishedAt" label="Опубликован" showTime />
+            <DateField source="publishedAt" label="Опубликован в" showTime />
 
             <FunctionField
                 label="Баннер"

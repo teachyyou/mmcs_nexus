@@ -15,7 +15,7 @@ public class PostDTO {
     private String title;
     private String previewText;
     private String contentHtml;
-    private boolean isPublished;
+    private boolean published;
     private LocalDateTime publishedAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
@@ -28,7 +28,7 @@ public class PostDTO {
         this.title = post.getTitle();
         this.previewText = post.getPreviewText();
         this.contentHtml = post.getContentHtml();
-        this.isPublished = post.isPublished();
+        this.published = post.isPublished();
         this.publishedAt = post.getPublishedAt();
         this.createdAt = post.getCreatedAt();
         this.updatedAt = post.getUpdatedAt();
