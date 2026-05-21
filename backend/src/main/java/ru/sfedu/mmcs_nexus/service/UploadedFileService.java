@@ -15,6 +15,8 @@ import ru.sfedu.mmcs_nexus.model.payload.admin.UploadFileRequestPayload;
 import ru.sfedu.mmcs_nexus.model.payload.admin.UploadFileResponsePayload;
 import ru.sfedu.mmcs_nexus.repository.UploadedFileRepository;
 
+import java.nio.file.Paths;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
@@ -50,7 +52,16 @@ public class UploadedFileService {
 
         try {
             UploadedFile uploadedFile = new UploadedFile();
-            uploadedFile.setOriginalFilename(StringUtils.cleanPath(file.getOriginalFilename()));
+
+            String originalFilename = StringUtils.cleanPath(
+                    Objects.requireNonNullElse(file.getOriginalFilename(), "file")
+            );
+
+            String safeOriginalFilename = Paths.get(originalFilename)
+                    .getFileName()
+                    .toString();
+
+            uploadedFile.setOriginalFilename(safeOriginalFilename);
             uploadedFile.setStoragePath(storedFile.getStoragePath());
             uploadedFile.setContentType(resolveContentType(file));
             uploadedFile.setUploadedBy(userService.findByGithubLogin(userLogin).orElseThrow(() -> new UsernameNotFoundException("User not found")));
@@ -59,9 +70,7 @@ public class UploadedFileService {
 
             UploadedFile savedUploadedFile = uploadedFileRepository.save(uploadedFile);
 
-            return new UploadFileResponsePayload(
-                    savedUploadedFile.getId()
-            );
+            return new UploadFileResponsePayload(savedUploadedFile.getId());
         } catch (RuntimeException ex) {
             fileStorageService.delete(storedFile.getStoragePath());
             throw ex;
