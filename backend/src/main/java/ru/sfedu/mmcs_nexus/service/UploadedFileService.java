@@ -1,6 +1,9 @@
 package ru.sfedu.mmcs_nexus.service;
 
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -11,6 +14,10 @@ import ru.sfedu.mmcs_nexus.model.entity.UploadedFile;
 import ru.sfedu.mmcs_nexus.model.payload.admin.UploadFileRequestPayload;
 import ru.sfedu.mmcs_nexus.model.payload.admin.UploadFileResponsePayload;
 import ru.sfedu.mmcs_nexus.repository.UploadedFileRepository;
+
+import java.nio.file.Paths;
+import java.util.Objects;
+import java.util.UUID;
 
 @Service
 public class UploadedFileService {
@@ -26,6 +33,16 @@ public class UploadedFileService {
         this.userService = userService;
     }
 
+    public UploadedFile find(String fileId) {
+        return getById(fileId);
+    }
+
+    public Resource getResource(UUID fileId) {
+        UploadedFile uploadedFile = getById(String.valueOf(fileId));
+        return fileStorageService.get(uploadedFile.getStoragePath());
+    }
+
+    @Transactional
     public UploadFileResponsePayload upload(UploadFileRequestPayload payload, String userLogin) {
         MultipartFile file = payload.getFile();
 
@@ -35,7 +52,16 @@ public class UploadedFileService {
 
         try {
             UploadedFile uploadedFile = new UploadedFile();
-            uploadedFile.setOriginalFilename(StringUtils.cleanPath(file.getOriginalFilename()));
+
+            String originalFilename = StringUtils.cleanPath(
+                    Objects.requireNonNullElse(file.getOriginalFilename(), "file")
+            );
+
+            String safeOriginalFilename = Paths.get(originalFilename)
+                    .getFileName()
+                    .toString();
+
+            uploadedFile.setOriginalFilename(safeOriginalFilename);
             uploadedFile.setStoragePath(storedFile.getStoragePath());
             uploadedFile.setContentType(resolveContentType(file));
             uploadedFile.setUploadedBy(userService.findByGithubLogin(userLogin).orElseThrow(() -> new UsernameNotFoundException("User not found")));
@@ -44,16 +70,21 @@ public class UploadedFileService {
 
             UploadedFile savedUploadedFile = uploadedFileRepository.save(uploadedFile);
 
-            String publicUrl = fileStorageService.toPublicUrl(savedUploadedFile.getStoragePath());
-
-            return new UploadFileResponsePayload(
-                    savedUploadedFile.getId(),
-                    publicUrl
-            );
+            return new UploadFileResponsePayload(savedUploadedFile.getId());
         } catch (RuntimeException ex) {
             fileStorageService.delete(storedFile.getStoragePath());
             throw ex;
         }
+    }
+
+    @Transactional
+    public void setAttached(UUID fileId) {
+        UploadedFile file = getById(String.valueOf(fileId));
+
+        file.setAttached(true);
+
+        uploadedFileRepository.save(file);
+
     }
 
     private void validateFile(MultipartFile file) {
@@ -76,4 +107,10 @@ public class UploadedFileService {
                 ? MediaType.APPLICATION_OCTET_STREAM_VALUE
                 : file.getContentType();
     }
+
+    private UploadedFile getById(String fileId) {
+        return uploadedFileRepository.findById(UUID.fromString(fileId))
+                .orElseThrow(() -> new EntityNotFoundException("File with id " + fileId + " not found"));
+    }
+
 }

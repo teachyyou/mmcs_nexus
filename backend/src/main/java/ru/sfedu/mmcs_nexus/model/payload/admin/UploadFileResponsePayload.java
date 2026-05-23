@@ -10,5 +10,5 @@ import java.util.UUID;
 public class UploadFileResponsePayload {
 
     private UUID uploadId;
-    private String publicUrl;
+
 }

@@ -25,6 +25,9 @@ import {useTheme} from "@mui/material/styles";
 import { Box } from "@mui/material";
 import NavigationBar from "./components/home/NavigationBar";
 import i18nProvider from './components/admin/i18nProvider';
+import { PostCreate, PostEdit } from "./components/admin/post/PostCE";
+import PostList from "./components/admin/post/PostList";
+import PostPage from "./components/home/PostPage";
 
 const dataProvider = springBootRestProvider('/api/v1/admin');
 const APPBAR_H = 64;
@@ -61,6 +64,7 @@ export default function AppContent() {
                     {/* Доступны для не-аутентифицированных или обновивших профиль */}
                     <Route element={<ProtectedAuthenticationRoutes/>}>
                         <Route path="/" element={<HomePage />} />
+                        <Route path="/posts/:id" element={<PostPage />} />
                         <Route path="/login" element={<LoginPage />} />
                     </Route>
 
@@ -88,6 +92,13 @@ export default function AppContent() {
                                     <Resource name="project_event" options={{label: 'Назначение этапов'}} list={ProjectEventManagement} edit={ProjectEventManagement} create={ProjectEventManagement}/>
                                     <Resource name="project_event_days" options={{label: 'Дни защиты'}} list={ProjectEventDayManagement} edit={ProjectEventDayManagement} create={ProjectEventDayManagement}/>
                                     <Resource name="project_jury" options={{label: 'Назначение жюри'}} list={ProjectJuryManagement} edit={ProjectJuryManagement} create={ProjectJuryManagement}/>
+                                    <Resource
+                                        name="posts"
+                                        options={{ label: 'Посты' }}
+                                        list={PostList}
+                                        edit={PostEdit}
+                                        create={PostCreate}
+                                    />
                                 </Admin>
                             }
                         />

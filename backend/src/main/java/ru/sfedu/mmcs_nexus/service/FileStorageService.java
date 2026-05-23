@@ -2,6 +2,8 @@ package ru.sfedu.mmcs_nexus.service;
 
 import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
@@ -9,6 +11,7 @@ import ru.sfedu.mmcs_nexus.model.dto.internal.StoredFile;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -55,6 +58,22 @@ public class FileStorageService {
         return new StoredFile(storagePath);
     }
 
+    public Resource get(String storagePath) {
+        Path filePath = resolveStoragePath(storagePath);
+
+        try {
+            Resource resource = new UrlResource(filePath.toUri());
+
+            if (!resource.exists() || !resource.isReadable()) {
+                throw new IllegalStateException("File not found or not readable");
+            }
+
+            return resource;
+        } catch (MalformedURLException ex) {
+            throw new IllegalStateException("Invalid file path", ex);
+        }
+    }
+
     public void delete(String storagePath) {
         Path filePath = resolveStoragePath(storagePath);
 
@@ -63,10 +82,6 @@ public class FileStorageService {
         } catch (IOException ex) {
             throw new IllegalStateException("Failed to delete file", ex);
         }
-    }
-
-    public String toPublicUrl(String storagePath) {
-        return "/uploads/" + storagePath.replace("\\", "/");
     }
 
     private Path resolveStoragePath(String storagePath) {
