@@ -17,11 +17,12 @@ public enum EntitySort {
                     "captainname",
                     "isfull",
                     "track",
-                    "technologies"
+                    "technologies",
+                    "captain"
             )
     ),
 
-    EVENT_SORT(Set.of("id","name","eventtype","year","maxprespoints","maxbuildpoints")),
+    EVENT_SORT(Set.of("id","name","eventtype","year","maxprespoints","maxbuildpoints","submissionstartdate","submissiondeadlinedate")),
     GRADE_SORT(Set.of("id","comment","prespoints","buildpoints")),
 
     //todo пофиксить глобальный баг с переменными которые в бд лежат как snake_case (created_at или max_pres_points)

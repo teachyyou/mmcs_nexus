@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import ru.sfedu.mmcs_nexus.config.ApplicationConfig;
+import ru.sfedu.mmcs_nexus.model.dto.entity.ProjectDTO;
 import ru.sfedu.mmcs_nexus.model.entity.Event;
 import ru.sfedu.mmcs_nexus.model.entity.Project;
 import ru.sfedu.mmcs_nexus.model.enums.controller.EntitySort;
@@ -18,7 +19,10 @@ import ru.sfedu.mmcs_nexus.model.payload.admin.AssignJuriesRequestPayload;
 import ru.sfedu.mmcs_nexus.model.payload.admin.CreateProjectRequestPayload;
 import ru.sfedu.mmcs_nexus.model.payload.admin.ImportResponsePayload;
 import ru.sfedu.mmcs_nexus.model.payload.admin.ProjectJuryEventResponsePayload;
-import ru.sfedu.mmcs_nexus.service.*;
+import ru.sfedu.mmcs_nexus.service.ImportService;
+import ru.sfedu.mmcs_nexus.service.ProjectEventService;
+import ru.sfedu.mmcs_nexus.service.ProjectJuryEventService;
+import ru.sfedu.mmcs_nexus.service.ProjectService;
 import ru.sfedu.mmcs_nexus.util.ResponseUtils;
 
 import java.util.Map;
@@ -31,20 +35,21 @@ public class AdminProjectController {
     private final ProjectService projectService;
     private final ProjectEventService projectEventService;
     private final ProjectJuryEventService projectJuryEventService;
-
-
     private final ImportService importService;
 
     @Autowired
-    public AdminProjectController(ProjectService projectService, ProjectEventService projectEventService, ProjectJuryEventService projectJuryEventService, ImportService importService) {
+    public AdminProjectController(
+            ProjectService projectService,
+            ProjectEventService projectEventService,
+            ProjectJuryEventService projectJuryEventService,
+            ImportService importService
+    ) {
         this.projectService = projectService;
         this.projectEventService = projectEventService;
         this.projectJuryEventService = projectJuryEventService;
         this.importService = importService;
     }
 
-
-    //Получить список всех проектов с сортировкой за указанный год, по дефолту - 2024
     @GetMapping(value = "/api/v1/admin/projects", produces = "application/json")
     public ResponseEntity<Map<String, Object>> getProjectsList(
             @RequestParam(defaultValue = "id") String sort,
@@ -55,20 +60,18 @@ public class AdminProjectController {
     ) {
         PaginationPayload paginationPayload = new PaginationPayload(limit, offset, sort, order, EntitySort.PROJECT_SORT);
 
-        Page<Project> projects = projectService.findAll(year, paginationPayload);
+        Page<ProjectDTO> projects = projectService.findAll(year, paginationPayload);
 
         return buildPageResponse(projects);
     }
 
-    //Получить инфу по проекту по id
     @GetMapping(value = "/api/v1/admin/projects/{id}", produces = "application/json")
-    public ResponseEntity<Project> getProjectById(@PathVariable("id") @UUID String projectId) {
-        Project project = projectService.find(projectId);
+    public ResponseEntity<ProjectDTO> getProjectById(@PathVariable("id") @UUID String projectId) {
+        ProjectDTO project = new ProjectDTO(projectService.find(projectId));
 
         return ResponseEntity.ok(project);
     }
 
-    //Получить список всех событий для данного проекта по id
     @GetMapping(value = "/api/v1/admin/projects/{id}/events", produces = "application/json")
     public ResponseEntity<Map<String, Object>> getProjectEventsById(
             @PathVariable("id") @UUID String projectId,
@@ -90,10 +93,13 @@ public class AdminProjectController {
     }
 
     @PutMapping(value = "/api/v1/admin/projects/{id}", produces = "application/json")
-    public ResponseEntity<Project> editProjectById(@PathVariable("id") @UUID String projectId, @Valid @RequestBody CreateProjectRequestPayload payload) {
+    public ResponseEntity<ProjectDTO> editProjectById(
+            @PathVariable("id") @UUID String projectId,
+            @Valid @RequestBody CreateProjectRequestPayload payload
+    ) {
         Project project = projectService.edit(projectId, payload);
 
-        return ResponseEntity.ok(project);
+        return ResponseEntity.ok(new ProjectDTO(project));
     }
 
     @DeleteMapping("/api/v1/admin/projects/{id}")
@@ -103,28 +109,38 @@ public class AdminProjectController {
         return ResponseEntity.noContent().build();
     }
 
-    @PostMapping(value="api/v1/admin/projects/from_csv", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "application/json")
-    public ResponseEntity<?> importProjectsFromCsv(
+    @PostMapping(
+            value = "/api/v1/admin/projects/from_csv",
+            consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+            produces = "application/json"
+    )
+    public ResponseEntity<ImportResponsePayload<ProjectDTO>> importProjectsFromCsv(
             @RequestPart("file") MultipartFile file,
             @RequestParam(name = "limit", defaultValue = "2") int limit
     ) {
         ImportResponsePayload<Project> result = importService.ImportProjectsFromCsv(file, limit);
 
-        return ResponseEntity.ok(result);
+        ImportResponsePayload<ProjectDTO> response = new ImportResponsePayload<>(
+                result.created().stream()
+                        .map(ProjectDTO::new)
+                        .toList(),
+                result.skipped()
+        );
+
+        return ResponseEntity.ok(response);
     }
 
-    @GetMapping(value = "api/v1/admin/projects/{project_id}/juries/{event_id}", produces = "application/json")
-    public ResponseEntity<?> getProjectEventJuriesById
-    (
+    @GetMapping(value = "/api/v1/admin/projects/{project_id}/juries/{event_id}", produces = "application/json")
+    public ResponseEntity<?> getProjectEventJuriesById(
             @PathVariable("project_id") @UUID String projectId,
             @PathVariable("event_id") @UUID String eventId
     ) {
         ProjectJuryEventResponsePayload response = projectJuryEventService.getJuriesByProjectAndEvent(projectId, eventId);
 
-        return ResponseEntity.ok().body(response);
+        return ResponseEntity.ok(response);
     }
 
-    @PostMapping(value = "api/v1/admin/projects/assign", consumes = "application/json", produces = "application/json")
+    @PostMapping(value = "/api/v1/admin/projects/assign", consumes = "application/json", produces = "application/json")
     public ResponseEntity<?> saveProjectEventJuries(@Valid @RequestBody AssignJuriesRequestPayload request) {
         projectJuryEventService.assignJuries(request);
 

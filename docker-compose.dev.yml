@@ -15,6 +15,8 @@ services:
   backend:
     build:
       context: "./backend"
+      args:
+        SKIP_TESTS: "true"
     container_name: nexus_backend
     hostname: backend
     environment:

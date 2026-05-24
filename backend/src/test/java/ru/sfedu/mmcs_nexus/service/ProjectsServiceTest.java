@@ -10,6 +10,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
+import ru.sfedu.mmcs_nexus.model.dto.entity.ProjectDTO;
 import ru.sfedu.mmcs_nexus.model.entity.Project;
 import ru.sfedu.mmcs_nexus.model.enums.controller.EntitySort;
 import ru.sfedu.mmcs_nexus.model.internal.PaginationPayload;
@@ -38,6 +39,9 @@ class ProjectsServiceTest {
     @Mock
     private ProjectRepository projectRepository;
 
+    @Mock
+    private UserService userService;
+
     @InjectMocks
     private ProjectService projectService;
 
@@ -49,7 +53,7 @@ class ProjectsServiceTest {
         when(projectRepository.findAll(any(org.springframework.data.domain.Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(project)));
 
-        Page<Project> result = projectService.findAll(null, paginationPayload);
+        Page<ProjectDTO> result = projectService.findAll(null, paginationPayload);
 
         assertEquals(1, result.getTotalElements());
         assertEquals(project.getId(), result.getContent().getFirst().getId());
@@ -66,7 +70,7 @@ class ProjectsServiceTest {
         when(projectRepository.findAllByYear(eq(2026), any(org.springframework.data.domain.Pageable.class)))
                 .thenReturn(new PageImpl<>(List.of(project)));
 
-        Page<Project> result = projectService.findAll(2026, paginationPayload);
+        Page<ProjectDTO> result = projectService.findAll(2026, paginationPayload);
 
         assertEquals(1, result.getTotalElements());
         assertEquals(project.getId(), result.getContent().getFirst().getId());

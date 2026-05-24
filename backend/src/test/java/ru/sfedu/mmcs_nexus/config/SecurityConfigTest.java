@@ -11,28 +11,22 @@ import org.springframework.security.access.hierarchicalroles.RoleHierarchy;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.sfedu.mmcs_nexus.controller.publicapi.PublicEventController;
 import ru.sfedu.mmcs_nexus.controller.v1.admin.AdminPostController;
 import ru.sfedu.mmcs_nexus.controller.v1.auth.AuthController;
 import ru.sfedu.mmcs_nexus.controller.v1.jury.JuryGradeController;
 import ru.sfedu.mmcs_nexus.controller.v1.media.MediaController;
-import ru.sfedu.mmcs_nexus.controller.v1.user.PublicEventController;
 import ru.sfedu.mmcs_nexus.model.dto.entity.PostDTO;
 import ru.sfedu.mmcs_nexus.model.entity.Event;
 import ru.sfedu.mmcs_nexus.model.internal.PaginationPayload;
-import ru.sfedu.mmcs_nexus.service.EventService;
-import ru.sfedu.mmcs_nexus.service.GradeService;
-import ru.sfedu.mmcs_nexus.service.PostService;
-import ru.sfedu.mmcs_nexus.service.UploadedFileService;
-import ru.sfedu.mmcs_nexus.service.UserService;
+import ru.sfedu.mmcs_nexus.service.*;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isNull;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -68,6 +62,9 @@ class SecurityConfigTest {
 
     @MockBean
     private EventService eventService;
+
+    @MockBean
+    private ProjectService projectService;
 
     @MockBean
     private UploadedFileService uploadedFileService;

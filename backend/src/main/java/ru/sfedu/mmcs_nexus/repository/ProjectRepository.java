@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 import ru.sfedu.mmcs_nexus.model.entity.Project;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Repository
@@ -15,6 +16,9 @@ public interface ProjectRepository extends JpaRepository<Project, UUID> {
     Page<Project> findAllByYear(Integer year, Pageable pageable);
     List<Project> findAllByYear(Integer year);
 
+    Optional<Project> findByCaptainId(UUID captainId);
+
+    boolean existsByCaptainId(UUID captainId);
 
     boolean existsByName(String name);
     boolean existsByNameAndIdNot(String name, UUID id);

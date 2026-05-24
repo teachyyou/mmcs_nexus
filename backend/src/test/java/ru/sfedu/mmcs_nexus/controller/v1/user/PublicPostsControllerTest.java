@@ -9,6 +9,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.sfedu.mmcs_nexus.controller.publicapi.PublicPostsController;
 import ru.sfedu.mmcs_nexus.model.dto.entity.PostDTO;
 import ru.sfedu.mmcs_nexus.model.entity.Post;
 import ru.sfedu.mmcs_nexus.model.entity.User;

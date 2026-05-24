@@ -7,6 +7,8 @@ import ru.sfedu.mmcs_nexus.validators.EventName;
 import ru.sfedu.mmcs_nexus.validators.EventYear;
 import ru.sfedu.mmcs_nexus.validators.MaxPoints;
 
+import java.time.LocalDate;
+
 @Setter
 @Getter
 public class CreateEventRequestPayload {
@@ -23,5 +25,9 @@ public class CreateEventRequestPayload {
 
     @MaxPoints
     private Integer maxBuildPoints;
+
+    private LocalDate submissionStartDate;
+
+    private LocalDate submissionDeadlineDate;
 
 }

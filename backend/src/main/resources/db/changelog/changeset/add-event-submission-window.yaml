@@ -1,0 +1,26 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-event-submission-window-1
+      author: TeachYou
+      changes:
+        - addColumn:
+            tableName: events
+            columns:
+              - column:
+                  name: submission_start_date
+                  type: date
+                  constraints:
+                    nullable: true
+              - column:
+                  name: submission_deadline_date
+                  type: date
+                  constraints:
+                    nullable: true
+
+      rollback:
+        - dropColumn:
+            tableName: events
+            columnName: submission_start_date
+        - dropColumn:
+            tableName: events
+            columnName: submission_deadline_date

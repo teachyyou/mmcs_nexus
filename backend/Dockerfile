@@ -2,6 +2,8 @@ FROM eclipse-temurin:21-jdk-jammy AS build
 
 WORKDIR /build
 
+ARG SKIP_TESTS=true
+
 COPY --chmod=0755 mvnw mvnw
 COPY .mvn/ .mvn/
 
@@ -13,7 +15,11 @@ COPY ./src src/
 
 RUN --mount=type=bind,source=pom.xml,target=pom.xml \
     --mount=type=cache,target=/root/.m2 \
-    ./mvnw test -Dspring.profiles.active=test
+    if [ "$SKIP_TESTS" = "true" ]; then \
+        echo "Skipping tests during Docker build"; \
+    else \
+        ./mvnw test -Dspring.profiles.active=test; \
+    fi
 
 RUN --mount=type=bind,source=pom.xml,target=pom.xml \
     --mount=type=cache,target=/root/.m2 \

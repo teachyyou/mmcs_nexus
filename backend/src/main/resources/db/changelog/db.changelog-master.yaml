@@ -31,3 +31,9 @@ databaseChangeLog:
       file: db/changelog/changeset/create-uploaded-files-table.yaml
   - include:
       file: db/changelog/changeset/alter-posts-banner-file-id.yaml
+  - include:
+      file: db/changelog/changeset/add-project-captain.yaml
+  - include:
+      file: db/changelog/changeset/add-event-submission-window.yaml
+  - include:
+      file: db/changelog/changeset/create-project-event-submissions.yaml

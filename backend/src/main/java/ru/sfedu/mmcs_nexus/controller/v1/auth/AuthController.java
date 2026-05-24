@@ -17,11 +17,11 @@ import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.web.bind.annotation.*;
 import ru.sfedu.mmcs_nexus.model.dto.entity.UserDTO;
-import ru.sfedu.mmcs_nexus.model.payload.user.UpdateProfileRequestPayload;
 import ru.sfedu.mmcs_nexus.model.entity.User;
 import ru.sfedu.mmcs_nexus.model.enums.entity.UserEnums;
+import ru.sfedu.mmcs_nexus.model.payload.auth.UpdateProfileRequestPayload;
+import ru.sfedu.mmcs_nexus.service.ProjectService;
 import ru.sfedu.mmcs_nexus.service.UserService;
-import ru.sfedu.mmcs_nexus.util.ResponseUtils;
 
 import java.util.HashMap;
 import java.util.List;
@@ -32,10 +32,12 @@ import java.util.Optional;
 public class AuthController {
 
     private final UserService userService;
+    private final ProjectService projectService;
 
     @Autowired
-    public AuthController(UserService userService) {
+    public AuthController(UserService userService, ProjectService projectService) {
         this.userService = userService;
+        this.projectService = projectService;
     }
 
     @ResponseBody
@@ -57,6 +59,7 @@ public class AuthController {
             Optional<User> optionalUser = userService.findByGithubLogin(authentication);
             if (optionalUser.isEmpty()) {
                 response.put("error", "User not found");
+                response.put("captainProject", null);
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
             }
             User user = optionalUser.get();
@@ -75,10 +78,14 @@ public class AuthController {
 
             response.put("userId", user.getId());
 
+            projectService.findCaptainProject(user.getLogin())
+                    .ifPresent(captainProject -> response.put("captainProject", captainProject));
+
         }
         response.put("userStatus", status);
         response.put("userRole", role);
         response.put("user", userMap);
+        response.putIfAbsent("captainProject", null);
 
 
         return ResponseEntity.ok(response);
