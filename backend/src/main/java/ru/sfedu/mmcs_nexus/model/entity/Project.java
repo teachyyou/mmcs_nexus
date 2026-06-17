@@ -2,7 +2,6 @@ package ru.sfedu.mmcs_nexus.model.entity;
 
 
 import jakarta.persistence.*;
-import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -30,6 +29,11 @@ public class Project {
     private String name;
     private String description;
     private String type;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "captain_uuid")
+    private User captain;
+
     private int year;
 
     public Project() {}

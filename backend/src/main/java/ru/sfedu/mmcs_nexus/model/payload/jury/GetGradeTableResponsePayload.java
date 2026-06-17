@@ -2,9 +2,9 @@ package ru.sfedu.mmcs_nexus.model.payload.jury;
 
 import lombok.Getter;
 import lombok.Setter;
+import ru.sfedu.mmcs_nexus.model.dto.entity.ProjectDTO;
 import ru.sfedu.mmcs_nexus.model.dto.entity.UserDTO;
 import ru.sfedu.mmcs_nexus.model.entity.Event;
-import ru.sfedu.mmcs_nexus.model.entity.Project;
 import ru.sfedu.mmcs_nexus.model.internal.GradeTableRow;
 
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ public class GetGradeTableResponsePayload {
 
     private Event event;
 
-    private List<Project> projects;
+    private List<ProjectDTO> projects;
     private List<UserDTO> juries;
 
     //table rows for every project in the table
@@ -28,7 +28,7 @@ public class GetGradeTableResponsePayload {
         this.rows = new ArrayList<>();
     }
 
-    public void setProjects(List<Project> projects) {
+    public void setProjects(List<ProjectDTO> projects) {
         this.projects = projects;
         this.projectsCount=projects.size();
     }

@@ -8,8 +8,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import ru.sfedu.mmcs_nexus.config.ApplicationConfig;
+import ru.sfedu.mmcs_nexus.model.dto.entity.ProjectDTO;
 import ru.sfedu.mmcs_nexus.model.entity.Event;
-import ru.sfedu.mmcs_nexus.model.entity.Project;
 import ru.sfedu.mmcs_nexus.model.enums.controller.EntitySort;
 import ru.sfedu.mmcs_nexus.model.internal.PaginationPayload;
 import ru.sfedu.mmcs_nexus.model.payload.admin.CreateEventRequestPayload;
@@ -27,6 +27,7 @@ import static ru.sfedu.mmcs_nexus.util.ResponseUtils.buildPageResponse;
 
 @RestController
 public class AdminEventController {
+
     private final EventService eventService;
     private final ProjectEventService projectEventService;
 
@@ -37,15 +38,13 @@ public class AdminEventController {
     }
 
     @GetMapping(value = "/api/v1/admin/events", produces = "application/json")
-    public ResponseEntity<Map<String, Object>> getEventsList
-    (
+    public ResponseEntity<Map<String, Object>> getEventsList(
             @RequestParam(defaultValue = "id") String sort,
             @RequestParam(defaultValue = "asc") String order,
             @RequestParam(defaultValue = ApplicationConfig.DEFAULT_LIMIT) Integer limit,
             @RequestParam(defaultValue = ApplicationConfig.DEFAULT_OFFSET) Integer offset,
             @RequestParam(required = false) Integer year
     ) {
-
         PaginationPayload paginationPayload = new PaginationPayload(limit, offset, sort, order, EntitySort.EVENT_SORT);
 
         Page<Event> events = eventService.findAll(year, paginationPayload);
@@ -68,7 +67,10 @@ public class AdminEventController {
     }
 
     @PutMapping(value = "/api/v1/admin/events/{id}", produces = "application/json")
-    public ResponseEntity<Event> editEventById(@PathVariable("id") @UUID String id, @Valid @RequestBody CreateEventRequestPayload payload) {
+    public ResponseEntity<Event> editEventById(
+            @PathVariable("id") @UUID String id,
+            @Valid @RequestBody CreateEventRequestPayload payload
+    ) {
         Event event = eventService.edit(id, payload);
 
         return ResponseEntity.ok(event);
@@ -90,24 +92,31 @@ public class AdminEventController {
     ) {
         PaginationPayload paginationPayload = new PaginationPayload(limit, offset);
 
-        Page<Project> projects = projectEventService.findProjectsByEventId(eventId, day, paginationPayload);
+        Page<ProjectDTO> projects = projectEventService.findProjectsByEventId(eventId, day, paginationPayload)
+                .map(ProjectDTO::new);
 
         return buildPageResponse(projects);
-
     }
 
     @GetMapping(value = "/api/v1/admin/events/{id}/projects/days", produces = "application/json")
-    public ResponseEntity<Map<String, Object>> getEventProjectsByIdForDays(@PathVariable("id") @UUID String eventId) {
-        List<Project> firstDayProjects = projectEventService.findProjectsByEventId(eventId, 1);
-        List<Project> secondDayProjects = projectEventService.findProjectsByEventId(eventId, 2);
+    public ResponseEntity<Map<String, Object>> getEventProjectsByIdForDays(
+            @PathVariable("id") @UUID String eventId
+    ) {
+        List<ProjectDTO> firstDayProjects = projectEventService.findProjectsByEventId(eventId, 1).stream()
+                .map(ProjectDTO::new)
+                .toList();
 
+        List<ProjectDTO> secondDayProjects = projectEventService.findProjectsByEventId(eventId, 2).stream()
+                .map(ProjectDTO::new)
+                .toList();
 
-        Map<String, List<Project>> content = new HashMap<>();
+        Map<String, List<ProjectDTO>> content = new HashMap<>();
+
         content.put("firstDayProjects", firstDayProjects);
         content.put("secondDayProjects", secondDayProjects);
 
         return ResponseEntity.ok().body(
-                ResponseUtils.buildResponse(content, firstDayProjects.size()+secondDayProjects.size())
+                ResponseUtils.buildResponse(content, firstDayProjects.size() + secondDayProjects.size())
         );
     }
 
@@ -121,13 +130,16 @@ public class AdminEventController {
         return ResponseEntity.ok().build();
     }
 
-    //Распределение проектов по дням
     @PostMapping(value = "/api/v1/admin/events/{id}/days", consumes = "application/json", produces = "application/json")
     public ResponseEntity<?> saveEventProjectDefDays(
             @PathVariable("id") @UUID String eventId,
             @Valid @RequestBody SetDefenceDayRequestPayload request
     ) {
-        projectEventService.setDaysForProjectAndEvent(eventId, request.getFirstDayProjects(), request.getSecondDayProjects());
+        projectEventService.setDaysForProjectAndEvent(
+                eventId,
+                request.getFirstDayProjects(),
+                request.getSecondDayProjects()
+        );
 
         return ResponseUtils.success(HttpStatus.OK, "saved successfully");
     }

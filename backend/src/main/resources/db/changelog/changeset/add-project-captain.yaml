@@ -1,0 +1,47 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-project-captain-1
+      author: TeachYou
+      changes:
+        - addColumn:
+            tableName: projects
+            columns:
+              - column:
+                  name: captain_uuid
+                  type: uuid
+                  constraints:
+                    nullable: true
+
+        - addForeignKeyConstraint:
+            constraintName: fk_projects_captain
+            baseTableName: projects
+            baseColumnNames: captain_uuid
+            referencedTableName: users
+            referencedColumnNames: id
+            onDelete: SET NULL
+
+        - addUniqueConstraint:
+            tableName: projects
+            columnNames: captain_uuid
+            constraintName: uk_projects_captain_uuid
+
+        - createIndex:
+            tableName: projects
+            indexName: idx_projects_captain_uuid
+            columns:
+              - column:
+                  name: captain_uuid
+
+      rollback:
+        - dropIndex:
+            tableName: projects
+            indexName: idx_projects_captain_uuid
+        - dropUniqueConstraint:
+            tableName: projects
+            constraintName: uk_projects_captain_uuid
+        - dropForeignKeyConstraint:
+            baseTableName: projects
+            constraintName: fk_projects_captain
+        - dropColumn:
+            tableName: projects
+            columnName: captain_uuid

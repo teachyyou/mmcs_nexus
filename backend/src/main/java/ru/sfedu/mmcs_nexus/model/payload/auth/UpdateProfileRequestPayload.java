@@ -1,4 +1,4 @@
-package ru.sfedu.mmcs_nexus.model.payload.user;
+package ru.sfedu.mmcs_nexus.model.payload.auth;
 
 import lombok.Getter;
 import lombok.Setter;

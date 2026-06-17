@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.multipart.MultipartException;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
 import java.util.HashMap;
@@ -49,9 +50,9 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
     @Override
     public ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException ex, HttpHeaders headers, HttpStatusCode status, WebRequest request) {
         Throwable cause = ex.getMostSpecificCause();
-        String errorMessage = STR."Invalid input format: \{cause.getMessage()}";
+        String errorMessage = "Invalid input format: " + cause.getMessage();
         if (cause instanceof NumberFormatException) {
-            errorMessage = STR."Invalid numeric format: \{cause.getMessage()}";
+            errorMessage = "Invalid numeric format: " + cause.getMessage();
         }
         Map<String, String> body = new HashMap<>();
         body.put("error", errorMessage);
@@ -77,6 +78,11 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", ex.getMessage()));
     }
 
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<Map<String, String>> handleIllegalArgument(IllegalArgumentException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", ex.getMessage()));
+    }
+
     @ExceptionHandler(EntityExistsException.class)
     public ResponseEntity<Map<String, String>> handleEntityExists(EntityExistsException ex) {
         return ResponseEntity.status(HttpStatus.CONFLICT).body(Map.of("error", ex.getMessage()));
@@ -100,6 +106,17 @@ public class ControllerExceptionHandler extends ResponseEntityExceptionHandler {
     @ExceptionHandler(MultipartException.class)
     public ResponseEntity<Map<String, String>> handleMultipart(MultipartException ex) {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", ex.getMessage()));
+    }
+
+    @ExceptionHandler(ResponseStatusException.class)
+    public ResponseEntity<?> handleResponseStatusException(ResponseStatusException ex) {
+        HttpStatus status = HttpStatus.valueOf(ex.getStatusCode().value());
+
+        String message = ex.getReason() != null
+                ? ex.getReason()
+                : ex.getMessage();
+
+        return ResponseEntity.status(status).body(Map.of("error", message));
     }
 
     private static String leafName(Path path) {

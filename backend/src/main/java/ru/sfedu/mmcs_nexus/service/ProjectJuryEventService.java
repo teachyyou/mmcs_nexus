@@ -41,10 +41,12 @@ public class ProjectJuryEventService {
     @Transactional
     public void assignJuries(AssignJuriesRequestPayload payload) {
 
+        validateAssignJuriesRequest(payload);
+
         UUID projectId = UUID.fromString(payload.getProjectId());
         UUID eventId = UUID.fromString(payload.getEventId());
 
-        Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException(STR."Project with id \{projectId} not found"));
+        Project project = projectRepository.findById(projectId).orElseThrow(() -> new EntityNotFoundException("Project with id " + projectId + " not found"));
 
         if (payload.isApplyToAllEvents()) {
             List<Event> events = projectEventRepository.findEventsByProjectId(projectId, null);
@@ -59,7 +61,7 @@ public class ProjectJuryEventService {
             }
 
         } else {
-            Event event = eventRepository.findById(eventId).orElseThrow(() -> new EntityNotFoundException(STR."Event with id \{eventId} not found"));
+            Event event = eventRepository.findById(eventId).orElseThrow(() -> new EntityNotFoundException("Event with id " + eventId + " not found"));
 
             assignJuriesForEvent(
                     project,
@@ -74,11 +76,11 @@ public class ProjectJuryEventService {
     public ProjectJuryEventResponsePayload getJuriesByProjectAndEvent(String projectId, String eventId) {
 
         if (!projectRepository.existsById(UUID.fromString(projectId))) {
-            throw new EntityNotFoundException(STR."Project with id \{projectId} not found");
+            throw new EntityNotFoundException("Project with id " + projectId + " not found");
         }
 
         if (!eventRepository.existsById(UUID.fromString(eventId))) {
-            throw new EntityNotFoundException(STR."Event with id \{eventId} not found");
+            throw new EntityNotFoundException("Event with id " + eventId + " not found");
         }
 
         List<ProjectJuryEvent> projectJuryEvents = projectJuryEventRepository.findByProjectIdAndEventId(UUID.fromString(projectId), UUID.fromString(eventId));
@@ -105,6 +107,12 @@ public class ProjectJuryEventService {
         return payload;
     }
 
+    private void validateAssignJuriesRequest(AssignJuriesRequestPayload request) {
+        if (!request.isApplyToAllEvents() && request.getEventId() == null) {
+            throw new IllegalArgumentException("eventId is required when applyToAllEvents is false");
+        }
+    }
+
     private void assignJuriesForEvent(Project project, Event event, List<UUID> mentors, List<UUID> obliged,List<UUID> willing) {
         clearProjectEventJuries(project, event);
         saveJuriesToProjectEvent(project, event, mentors, JuryRelationType.MENTOR);
@@ -127,7 +135,7 @@ public class ProjectJuryEventService {
             LinkedHashSet<UUID> requested = new java.util.LinkedHashSet<>(juries);
             for (User u : users)
                 requested.remove(u.getId());
-            throw new EntityNotFoundException(STR."Jury with ids \{requested} not found");
+            throw new EntityNotFoundException("Jury with ids " + requested + " not found");
         }
 
         ArrayList<ProjectJuryEvent> links = new java.util.ArrayList<>(users.size());

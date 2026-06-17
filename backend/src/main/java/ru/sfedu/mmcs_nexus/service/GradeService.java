@@ -10,8 +10,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import ru.sfedu.mmcs_nexus.exceptions.WrongGradePointsException;
 import ru.sfedu.mmcs_nexus.model.dto.entity.GradeDTO;
+import ru.sfedu.mmcs_nexus.model.dto.entity.ProjectDTO;
 import ru.sfedu.mmcs_nexus.model.dto.entity.UserDTO;
-import ru.sfedu.mmcs_nexus.model.entity.*;
+import ru.sfedu.mmcs_nexus.model.entity.Event;
+import ru.sfedu.mmcs_nexus.model.entity.Grade;
+import ru.sfedu.mmcs_nexus.model.entity.Project;
+import ru.sfedu.mmcs_nexus.model.entity.ProjectJuryEvent;
+import ru.sfedu.mmcs_nexus.model.entity.User;
 import ru.sfedu.mmcs_nexus.model.entity.keys.GradeKey;
 import ru.sfedu.mmcs_nexus.model.entity.keys.ProjectEventKey;
 import ru.sfedu.mmcs_nexus.model.entity.keys.ProjectJuryEventKey;
@@ -20,7 +25,12 @@ import ru.sfedu.mmcs_nexus.model.enums.entity.JuryRelationType;
 import ru.sfedu.mmcs_nexus.model.internal.GradeTableRow;
 import ru.sfedu.mmcs_nexus.model.payload.jury.CreateGradeRequestPayload;
 import ru.sfedu.mmcs_nexus.model.payload.jury.GetGradeTableResponsePayload;
-import ru.sfedu.mmcs_nexus.repository.*;
+import ru.sfedu.mmcs_nexus.repository.EventRepository;
+import ru.sfedu.mmcs_nexus.repository.GradeRepository;
+import ru.sfedu.mmcs_nexus.repository.ProjectEventRepository;
+import ru.sfedu.mmcs_nexus.repository.ProjectJuryEventRepository;
+import ru.sfedu.mmcs_nexus.repository.ProjectRepository;
+import ru.sfedu.mmcs_nexus.repository.UserRepository;
 
 import java.util.Comparator;
 import java.util.List;
@@ -38,9 +48,14 @@ public class GradeService {
     private final GradeRepository gradeRepository;
 
     @Autowired
-    public GradeService(ProjectJuryEventRepository projectJuryEventRepository, ProjectRepository projectRepository,
-                        ProjectEventRepository projectEventRepository, EventRepository eventRepository,
-                        UserRepository userRepository, GradeRepository gradeRepository) {
+    public GradeService(
+            ProjectJuryEventRepository projectJuryEventRepository,
+            ProjectRepository projectRepository,
+            ProjectEventRepository projectEventRepository,
+            EventRepository eventRepository,
+            UserRepository userRepository,
+            GradeRepository gradeRepository
+    ) {
         this.projectJuryEventRepository = projectJuryEventRepository;
         this.projectRepository = projectRepository;
         this.projectEventRepository = projectEventRepository;
@@ -51,40 +66,46 @@ public class GradeService {
 
     @Transactional
     public GradeDTO create(String githubLogin, CreateGradeRequestPayload payload) {
-        User user = userRepository.findByLogin(githubLogin).orElseThrow(() -> new UsernameNotFoundException(STR."User \{githubLogin} is not found"));
+        User user = userRepository.findByLogin(githubLogin)
+                .orElseThrow(() -> new UsernameNotFoundException("User " + githubLogin + " is not found"));
 
         Project project = projectRepository.findById(payload.getProjectId())
-                .orElseThrow(() -> new EntityNotFoundException(STR."Project with id \{payload.getProjectId()} not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Project with id " + payload.getProjectId() + " not found"));
 
         Event event = eventRepository.findById(payload.getEventId())
-                .orElseThrow(() -> new EntityNotFoundException(STR."Event with id \{payload.getEventId()} not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Event with id " + payload.getEventId() + " not found"));
 
         if (!projectEventRepository.existsById(new ProjectEventKey(project.getId(), event.getId()))) {
             throw new EntityNotFoundException("Given project and Event are not linked");
         }
 
-        if (payload.getPresPoints() != null
-                && payload.getPresPoints() > event.getMaxPresPoints()) {
-            throw new WrongGradePointsException(STR."Maximum presentation score for \{event.getName()} is \{event.getMaxPresPoints()}");
+        if (payload.getPresPoints() != null && payload.getPresPoints() > event.getMaxPresPoints()) {
+            throw new WrongGradePointsException("Maximum presentation score for " + event.getName() + " is " + event.getMaxPresPoints());
+        }
 
-        } else if (payload.getBuildPoints() != null
-                && payload.getBuildPoints() > event.getMaxBuildPoints()) {
-            throw new WrongGradePointsException(STR."Maximum build score for \{event.getName()} is \{event.getMaxBuildPoints()}");
-
+        if (payload.getBuildPoints() != null && payload.getBuildPoints() > event.getMaxBuildPoints()) {
+            throw new WrongGradePointsException("Maximum build score for " + event.getName() + " is " + event.getMaxBuildPoints());
         }
 
         JuryRelationType relationType;
-        Optional<ProjectJuryEvent> optionalPje = projectJuryEventRepository.findByProjectIdAndEventIdAndJuryId(project.getId(),event.getId(),user.getId());
+        Optional<ProjectJuryEvent> optionalPje = projectJuryEventRepository.findByProjectIdAndEventIdAndJuryId(
+                project.getId(),
+                event.getId(),
+                user.getId()
+        );
 
         if (optionalPje.isPresent()) {
             relationType = optionalPje.get().getRelationType();
+
             if (relationType == JuryRelationType.MENTOR) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Mentor is not allowed to grade a project assigned to them");
             }
         } else {
             relationType = JuryRelationType.WILLING;
+
             ProjectJuryEventKey key = new ProjectJuryEventKey(project.getId(), user.getId(), event.getId());
             ProjectJuryEvent projectJuryEvent = new ProjectJuryEvent(key, user, project, event, relationType);
+
             projectJuryEventRepository.save(projectJuryEvent);
         }
 
@@ -108,9 +129,11 @@ public class GradeService {
         if (payload.getPresPoints() != null) {
             grade.setPresPoints(payload.getPresPoints());
         }
+
         if (payload.getBuildPoints() != null) {
             grade.setBuildPoints(payload.getBuildPoints());
         }
+
         if (payload.getComment() != null) {
             grade.setComment(payload.getComment());
         }
@@ -122,8 +145,8 @@ public class GradeService {
 
     @Transactional
     public GradeDTO edit(String githubLogin, CreateGradeRequestPayload payload) {
-        User user = userRepository.findByLogin(githubLogin).orElseThrow(
-                () -> new UsernameNotFoundException(STR."User \{githubLogin} is not found"));
+        User user = userRepository.findByLogin(githubLogin)
+                .orElseThrow(() -> new UsernameNotFoundException("User " + githubLogin + " is not found"));
 
         GradeKey key = new GradeKey(
                 payload.getProjectId(),
@@ -132,17 +155,16 @@ public class GradeService {
         );
 
         Grade existingGrade = find(key);
+
         Event event = eventRepository.findById(payload.getEventId())
-                .orElseThrow(() -> new EntityNotFoundException(STR."Event with id \{payload.getEventId()} not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Event with id " + payload.getEventId() + " not found"));
 
-        if (payload.getPresPoints() != null
-                && payload.getPresPoints() > event.getMaxPresPoints()) {
-            throw new WrongGradePointsException(STR."Maximum presentation score for \{event.getName()} is \{event.getMaxPresPoints()}");
+        if (payload.getPresPoints() != null && payload.getPresPoints() > event.getMaxPresPoints()) {
+            throw new WrongGradePointsException("Maximum presentation score for " + event.getName() + " is " + event.getMaxPresPoints());
+        }
 
-        } else if (payload.getBuildPoints() != null
-                && payload.getBuildPoints() > event.getMaxBuildPoints()) {
-            throw new WrongGradePointsException(STR."Maximum build score for \{event.getName()} is \{event.getMaxBuildPoints()}");
-
+        if (payload.getBuildPoints() != null && payload.getBuildPoints() > event.getMaxBuildPoints()) {
+            throw new WrongGradePointsException("Maximum build score for " + event.getName() + " is " + event.getMaxBuildPoints());
         }
 
         existingGrade.setPresPoints(payload.getPresPoints());
@@ -152,29 +174,47 @@ public class GradeService {
         return new GradeDTO(existingGrade);
     }
 
-    public GetGradeTableResponsePayload getTable(String githubLogin, String eventId, GradeTableEnums.ShowFilter showFilter, Integer day) {
-
-        User user = userRepository.findByLogin(githubLogin).orElseThrow(
-                () -> new UsernameNotFoundException(STR."User \{githubLogin} is not found"));
+    public GetGradeTableResponsePayload getTable(
+            String githubLogin,
+            String eventId,
+            GradeTableEnums.ShowFilter showFilter,
+            Integer day
+    ) {
+        User user = userRepository.findByLogin(githubLogin)
+                .orElseThrow(() -> new UsernameNotFoundException("User " + githubLogin + " is not found"));
 
         Event event = eventRepository.findById(UUID.fromString(eventId))
-                .orElseThrow(() -> new EntityNotFoundException(STR."Event with id \{eventId} not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Event with id " + eventId + " not found"));
 
-        //Находим в зависимости от параметра show, в случае all - все проекты привязанные к событию, иначе - только те, с которыми есть связь у отправителя запроса
-        List<Project> eventProjects = findProjectsForEvent(event.getId(), showFilter, user.getId(), day).stream().sorted(Comparator.comparing(Project::getName)).toList();
-        List<UserDTO> eventJuries = findJuriesForEvent(event.getId(), showFilter, user.getId(), day).stream().sorted(Comparator.comparing(UserDTO::getLastName)).toList();
+        List<Project> eventProjects = findProjectsForEvent(event.getId(), showFilter, user.getId(), day).stream()
+                .sorted(Comparator.comparing(Project::getName))
+                .toList();
+
+        List<ProjectDTO> eventProjectDTOs = eventProjects.stream()
+                .map(ProjectDTO::new)
+                .toList();
+
+        List<UserDTO> eventJuries = findJuriesForEvent(event.getId(), showFilter, user.getId(), day).stream()
+                .sorted(Comparator.comparing(UserDTO::getLastName))
+                .toList();
 
         GetGradeTableResponsePayload table = new GetGradeTableResponsePayload();
+
         table.setEvent(event);
         table.setJuries(eventJuries);
-        table.setProjects(eventProjects);
+        table.setProjects(eventProjectDTOs);
 
-        //Создаем строки для объекта таблицы - каждому проекту ставим в соответствие несколько gradeDTO в формате Map
         for (Project project : eventProjects) {
-            UUID mentorId = Optional.ofNullable(getMentor(project.getId(), event.getId())).map(UserDTO::getId).orElse(null);
+            UUID mentorId = Optional.ofNullable(getMentor(project.getId(), event.getId()))
+                    .map(UserDTO::getId)
+                    .orElse(null);
+
             GradeTableRow row = new GradeTableRow(project.getId(), mentorId, project.getName());
-            List<GradeDTO> grades = findByEventAndProject(event.getId(), project.getId())
-                    .stream().map(GradeDTO::new).toList();
+
+            List<GradeDTO> grades = findByEventAndProject(event.getId(), project.getId()).stream()
+                    .map(GradeDTO::new)
+                    .toList();
+
             row.setTableRow(grades);
             table.addGradeRow(row);
         }
@@ -192,7 +232,7 @@ public class GradeService {
 
     private Grade getById(GradeKey key) {
         return gradeRepository.findById(key)
-                .orElseThrow(() -> new EntityNotFoundException(STR."Grade not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Grade not found"));
     }
 
     private boolean existsById(GradeKey key) {
@@ -204,13 +244,19 @@ public class GradeService {
     }
 
     private UserDTO getMentor(UUID projectId, UUID eventId) {
-        Optional<User> mentor = projectJuryEventRepository.findMentorsByProjectIdAndEventId(eventId, projectId).stream().findFirst();
+        Optional<User> mentor = projectJuryEventRepository.findMentorsByProjectIdAndEventId(eventId, projectId)
+                .stream()
+                .findFirst();
+
         return mentor.map(UserDTO::new).orElse(null);
     }
 
-
-    //Это для таблицы оценок, с фильтрацией по типу связи и дню защиты
-    private List<Project> findProjectsForEvent(UUID eventId, GradeTableEnums.ShowFilter showFilter, UUID userId, Integer day) {
+    private List<Project> findProjectsForEvent(
+            UUID eventId,
+            GradeTableEnums.ShowFilter showFilter,
+            UUID userId,
+            Integer day
+    ) {
         return switch (showFilter) {
             case ALL -> projectEventRepository.findProjectsByEventId(eventId, day);
             case ASSIGNED -> projectJuryEventRepository.findProjectByEventAssignedToJury(eventId, userId, day);
@@ -218,13 +264,22 @@ public class GradeService {
         };
     }
 
-    //Это для таблицы оценок, с фильтрацией по типу связи и дню защиты
-    private List<UserDTO> findJuriesForEvent(UUID eventId, GradeTableEnums.ShowFilter showFilter, UUID userId, Integer day) {
+    private List<UserDTO> findJuriesForEvent(
+            UUID eventId,
+            GradeTableEnums.ShowFilter showFilter,
+            UUID userId,
+            Integer day
+    ) {
         return switch (showFilter) {
-            case ALL -> projectJuryEventRepository.findJuriesByEventId(eventId, day).stream().map(UserDTO::new).toList();
-            case ASSIGNED -> projectJuryEventRepository.findJuriesForProjectsAssignedToJuryByEvent(eventId, userId, day).stream().map(UserDTO::new).toList();
-            case MENTORED -> projectJuryEventRepository.findJuriesForProjectsMentoredByJuryByEvent(eventId, userId, day).stream().map(UserDTO::new).toList();
+            case ALL -> projectJuryEventRepository.findJuriesByEventId(eventId, day).stream()
+                    .map(UserDTO::new)
+                    .toList();
+            case ASSIGNED -> projectJuryEventRepository.findJuriesForProjectsAssignedToJuryByEvent(eventId, userId, day).stream()
+                    .map(UserDTO::new)
+                    .toList();
+            case MENTORED -> projectJuryEventRepository.findJuriesForProjectsMentoredByJuryByEvent(eventId, userId, day).stream()
+                    .map(UserDTO::new)
+                    .toList();
         };
-
     }
 }

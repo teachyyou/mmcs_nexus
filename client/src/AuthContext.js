@@ -6,13 +6,14 @@ const AuthContext = createContext({
     userRole: null,
     userId: null,
     user: null,
+    captainProject: null,
     setIsAuthenticated: () => {},
     setUserStatus: () => {},
     setUserRole: () => {},
     setUserId: () => {},
-    setUser: () => {}
+    setUser: () => {},
+    setCaptainProject: () => {},
 });
-
 
 export const AuthProvider = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -20,9 +21,25 @@ export const AuthProvider = ({ children }) => {
     const [userStatus, setUserStatus] = useState(null);
     const [userId, setUserId] = useState(null);
     const [user, setUser] = useState(null);
+    const [captainProject, setCaptainProject] = useState(null);
 
     return (
-        <AuthContext.Provider value={{isAuthenticated, userStatus, userRole, userId, user, setIsAuthenticated, setUserStatus, setUserRole, setUserId, setUser}}>
+        <AuthContext.Provider
+            value={{
+                isAuthenticated,
+                userStatus,
+                userRole,
+                userId,
+                user,
+                captainProject,
+                setIsAuthenticated,
+                setUserStatus,
+                setUserRole,
+                setUserId,
+                setUser,
+                setCaptainProject,
+            }}
+        >
             {children}
         </AuthContext.Provider>
     );
@@ -30,20 +47,19 @@ export const AuthProvider = ({ children }) => {
 
 export const useAuth = () => useContext(AuthContext);
 
-
 export const useIsAdmin = () => {
     const { userRole } = useAuth();
-    return userRole === "ROLE_ADMIN";
+    return userRole === 'ROLE_ADMIN';
 };
 
 export const useIsJury = () => {
     const { userRole } = useAuth();
-    return userRole === "ROLE_ADMIN" || userRole === "ROLE_JURY";
+    return userRole === 'ROLE_ADMIN' || userRole === 'ROLE_JURY';
 };
 
 export const useIsUser = () => {
     const { userRole } = useAuth();
-    return userRole === "ROLE_ADMIN" || userRole === "ROLE_JURY" || userRole === "ROLE_USER";
+    return userRole === 'ROLE_ADMIN' || userRole === 'ROLE_JURY' || userRole === 'ROLE_USER';
 };
 
 export default AuthContext;

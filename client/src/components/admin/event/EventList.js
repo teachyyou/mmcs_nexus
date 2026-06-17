@@ -17,18 +17,40 @@ const EventList = (props) => {
         }
     };
 
+    const renderDate = (value) => {
+        if (!value) {
+            return '-';
+        }
+
+        return new Date(value).toLocaleDateString('ru-RU');
+    };
+
     return (
         <List {...props} exporter={false} perPage={5}>
-            <Datagrid>
+            <Datagrid rowClick="edit">
                 <TextField source="name" label="Название" />
+
                 <FunctionField
                     source="eventType"
                     label="Тип события"
                     render={renderEventType}
                 />
+
                 <TextField source="year" label="Год" />
                 <TextField source="maxBuildPoints" label="Максимум за билд" />
                 <TextField source="maxPresPoints" label="Максимум за презентацию" />
+
+                <FunctionField
+                    source="submissionStartDate"
+                    label="Начало сдачи"
+                    render={(record) => renderDate(record.submissionStartDate)}
+                />
+
+                <FunctionField
+                    source="submissionDeadlineDate"
+                    label="Дедлайн"
+                    render={(record) => renderDate(record.submissionDeadlineDate)}
+                />
             </Datagrid>
         </List>
     );

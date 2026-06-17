@@ -17,7 +17,6 @@ public class AssignJuriesRequestPayload {
     private String projectId;
 
     @UUID
-    @NotNull
     private String eventId;
 
     @NotNull(message = "willingJuries cannot be null")

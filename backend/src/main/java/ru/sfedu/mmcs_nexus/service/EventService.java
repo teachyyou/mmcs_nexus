@@ -51,6 +51,11 @@ public class EventService {
                 payload.getMaxPresPoints(),
                 payload.getMaxBuildPoints()
         );
+
+        validateSubmissionWindow(payload);
+
+        event.setSubmissionStartDate(payload.getSubmissionStartDate());
+        event.setSubmissionDeadlineDate(payload.getSubmissionDeadlineDate());
         eventRepository.save(event);
     }
 
@@ -58,11 +63,16 @@ public class EventService {
     public Event edit(String eventId, CreateEventRequestPayload payload) {
         Event event = getById(eventId);
 
+        validateSubmissionWindow(payload);
+
         event.setName(payload.getName());
         event.setEventType(payload.getEventType());
         event.setYear(payload.getYear());
         event.setMaxPresPoints(payload.getMaxPresPoints());
         event.setMaxBuildPoints(payload.getMaxBuildPoints());
+
+        event.setSubmissionStartDate(payload.getSubmissionStartDate());
+        event.setSubmissionDeadlineDate(payload.getSubmissionDeadlineDate());
 
         return event;
     }
@@ -76,6 +86,16 @@ public class EventService {
 
     private Event getById(String id) throws EntityNotFoundException {
         return eventRepository.findById(UUID.fromString(id))
-                .orElseThrow(() -> new EntityNotFoundException(STR."Event with id \{id} not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Event with id " + id + " not found"));
+    }
+
+    private void validateSubmissionWindow(CreateEventRequestPayload payload) {
+        if (payload.getSubmissionStartDate() == null || payload.getSubmissionDeadlineDate() == null) {
+            return;
+        }
+
+        if (payload.getSubmissionStartDate().isAfter(payload.getSubmissionDeadlineDate())) {
+            throw new IllegalArgumentException("Submission start date must be before or equal to submission deadline date");
+        }
     }
 }

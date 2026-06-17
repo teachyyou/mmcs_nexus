@@ -1,4 +1,4 @@
-package ru.sfedu.mmcs_nexus.controller.v1.user;
+package ru.sfedu.mmcs_nexus.controller.publicapi;
 
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;

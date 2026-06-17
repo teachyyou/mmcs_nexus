@@ -158,14 +158,6 @@ const GradeTablePage = () => {
     return (
         <Fade in={mounted} timeout={220}>
             <Container maxWidth="xl" sx={{ mt: 2 }}>
-                <Box sx={{ mb: 2 }}>
-                    <Typography variant="h5" sx={{ fontWeight: 700, mb: 0.5 }}>
-                        Просмотр оценок по событию
-                    </Typography>
-                    <Typography variant="body2" sx={{ opacity: 0.8 }}>
-                        Выберите год и этап отчётности, при необходимости отфильтруйте по дню защиты.
-                    </Typography>
-                </Box>
 
                 <Grid container spacing={2} alignItems="flex-start">
                     {/* ЛЕВАЯ КОЛОНКА — ФИЛЬТРЫ */}
@@ -184,7 +176,7 @@ const GradeTablePage = () => {
                                 <FormControl fullWidth margin="normal">
                                     <InputLabel>Год</InputLabel>
                                     <Select value={year} onChange={handleYearChange} label="Год">
-                                        {years.map(y => <MenuItem key={y} value={y}>{y}</MenuItem>)}
+                                        {years.map(y => <MenuItem key={y} value={y}>{y}-{y+1}</MenuItem>)}
                                     </Select>
                                 </FormControl>
 

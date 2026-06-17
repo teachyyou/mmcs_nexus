@@ -15,6 +15,8 @@ services:
   backend:
     build:
       context: "./backend"
+      args:
+        SKIP_TESTS: "true"
     container_name: nexus_backend
     hostname: backend
     environment:
@@ -25,6 +27,9 @@ services:
       GITHUB_CLIENT_ID: $GITHUB_CLIENT_ID
       GITHUB_CLIENT_SECRET: $GITHUB_CLIENT_SECRET
       BASE_URL: $BASE_URL
+      UPLOADS_DIR: /data/uploads
+    volumes:
+      - $POSTS_UPLOAD_PATH:/data/uploads
 
   client:
     image: node:20-alpine
