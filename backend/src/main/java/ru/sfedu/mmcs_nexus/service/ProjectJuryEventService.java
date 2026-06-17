@@ -41,6 +41,8 @@ public class ProjectJuryEventService {
     @Transactional
     public void assignJuries(AssignJuriesRequestPayload payload) {
 
+        validateAssignJuriesRequest(payload);
+
         UUID projectId = UUID.fromString(payload.getProjectId());
         UUID eventId = UUID.fromString(payload.getEventId());
 
@@ -103,6 +105,12 @@ public class ProjectJuryEventService {
         }
 
         return payload;
+    }
+
+    private void validateAssignJuriesRequest(AssignJuriesRequestPayload request) {
+        if (!request.isApplyToAllEvents() && request.getEventId() == null) {
+            throw new IllegalArgumentException("eventId is required when applyToAllEvents is false");
+        }
     }
 
     private void assignJuriesForEvent(Project project, Event event, List<UUID> mentors, List<UUID> obliged,List<UUID> willing) {

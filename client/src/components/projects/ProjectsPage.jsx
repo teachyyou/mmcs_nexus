@@ -107,9 +107,6 @@ const ProjectsPage = () => {
                     <Typography variant="h3" sx={{ fontWeight: 800, mb: 1 }}>
                         Проекты
                     </Typography>
-                    <Typography color="text.secondary">
-                        Найдите свой проект и привяжитесь к нему как капитан команды.
-                    </Typography>
                 </Box>
 
                 {loading && (

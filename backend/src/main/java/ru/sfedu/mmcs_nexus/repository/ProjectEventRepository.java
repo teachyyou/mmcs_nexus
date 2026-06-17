@@ -28,6 +28,15 @@ public interface ProjectEventRepository extends JpaRepository<ProjectEvent, Proj
     Page<Project> findProjectsByEventId(@Param("eventId") UUID eventId, @Param("day") Integer day, Pageable pageable);
 
     @Query("""
+        select p
+        from ProjectEvent pe
+        join pe.project p
+        where pe.event.id = :eventId
+        order by p.name asc
+        """)
+    Page<Project> findProjectsByEventId(@Param("eventId") UUID eventId, Pageable pageable);
+
+    @Query("""
   SELECT p
   FROM ProjectEvent pe
   JOIN pe.project p

@@ -2,10 +2,14 @@ package ru.sfedu.mmcs_nexus.service;
 
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import ru.sfedu.mmcs_nexus.model.dto.entity.JuryProjectSubmissionDTO;
+import ru.sfedu.mmcs_nexus.model.dto.entity.JurySubmissionEventDTO;
 import ru.sfedu.mmcs_nexus.model.dto.entity.ProjectEventSubmissionDTO;
 import ru.sfedu.mmcs_nexus.model.dto.entity.ProjectEventSubmissionItemDTO;
 import ru.sfedu.mmcs_nexus.model.entity.Event;
@@ -15,13 +19,11 @@ import ru.sfedu.mmcs_nexus.model.entity.User;
 import ru.sfedu.mmcs_nexus.model.entity.keys.ProjectEventKey;
 import ru.sfedu.mmcs_nexus.model.enums.entity.SubmissionAvailabilityStatus;
 import ru.sfedu.mmcs_nexus.model.enums.entity.UserEnums;
+import ru.sfedu.mmcs_nexus.model.internal.PaginationPayload;
+import ru.sfedu.mmcs_nexus.model.payload.jury.GetJurySubmissionEventsResponsePayload;
 import ru.sfedu.mmcs_nexus.model.payload.user.GetProjectEventSubmissionsResponsePayload;
 import ru.sfedu.mmcs_nexus.model.payload.user.SaveProjectEventSubmissionRequestPayload;
-import ru.sfedu.mmcs_nexus.repository.EventRepository;
-import ru.sfedu.mmcs_nexus.repository.ProjectEventRepository;
-import ru.sfedu.mmcs_nexus.repository.ProjectEventSubmissionRepository;
-import ru.sfedu.mmcs_nexus.repository.ProjectRepository;
-import ru.sfedu.mmcs_nexus.repository.UserRepository;
+import ru.sfedu.mmcs_nexus.repository.*;
 
 import java.time.LocalDate;
 import java.util.Comparator;
@@ -88,6 +90,52 @@ public class ProjectEventSubmissionService {
         UUID defaultEventId = chooseDefaultEventId(items);
 
         return new GetProjectEventSubmissionsResponsePayload(defaultEventId, items);
+    }
+
+    public GetJurySubmissionEventsResponsePayload getJurySubmissionEvents(Integer year) {
+        List<JurySubmissionEventDTO> events = eventRepository.findAllByYearOrderByNameAsc(year).stream()
+                .sorted(Comparator.comparing(Event::getSubmissionStartDate, Comparator.nullsLast(Comparator.naturalOrder()))
+                        .thenComparing(Event::getSubmissionDeadlineDate, Comparator.nullsLast(Comparator.naturalOrder()))
+                        .thenComparing(Event::getName))
+                .map(event -> new JurySubmissionEventDTO(event, getStatus(event)))
+                .toList();
+
+        UUID defaultEventId = chooseDefaultJuryEventId(events);
+
+        return new GetJurySubmissionEventsResponsePayload(defaultEventId, events);
+    }
+
+    public Page<JuryProjectSubmissionDTO> getJurySubmissionsByEvent(String eventId, PaginationPayload paginationPayload) {
+        Event event = getEvent(eventId);
+        Pageable pageable = paginationPayload.getPageable();
+
+        Page<Project> projects = projectEventRepository.findProjectsByEventId(event.getId(), pageable);
+        List<ProjectEventSubmission> submissions = projectEventSubmissionRepository.findAllByEventId(event.getId());
+
+        return projects.map(project -> {
+            ProjectEventSubmission submission = submissions.stream()
+                    .filter(item -> item.getProject().getId().equals(project.getId()))
+                    .findFirst()
+                    .orElse(null);
+
+            return new JuryProjectSubmissionDTO(project, submission);
+        });
+    }
+
+    private UUID chooseDefaultJuryEventId(List<JurySubmissionEventDTO> events) {
+        return events.stream()
+                .filter(event -> event.getSubmissionStatus() == SubmissionAvailabilityStatus.OPEN)
+                .map(JurySubmissionEventDTO::getId)
+                .findFirst()
+                .orElseGet(() -> events.stream()
+                        .filter(event -> event.getSubmissionStatus() == SubmissionAvailabilityStatus.FUTURE)
+                        .map(JurySubmissionEventDTO::getId)
+                        .findFirst()
+                        .orElseGet(() -> events.stream()
+                                .filter(event -> event.getSubmissionStatus() == SubmissionAvailabilityStatus.CLOSED)
+                                .reduce((first, second) -> second)
+                                .map(JurySubmissionEventDTO::getId)
+                                .orElse(null)));
     }
 
     @Transactional
