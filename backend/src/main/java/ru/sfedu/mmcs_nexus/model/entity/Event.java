@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 import ru.sfedu.mmcs_nexus.model.enums.entity.EventType;
 
+import java.time.LocalDate;
 import java.util.UUID;
 
 @Entity
@@ -24,6 +25,12 @@ public class Event {
     private Integer year;
     private Integer maxPresPoints;
     private Integer maxBuildPoints;
+
+    @Column(name = "submission_start_date")
+    private LocalDate submissionStartDate;
+
+    @Column(name = "submission_deadline_date")
+    private LocalDate submissionDeadlineDate;
 
     public Event() {}
 

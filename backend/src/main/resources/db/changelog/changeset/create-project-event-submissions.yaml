@@ -1,0 +1,106 @@
+databaseChangeLog:
+  - changeSet:
+      id: create-project-event-submissions-1
+      author: TeachYou
+      changes:
+        - createTable:
+            tableName: project_event_submissions
+            columns:
+              - column:
+                  name: project_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: event_id
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: presentation_url
+                  type: varchar(1024)
+              - column:
+                  name: repository_url
+                  type: varchar(1024)
+              - column:
+                  name: release_url
+                  type: varchar(1024)
+              - column:
+                  name: comment
+                  type: text
+              - column:
+                  name: submitted_by_uuid
+                  type: uuid
+                  constraints:
+                    nullable: false
+              - column:
+                  name: created_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+              - column:
+                  name: updated_at
+                  type: timestamp
+                  constraints:
+                    nullable: false
+
+        - addPrimaryKey:
+            tableName: project_event_submissions
+            columnNames: project_id, event_id
+            constraintName: pk_project_event_submissions
+
+        - addForeignKeyConstraint:
+            constraintName: fk_project_event_submissions_project_event
+            baseTableName: project_event_submissions
+            baseColumnNames: project_id, event_id
+            referencedTableName: project_event
+            referencedColumnNames: project_id, event_id
+            onDelete: CASCADE
+
+        - addForeignKeyConstraint:
+            constraintName: fk_project_event_submissions_submitted_by
+            baseTableName: project_event_submissions
+            baseColumnNames: submitted_by_uuid
+            referencedTableName: users
+            referencedColumnNames: id
+            onDelete: CASCADE
+
+        - createIndex:
+            tableName: project_event_submissions
+            indexName: idx_project_event_submissions_project_id
+            columns:
+              - column:
+                  name: project_id
+
+        - createIndex:
+            tableName: project_event_submissions
+            indexName: idx_project_event_submissions_event_id
+            columns:
+              - column:
+                  name: event_id
+
+        - createIndex:
+            tableName: project_event_submissions
+            indexName: idx_project_event_submissions_submitted_by
+            columns:
+              - column:
+                  name: submitted_by_uuid
+
+      rollback:
+        - dropIndex:
+            tableName: project_event_submissions
+            indexName: idx_project_event_submissions_submitted_by
+        - dropIndex:
+            tableName: project_event_submissions
+            indexName: idx_project_event_submissions_event_id
+        - dropIndex:
+            tableName: project_event_submissions
+            indexName: idx_project_event_submissions_project_id
+        - dropForeignKeyConstraint:
+            baseTableName: project_event_submissions
+            constraintName: fk_project_event_submissions_submitted_by
+        - dropForeignKeyConstraint:
+            baseTableName: project_event_submissions
+            constraintName: fk_project_event_submissions_project_event
+        - dropTable:
+            tableName: project_event_submissions

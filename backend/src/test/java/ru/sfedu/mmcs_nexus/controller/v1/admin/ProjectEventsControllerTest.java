@@ -13,7 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.web.server.ResponseStatusException;
-import ru.sfedu.mmcs_nexus.controller.v1.user.PublicProjectController;
+import ru.sfedu.mmcs_nexus.controller.publicapi.PublicProjectController;
 import ru.sfedu.mmcs_nexus.model.entity.Event;
 import ru.sfedu.mmcs_nexus.model.entity.Project;
 import ru.sfedu.mmcs_nexus.model.enums.entity.EventType;

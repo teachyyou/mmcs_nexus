@@ -44,11 +44,17 @@ public class SecurityConfig {
                     auth.requestMatchers("/api/v1/auth/**").permitAll();
                     auth.requestMatchers("/api/v1/media/**").permitAll();
                     auth.requestMatchers("/api/v1/public/**").permitAll();
+                    auth.requestMatchers("/api/v1/user/**").hasRole("USER");
                     auth.requestMatchers("/api/v1/admin/**").hasRole("ADMIN");
                     auth.requestMatchers("/api/v1/jury/**").hasRole("JURY");
                     auth.anyRequest().authenticated();
                 })
-                .csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.ignoringRequestMatchers("/api/v1/auth/**", "api/v1/admin/**", "/api/v1/jury/**"))
+                .csrf(httpSecurityCsrfConfigurer -> httpSecurityCsrfConfigurer.ignoringRequestMatchers(
+                        "/api/v1/auth/**",
+                        "/api/v1/admin/**",
+                        "/api/v1/jury/**",
+                        "/api/v1/user/**"
+                ))
                 .cors(Customizer.withDefaults()) // Enable CORS
                 .logout(logout -> logout
                         .logoutUrl("/api/v1/auth/logout")

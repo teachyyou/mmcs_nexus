@@ -15,6 +15,7 @@ import ru.sfedu.mmcs_nexus.config.SecurityConfig;
 import ru.sfedu.mmcs_nexus.model.dto.entity.UserDTO;
 import ru.sfedu.mmcs_nexus.model.entity.User;
 import ru.sfedu.mmcs_nexus.model.enums.entity.UserEnums;
+import ru.sfedu.mmcs_nexus.service.ProjectService;
 import ru.sfedu.mmcs_nexus.service.UserService;
 
 import java.util.Map;
@@ -23,9 +24,7 @@ import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.oauth2Login;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
@@ -47,6 +46,9 @@ class AuthControllerTest {
 
     @MockBean
     private UserService userService;
+
+    @MockBean
+    private ProjectService projectService;
 
     @Test
     void shouldReturnGuestStatusWhenUserIsNotAuthenticated() throws Exception {

@@ -12,6 +12,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import ru.sfedu.mmcs_nexus.model.dto.entity.ProjectDTO;
 import ru.sfedu.mmcs_nexus.model.entity.Project;
 import ru.sfedu.mmcs_nexus.model.internal.PaginationPayload;
 import ru.sfedu.mmcs_nexus.model.payload.admin.CreateProjectRequestPayload;
@@ -30,13 +31,8 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.put;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @WebMvcTest(AdminProjectController.class)
 @AutoConfigureMockMvc(addFilters = false)
@@ -65,7 +61,7 @@ class AdminProjectsControllerTest {
         Project project = createProject();
 
         when(projectService.findAll(isNull(), any(PaginationPayload.class)))
-                .thenReturn(new PageImpl<>(List.of(project)));
+                .thenReturn(new PageImpl<>(List.of(new ProjectDTO(project))));
 
         mockMvc.perform(get("/api/v1/admin/projects"))
                 .andExpect(status().isOk())

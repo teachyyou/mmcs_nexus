@@ -1,4 +1,4 @@
-package ru.sfedu.mmcs_nexus.controller.v1.user;
+package ru.sfedu.mmcs_nexus.controller.publicapi;
 
 import org.hibernate.validator.constraints.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
