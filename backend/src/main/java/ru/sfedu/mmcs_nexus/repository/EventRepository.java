@@ -18,4 +18,6 @@ public interface EventRepository extends JpaRepository<Event, UUID>  {
 
     Page<Event> findByYear(Integer year, Pageable pageable);
 
+    List<Event> findAllByYearOrderByNameAsc(Integer year);
+
 }

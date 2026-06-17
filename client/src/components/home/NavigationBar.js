@@ -35,6 +35,7 @@ export default function NavigationBar() {
         user,
         captainProject,
     } = useAuth();
+
     const isAdmin = useIsAdmin();
     const isJury = useIsJury();
     const isUser = useIsUser();
@@ -151,48 +152,58 @@ export default function NavigationBar() {
                         Главная
                     </Box>
 
-                    <Button
-                        component={Link}
-                        to="/projects"
-                        color="inherit"
-                        sx={{
-                            ml: 2,
-                            opacity: isAuthenticated && isUser ? 1 : 0,
-                            pointerEvents: isAuthenticated && isUser ? 'auto' : 'none',
-                            transition: 'opacity 180ms ease',
-                            whiteSpace: 'nowrap',
-                        }}
-                    >
-                        {!isNarrow && 'Проекты'}
-                    </Button>
+                    {isAuthenticated && isUser && (
+                        <Button
+                            component={Link}
+                            to="/projects"
+                            color="inherit"
+                            sx={{
+                                ml: 2,
+                                whiteSpace: 'nowrap',
+                            }}
+                        >
+                            {!isNarrow && 'Проекты'}
+                        </Button>
+                    )}
 
-                    <Button
-                        component={Link}
-                        to="/admin"
-                        color="inherit"
-                        sx={{
-                            opacity: isAuthenticated && isAdmin ? 1 : 0,
-                            pointerEvents: isAuthenticated && isAdmin ? 'auto' : 'none',
-                            transition: 'opacity 180ms ease',
-                            whiteSpace: 'nowrap',
-                        }}
-                    >
-                        {!isNarrow && 'Админка'}
-                    </Button>
+                    {isAuthenticated && isAdmin && (
+                        <Button
+                            component={Link}
+                            to="/admin"
+                            color="inherit"
+                            sx={{
+                                whiteSpace: 'nowrap',
+                            }}
+                        >
+                            {!isNarrow && 'Админка'}
+                        </Button>
+                    )}
 
-                    <Button
-                        component={Link}
-                        to="/grades"
-                        color="inherit"
-                        sx={{
-                            opacity: isAuthenticated && isJury ? 1 : 0,
-                            pointerEvents: isAuthenticated && isJury ? 'auto' : 'none',
-                            transition: 'opacity 180ms ease',
-                            whiteSpace: 'nowrap',
-                        }}
-                    >
-                        {!isNarrow && 'Оценки'}
-                    </Button>
+                    {isAuthenticated && isJury && (
+                        <Button
+                            component={Link}
+                            to="/grades"
+                            color="inherit"
+                            sx={{
+                                whiteSpace: 'nowrap',
+                            }}
+                        >
+                            {!isNarrow && 'Оценки'}
+                        </Button>
+                    )}
+
+                    {isAuthenticated && isJury && (
+                        <Button
+                            component={Link}
+                            to="/submissions"
+                            color="inherit"
+                            sx={{
+                                whiteSpace: 'nowrap',
+                            }}
+                        >
+                            {!isNarrow && 'Загрузки'}
+                        </Button>
+                    )}
                 </Box>
 
                 <Box

@@ -6,6 +6,7 @@ import HomePage from './components/home/HomePage';
 import LoginPage from './components/login/LoginPage';
 import AuthenticatedAndVerifiedRoutes from './components/routes/AuthenticatedAndVerifiedRoutes';
 import GradeTablePage from './components/jury/GradeTablePage';
+import ProjectSubmissionsReviewPage from './components/jury/ProjectSubmissionsReviewPage';
 import { Admin, Resource } from 'react-admin';
 import AdminLayout from './components/admin/AdminLayout';
 import UserList from './components/admin/userlist/UserList';
@@ -102,6 +103,7 @@ export default function AppContent() {
 
                     <Route element={<AuthenticatedAndVerifiedRoutes roleRequired="ROLE_JURY" />}>
                         <Route path="/grades" element={<GradeTablePage />} />
+                        <Route path="/submissions" element={<ProjectSubmissionsReviewPage />} />
                     </Route>
 
                     <Route element={<AuthenticatedAndVerifiedRoutes roleRequired="ROLE_ADMIN" />}>

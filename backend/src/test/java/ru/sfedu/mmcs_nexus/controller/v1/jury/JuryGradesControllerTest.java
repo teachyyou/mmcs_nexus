@@ -17,6 +17,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import ru.sfedu.mmcs_nexus.config.SecurityConfig;
 import ru.sfedu.mmcs_nexus.exceptions.WrongGradePointsException;
 import ru.sfedu.mmcs_nexus.model.dto.entity.GradeDTO;
+import ru.sfedu.mmcs_nexus.model.dto.entity.ProjectDTO;
 import ru.sfedu.mmcs_nexus.model.entity.Event;
 import ru.sfedu.mmcs_nexus.model.entity.Grade;
 import ru.sfedu.mmcs_nexus.model.entity.Project;
@@ -101,7 +102,7 @@ class JuryGradesControllerTest {
 
         GetGradeTableResponsePayload table = new GetGradeTableResponsePayload();
         table.setEvent(event);
-        table.setProjects(List.of(project));
+        table.setProjects(List.of(project).stream().map(ProjectDTO::new).toList());
         table.setJuries(List.of(new ru.sfedu.mmcs_nexus.model.dto.entity.UserDTO(jury)));
 
         GradeTableRow row = new GradeTableRow(project.getId(), null, project.getName());

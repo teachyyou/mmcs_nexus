@@ -14,5 +14,7 @@ public interface ProjectEventSubmissionRepository extends JpaRepository<ProjectE
 
     Optional<ProjectEventSubmission> findByProjectIdAndEventId(UUID projectId, UUID eventId);
 
+    List<ProjectEventSubmission> findAllByEventId(UUID eventId);
+
     List<ProjectEventSubmission> findAllByProjectId(UUID projectId);
 }
