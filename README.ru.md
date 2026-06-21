@@ -152,5 +152,3 @@ http://localhost:3000
 ```sh
 docker compose down
 ```
-
-```
